@@ -54,47 +54,88 @@ function getMajorSymbol(number: number): { roman: string; symbol: string } {
   return { roman: romans[number] || "", symbol: symbols[number] || "✦" }
 }
 
-// === Фоновый мистический узор для каждой карты ===
-function MysticalBackground({ accent }: { accent: string }) {
+// === Мистические узоры по краям карты (бордюр) — центр остаётся чистым для иллюстрации ===
+function EdgeOrnaments({ accent }: { accent: string }) {
   return (
-    <g opacity="0.35">
-      {/* Радиальные лучи от центра */}
-      {Array.from({ length: 16 }).map((_, i) => {
-        const a = (i / 16) * Math.PI * 2
-        return (
-          <line
-            key={`ray-${i}`}
-            x1={100 + Math.cos(a) * 30}
-            y1={160 + Math.sin(a) * 30}
-            x2={100 + Math.cos(a) * 90}
-            y2={160 + Math.sin(a) * 90}
-            stroke={accent}
-            strokeWidth="0.3"
-            opacity="0.4"
-          />
-        )
-      })}
+    <g opacity="0.85">
+      {/* === ВЕРХНИЙ БОРДЮР (между угловой плашкой и центром) === */}
+      {/* Линия-разделитель */}
+      <line x1="50" y1="42" x2="150" y2="42" stroke={accent} strokeWidth="0.6" opacity="0.7"/>
+      <line x1="55" y1="45" x2="145" y2="45" stroke={accent} strokeWidth="0.3" opacity="0.4"/>
 
-      {/* Концентрические круги */}
-      <circle cx="100" cy="160" r="80" fill="none" stroke={accent} strokeWidth="0.3" opacity="0.4"/>
-      <circle cx="100" cy="160" r="70" fill="none" stroke={accent} strokeWidth="0.2" opacity="0.3" strokeDasharray="1 3"/>
-      <circle cx="100" cy="160" r="55" fill="none" stroke={accent} strokeWidth="0.3" opacity="0.4"/>
+      {/* Центральный медальон сверху — ромб с точкой */}
+      <g transform="translate(100, 42)">
+        <path d="M 0 -5 L 5 0 L 0 5 L -5 0 Z" fill="none" stroke={accent} strokeWidth="0.8" opacity="0.85"/>
+        <path d="M 0 -3 L 3 0 L 0 3 L -3 0 Z" fill={accent} opacity="0.4"/>
+        <circle r="1" fill={accent}/>
+      </g>
+      {/* Тройные точки по бокам от медальона */}
+      <circle cx="80" cy="42" r="0.8" fill={accent} opacity="0.7"/>
+      <circle cx="75" cy="42" r="0.6" fill={accent} opacity="0.5"/>
+      <circle cx="70" cy="42" r="0.5" fill={accent} opacity="0.4"/>
+      <circle cx="120" cy="42" r="0.8" fill={accent} opacity="0.7"/>
+      <circle cx="125" cy="42" r="0.6" fill={accent} opacity="0.5"/>
+      <circle cx="130" cy="42" r="0.5" fill={accent} opacity="0.4"/>
+      {/* Декоративные завитки */}
+      <path d="M 50 42 Q 53 39 56 42 Q 53 45 50 42" fill="none" stroke={accent} strokeWidth="0.4" opacity="0.6"/>
+      <path d="M 150 42 Q 147 39 144 42 Q 147 45 150 42" fill="none" stroke={accent} strokeWidth="0.4" opacity="0.6"/>
 
-      {/* Звёзды по кругу */}
-      {Array.from({ length: 8 }).map((_, i) => {
-        const a = (i / 8) * Math.PI * 2 - Math.PI / 2
-        const x = 100 + Math.cos(a) * 70
-        const y = 160 + Math.sin(a) * 70
-        return (
-          <text key={`star-${i}`} x={x} y={y + 2} fontSize="5" textAnchor="middle" fill={accent} opacity="0.6">✦</text>
-        )
-      })}
+      {/* === НИЖНИЙ БОРДЮР (над плашкой с названием) === */}
+      <line x1="50" y1="258" x2="150" y2="258" stroke={accent} strokeWidth="0.6" opacity="0.7"/>
+      <line x1="55" y1="261" x2="145" y2="261" stroke={accent} strokeWidth="0.3" opacity="0.4"/>
 
-      {/* Древние руны по углам */}
-      <text x="22" y="155" fontSize="9" fill={accent} opacity="0.5">ᚦ</text>
-      <text x="172" y="155" fontSize="9" fill={accent} opacity="0.5">ᛗ</text>
-      <text x="22" y="195" fontSize="9" fill={accent} opacity="0.5">ᛟ</text>
-      <text x="172" y="195" fontSize="9" fill={accent} opacity="0.5">ᛇ</text>
+      {/* Центральный медальон снизу — звезда */}
+      <g transform="translate(100, 258)">
+        <path d="M 0 -5 L 1.5 -1.5 L 5 -1.5 L 2 1 L 3.5 5 L 0 2.5 L -3.5 5 L -2 1 L -5 -1.5 L -1.5 -1.5 Z" fill={accent} opacity="0.7"/>
+        <circle r="0.8" fill="rgba(255,255,255,0.9)"/>
+      </g>
+      <circle cx="80" cy="258" r="0.8" fill={accent} opacity="0.7"/>
+      <circle cx="75" cy="258" r="0.6" fill={accent} opacity="0.5"/>
+      <circle cx="70" cy="258" r="0.5" fill={accent} opacity="0.4"/>
+      <circle cx="120" cy="258" r="0.8" fill={accent} opacity="0.7"/>
+      <circle cx="125" cy="258" r="0.6" fill={accent} opacity="0.5"/>
+      <circle cx="130" cy="258" r="0.5" fill={accent} opacity="0.4"/>
+      <path d="M 50 258 Q 53 255 56 258 Q 53 261 50 258" fill="none" stroke={accent} strokeWidth="0.4" opacity="0.6"/>
+      <path d="M 150 258 Q 147 255 144 258 Q 147 261 150 258" fill="none" stroke={accent} strokeWidth="0.4" opacity="0.6"/>
+
+      {/* === ЛЕВЫЙ БОРДЮР (вертикальные элементы) === */}
+      {/* Древние руны сверху-середина-снизу */}
+      <text x="25" y="100" fontSize="9" textAnchor="middle" fill={accent} opacity="0.7">ᚠ</text>
+      <text x="25" y="160" fontSize="10" textAnchor="middle" fill={accent} opacity="0.8">ᛉ</text>
+      <text x="25" y="220" fontSize="9" textAnchor="middle" fill={accent} opacity="0.7">ᛟ</text>
+      {/* Тонкие вертикальные линии */}
+      <line x1="20" y1="70" x2="20" y2="90" stroke={accent} strokeWidth="0.4" opacity="0.5"/>
+      <line x1="20" y1="110" x2="20" y2="145" stroke={accent} strokeWidth="0.4" opacity="0.4"/>
+      <line x1="20" y1="175" x2="20" y2="210" stroke={accent} strokeWidth="0.4" opacity="0.4"/>
+      <line x1="20" y1="230" x2="20" y2="250" stroke={accent} strokeWidth="0.4" opacity="0.5"/>
+      {/* Малые звёзды */}
+      <text x="25" y="130" fontSize="4" textAnchor="middle" fill={accent} opacity="0.6">✦</text>
+      <text x="25" y="190" fontSize="4" textAnchor="middle" fill={accent} opacity="0.6">✦</text>
+
+      {/* === ПРАВЫЙ БОРДЮР (зеркально левому) === */}
+      <text x="175" y="100" fontSize="9" textAnchor="middle" fill={accent} opacity="0.7">ᚦ</text>
+      <text x="175" y="160" fontSize="10" textAnchor="middle" fill={accent} opacity="0.8">ᛗ</text>
+      <text x="175" y="220" fontSize="9" textAnchor="middle" fill={accent} opacity="0.7">ᛇ</text>
+      <line x1="180" y1="70" x2="180" y2="90" stroke={accent} strokeWidth="0.4" opacity="0.5"/>
+      <line x1="180" y1="110" x2="180" y2="145" stroke={accent} strokeWidth="0.4" opacity="0.4"/>
+      <line x1="180" y1="175" x2="180" y2="210" stroke={accent} strokeWidth="0.4" opacity="0.4"/>
+      <line x1="180" y1="230" x2="180" y2="250" stroke={accent} strokeWidth="0.4" opacity="0.5"/>
+      <text x="175" y="130" fontSize="4" textAnchor="middle" fill={accent} opacity="0.6">✦</text>
+      <text x="175" y="190" fontSize="4" textAnchor="middle" fill={accent} opacity="0.6">✦</text>
+
+      {/* === УГЛОВЫЕ ДЕКОРАТИВНЫЕ ЭЛЕМЕНТЫ (между плашками) === */}
+      {/* Верхний-левый угол */}
+      <path d="M 50 50 Q 50 55 45 55" fill="none" stroke={accent} strokeWidth="0.5" opacity="0.6"/>
+      <path d="M 50 50 L 53 53" stroke={accent} strokeWidth="0.5" opacity="0.5"/>
+      {/* Верхний-правый */}
+      <path d="M 150 50 Q 150 55 155 55" fill="none" stroke={accent} strokeWidth="0.5" opacity="0.6"/>
+      <path d="M 150 50 L 147 53" stroke={accent} strokeWidth="0.5" opacity="0.5"/>
+      {/* Нижний-левый */}
+      <path d="M 50 250 Q 50 245 45 245" fill="none" stroke={accent} strokeWidth="0.5" opacity="0.6"/>
+      <path d="M 50 250 L 53 247" stroke={accent} strokeWidth="0.5" opacity="0.5"/>
+      {/* Нижний-правый */}
+      <path d="M 150 250 Q 150 245 155 245" fill="none" stroke={accent} strokeWidth="0.5" opacity="0.6"/>
+      <path d="M 150 250 L 147 247" stroke={accent} strokeWidth="0.5" opacity="0.5"/>
     </g>
   )
 }
@@ -1862,18 +1903,23 @@ export function CardSVG({ card, isReversed = false, width = 200, height = 320, c
           <stop offset="50%" stopColor="#2d1b4e" stopOpacity="0.98"/>
           <stop offset="100%" stopColor="#1a0f2e" stopOpacity="0.98"/>
         </linearGradient>
-        {/* Радиальное свечение от центра */}
-        <radialGradient id={`glow-${card.id}`} cx="50%" cy="50%" r="60%">
-          <stop offset="0%" stopColor={accentColor} stopOpacity="0.3"/>
-          <stop offset="50%" stopColor={accentColor} stopOpacity="0.1"/>
+        {/* Лёгкое радиальное свечение — мягкое, не мешает иллюстрации */}
+        <radialGradient id={`glow-${card.id}`} cx="50%" cy="50%" r="70%">
+          <stop offset="0%" stopColor={accentColor} stopOpacity="0.18"/>
+          <stop offset="60%" stopColor={accentColor} stopOpacity="0.05"/>
           <stop offset="100%" stopColor={accentColor} stopOpacity="0"/>
         </radialGradient>
-        {/* Звёздный паттерн */}
-        <pattern id={`stars-${card.id}`} width="25" height="25" patternUnits="userSpaceOnUse">
-          <circle cx="3" cy="3" r="0.6" fill="rgba(255,255,255,0.5)"/>
-          <circle cx="14" cy="11" r="0.4" fill="rgba(255,255,255,0.4)"/>
-          <circle cx="8" cy="18" r="0.4" fill="rgba(255,255,255,0.3)"/>
-          <circle cx="20" cy="20" r="0.3" fill="rgba(255,255,255,0.3)"/>
+        {/* Звёздный паттерн — только в углах, центр чистый для иллюстрации */}
+        <pattern id={`stars-${card.id}`} width="200" height="320" patternUnits="userSpaceOnUse">
+          {/* Угловые созвездия */}
+          <circle cx="15" cy="15" r="0.5" fill="rgba(255,255,255,0.4)"/>
+          <circle cx="25" cy="22" r="0.4" fill="rgba(255,255,255,0.3)"/>
+          <circle cx="185" cy="15" r="0.5" fill="rgba(255,255,255,0.4)"/>
+          <circle cx="175" cy="22" r="0.4" fill="rgba(255,255,255,0.3)"/>
+          <circle cx="15" cy="305" r="0.5" fill="rgba(255,255,255,0.4)"/>
+          <circle cx="25" cy="298" r="0.4" fill="rgba(255,255,255,0.3)"/>
+          <circle cx="185" cy="305" r="0.5" fill="rgba(255,255,255,0.4)"/>
+          <circle cx="175" cy="298" r="0.4" fill="rgba(255,255,255,0.3)"/>
         </pattern>
       </defs>
 
@@ -1885,8 +1931,8 @@ export function CardSVG({ card, isReversed = false, width = 200, height = 320, c
       {/* Декоративная рамка с орнаментом */}
       <OrnateBorder accent={accentColor}/>
 
-      {/* Мистический фоновый узор */}
-      <MysticalBackground accent={accentColor}/>
+      {/* Мистические узоры по краям — центр остаётся чистым */}
+      <EdgeOrnaments accent={accentColor}/>
 
       {/* Верхняя метка — номер/ранг + символ масти */}
       <g>
