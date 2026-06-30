@@ -212,7 +212,16 @@ function HomeSection({ onNavigate }: { onNavigate: (s: Section) => void }) {
         <div className="section-divider mb-8">
           <span>Добро пожаловать</span>
         </div>
-        <h1 className="text-5xl sm:text-7xl font-bold mb-6 text-mystic-gradient" style={{ fontFamily: "var(--font-cinzel)" }}>
+        <h1
+          className="text-4xl sm:text-6xl md:text-7xl font-bold mb-6 text-mystic-gradient inline-block"
+          style={{
+            fontFamily: "var(--font-cinzel)",
+            lineHeight: 1.3,
+            paddingTop: "0.2em",
+            paddingBottom: "0.1em",
+            letterSpacing: "0.02em",
+          }}
+        >
           Мистическое Таро
         </h1>
         <p className="text-lg sm:text-xl text-amber-100/80 max-w-2xl mx-auto mb-4" style={{ fontFamily: "var(--font-cormorant)" }}>
@@ -429,7 +438,10 @@ function DailyCardSection() {
         <div className="section-divider mb-6">
           <span>{today}</span>
         </div>
-        <h2 className="text-4xl sm:text-5xl font-bold mb-3 text-gold-gradient" style={{ fontFamily: "var(--font-cinzel)" }}>
+        <h2
+          className="text-4xl sm:text-5xl font-bold mb-3 text-gold-gradient inline-block"
+          style={{ fontFamily: "var(--font-cinzel)", lineHeight: 1.25, paddingTop: "0.2em" }}
+        >
           Карта Дня
         </h2>
         <p className="text-amber-200/70 max-w-xl mx-auto">
@@ -608,7 +620,10 @@ function ReadingsSection() {
         <div className="section-divider mb-6">
           <span>Расклады Таро</span>
         </div>
-        <h2 className="text-4xl sm:text-5xl font-bold mb-3 text-gold-gradient" style={{ fontFamily: "var(--font-cinzel)" }}>
+        <h2
+          className="text-4xl sm:text-5xl font-bold mb-3 text-gold-gradient inline-block"
+          style={{ fontFamily: "var(--font-cinzel)", lineHeight: 1.25, paddingTop: "0.2em" }}
+        >
           Глубокие расклады
         </h2>
         <p className="text-amber-200/70 max-w-2xl mx-auto">
@@ -1150,7 +1165,10 @@ function CompatibilitySection() {
         <div className="section-divider mb-6">
           <span>Совместимость</span>
         </div>
-        <h2 className="text-4xl sm:text-5xl font-bold mb-3 text-mystic-gradient" style={{ fontFamily: "var(--font-cinzel)" }}>
+        <h2
+          className="text-4xl sm:text-5xl font-bold mb-3 text-mystic-gradient inline-block"
+          style={{ fontFamily: "var(--font-cinzel)", lineHeight: 1.25, paddingTop: "0.2em" }}
+        >
           Парный расклад
         </h2>
         <p className="text-amber-200/70 max-w-2xl mx-auto">
@@ -1359,7 +1377,10 @@ function PsychologySection() {
         <div className="section-divider mb-6">
           <span>Психология и архетипы</span>
         </div>
-        <h2 className="text-4xl sm:text-5xl font-bold mb-3 text-mystic-gradient" style={{ fontFamily: "var(--font-cinzel)" }}>
+        <h2
+          className="text-4xl sm:text-5xl font-bold mb-3 text-mystic-gradient inline-block"
+          style={{ fontFamily: "var(--font-cinzel)", lineHeight: 1.25, paddingTop: "0.2em" }}
+        >
           Архетипический портрет
         </h2>
         <p className="text-amber-200/70 max-w-2xl mx-auto">
@@ -1605,7 +1626,10 @@ function HistorySection() {
         <div className="section-divider mb-6">
           <span>История раскладов</span>
         </div>
-        <h2 className="text-4xl sm:text-5xl font-bold mb-3 text-gold-gradient" style={{ fontFamily: "var(--font-cinzel)" }}>
+        <h2
+          className="text-4xl sm:text-5xl font-bold mb-3 text-gold-gradient inline-block"
+          style={{ fontFamily: "var(--font-cinzel)", lineHeight: 1.25, paddingTop: "0.2em" }}
+        >
           Ваш дневник
         </h2>
         <p className="text-amber-200/70 max-w-2xl mx-auto">

@@ -21,14 +21,27 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://evikass.github.io/mystic-tarot/"),
   title: "Мистическое Таро · Карта дня, расклады, совместимость",
   description: "Бесплатное онлайн-приложение Таро с красивыми SVG-картами. Карта дня, расклады на 3 карты, Кельтский крест, Да/Нет, совместимость и психологический анализ.",
   keywords: ["таро", "tarot", "расклад", "карта дня", "совместимость", "мистика", "аркан"],
   authors: [{ name: "Таро Мудрость" }],
+  icons: {
+    icon: "/favicon.svg",
+    shortcut: "/favicon.svg",
+    apple: "/favicon.svg",
+  },
   openGraph: {
     title: "Мистическое Таро",
     description: "Онлайн-приложение Таро с красивыми SVG-картами и интерпретациями",
     type: "website",
+    images: ["/favicon.svg"],
+  },
+  twitter: {
+    card: "summary",
+    title: "Мистическое Таро",
+    description: "Онлайн-приложение Таро с красивыми SVG-картами",
+    images: ["/favicon.svg"],
   },
 };
 
