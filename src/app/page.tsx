@@ -37,6 +37,19 @@ import {
   resetAllProgress,
   type StepProgress,
 } from "@/lib/success-progress"
+import { getStepQuiz, type QuizQuestion } from "@/lib/success-quiz-data"
+import {
+  getAllKeys,
+  saveKey,
+  hasKey,
+  getKeysCount,
+  getAllKeysCount,
+  isVaultUnlocked,
+  markVaultUnlocked,
+  resetKeys,
+  formatDate as formatKeyDate,
+  type StepKey,
+} from "@/lib/success-keys"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -76,6 +89,17 @@ import {
   Video,
   GraduationCap,
   PenLine,
+  Key,
+  Lock,
+  Unlock,
+  DoorClosed,
+  DoorOpen,
+  Award,
+  Flame,
+  ArrowRight,
+  ArrowLeft,
+  RefreshCw,
+  Sparkle,
 } from "lucide-react"
 
 type Section = "home" | "daily" | "readings" | "compatibility" | "psychology" | "history" | "success"
@@ -1641,10 +1665,14 @@ function SuccessStepsSection() {
   const [selectedStep, setSelectedStep] = useState<number | null>(null)
   const [progressVersion, setProgressVersion] = useState(0)
   const [filterCategory, setFilterCategory] = useState<string | null>(null)
+  const [quizStep, setQuizStep] = useState<number | null>(null)
+  const [showVault, setShowVault] = useState(false)
   const { toast } = useToast()
 
   const overall = getOverallProgress()
   const allProgress = getAllProgress()
+  const allKeys = getAllKeys()
+  const keysCount = getKeysCount()
 
   const refresh = () => setProgressVersion(v => v + 1)
 
@@ -1690,14 +1718,19 @@ function SuccessStepsSection() {
                 value={(overall.completedSteps / 14) * 100}
                 className="bg-purple-950/60"
               />
+              <div className="flex items-center gap-2 mt-2 text-sm text-amber-200/70">
+                <Key className="w-4 h-4 text-amber-300"/>
+                <span>Ключей собрано: <strong className="text-amber-100">{keysCount} / 14</strong></span>
+              </div>
             </div>
             <Button
               variant="outline"
               size="sm"
               onClick={() => {
                 resetAllProgress()
+                resetKeys()
                 refresh()
-                toast({ title: "Прогресс сброшен" })
+                toast({ title: "Прогресс и ключи сброшены" })
               }}
               className="border-rose-400/30 text-rose-200 hover:bg-rose-400/10"
             >
@@ -1707,6 +1740,16 @@ function SuccessStepsSection() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Таинственная Дверь — Сокровищница Мастера */}
+      <VaultDoor
+        keysCount={keysCount}
+        allKeys={allKeys}
+        onOpen={() => {
+          setShowVault(true)
+          markVaultUnlocked()
+        }}
+      />
 
       {/* Фильтр по категориям */}
       <div className="flex flex-wrap gap-2 mb-6 justify-center">
@@ -1763,14 +1806,28 @@ function SuccessStepsSection() {
 
               <div className="relative z-10">
                 <div className="flex items-start justify-between mb-3">
-                  <div
-                    className="w-12 h-12 rounded-full flex items-center justify-center text-2xl"
-                    style={{
-                      backgroundColor: `${s.color}25`,
-                      boxShadow: `0 0 15px ${s.color}30`,
-                    }}
-                  >
-                    {s.icon}
+                  <div className="relative">
+                    <div
+                      className="w-12 h-12 rounded-full flex items-center justify-center text-2xl"
+                      style={{
+                        backgroundColor: `${s.color}25`,
+                        boxShadow: `0 0 15px ${s.color}30`,
+                      }}
+                    >
+                      {s.icon}
+                    </div>
+                    {allKeys[s.number] && (
+                      <div
+                        className="absolute -top-1 -right-1 w-6 h-6 rounded-full flex items-center justify-center animate-pulse-glow"
+                        style={{
+                          backgroundColor: s.color,
+                          boxShadow: `0 0 12px ${s.color}`,
+                        }}
+                        title={`Ключ получен: ${formatKeyDate(allKeys[s.number].earnedAt)}`}
+                      >
+                        <Key className="w-3 h-3 text-purple-950"/>
+                      </div>
+                    )}
                   </div>
                   <Badge
                     className="border"
@@ -1822,13 +1879,19 @@ function SuccessStepsSection() {
       </div>
 
       {/* Модальное окно с деталями шага */}
-      <Dialog open={selectedStep !== null} onOpenChange={() => setSelectedStep(null)}>
+      <Dialog open={selectedStep !== null && quizStep === null} onOpenChange={(open) => {
+        if (!open) {
+          setSelectedStep(null)
+          refresh()
+        }
+      }}>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden p-0 bg-[#1a0a3a] border-amber-400/30">
           <ScrollArea className="max-h-[90vh]">
             {step && (
               <StepDetails
                 step={step}
                 progress={allProgress[step.number]}
+                stepKey={allKeys[step.number]}
                 onToggleChecklist={(idx) => {
                   toggleChecklistItem(step.number, idx)
                   refresh()
@@ -1841,9 +1904,39 @@ function SuccessStepsSection() {
                   updateNotes(step.number, notes)
                   refresh()
                 }}
+                onTakeQuiz={() => setQuizStep(step.number)}
                 key={progressVersion}
               />
             )}
+          </ScrollArea>
+        </DialogContent>
+      </Dialog>
+
+      {/* Модальное окно квиза-испытания */}
+      <QuizDialog
+        stepNumber={quizStep}
+        onClose={() => {
+          setQuizStep(null)
+          refresh()
+        }}
+        onPass={(score, attempts) => {
+          if (quizStep !== null) {
+            saveKey(quizStep, score, attempts)
+            const k = getKeysCount()
+            toast({
+              title: "🔑 Ключ получен!",
+              description: `Шаг ${quizStep} пройден на 100%. Собрано ключей: ${k} из 14.`,
+            })
+            refresh()
+          }
+        }}
+      />
+
+      {/* Модальное окно сокровищницы */}
+      <Dialog open={showVault} onOpenChange={setShowVault}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-hidden p-0 bg-[#1a0a3a] border-amber-400/50">
+          <ScrollArea className="max-h-[90vh]">
+            <VaultContent keysCount={keysCount} allKeys={allKeys}/>
           </ScrollArea>
         </DialogContent>
       </Dialog>
@@ -1854,15 +1947,19 @@ function SuccessStepsSection() {
 function StepDetails({
   step,
   progress,
+  stepKey,
   onToggleChecklist,
   onToggleExercise,
   onNotesChange,
+  onTakeQuiz,
 }: {
   step: SuccessStep
   progress?: StepProgress
+  stepKey?: StepKey
   onToggleChecklist: (idx: number) => void
   onToggleExercise: (idx: number) => void
   onNotesChange: (notes: string) => void
+  onTakeQuiz: () => void
 }) {
   const [notes, setNotes] = useState(progress?.notes || "")
   const completedChecklist = progress?.completedChecklist || []
@@ -2159,6 +2256,848 @@ function StepDetails({
         />
         <p className="text-xs text-amber-200/50 mt-1">Заметки сохраняются автоматически при потере фокуса</p>
       </section>
+
+      {/* Испытание — получение ключа */}
+      <section className="mb-2">
+        <div
+          className="rounded-2xl p-6 relative overflow-hidden"
+          style={{
+            background: stepKey
+              ? `linear-gradient(135deg, ${step.color}30, rgba(52,211,153,0.15))`
+              : `linear-gradient(135deg, ${step.color}15, rgba(167,139,250,0.1))`,
+            border: `2px solid ${stepKey ? "rgba(52,211,153,0.5)" : `${step.color}40`}`,
+          }}
+        >
+          {/* Декоративный фон */}
+          <div className="absolute -top-8 -right-8 opacity-10">
+            {stepKey ? <Award className="w-32 h-32 text-emerald-400"/> : <Key className="w-32 h-32" style={{ color: step.color }}/>}
+          </div>
+
+          <div className="relative z-10">
+            <div className="flex items-center gap-3 mb-3">
+              {stepKey ? (
+                <div className="w-12 h-12 rounded-full bg-emerald-400/30 flex items-center justify-center">
+                  <Key className="w-6 h-6 text-emerald-300"/>
+                </div>
+              ) : (
+                <div
+                  className="w-12 h-12 rounded-full flex items-center justify-center"
+                  style={{
+                    backgroundColor: `${step.color}30`,
+                    boxShadow: `0 0 15px ${step.color}40`,
+                  }}
+                >
+                  <Lock className="w-6 h-6" style={{ color: step.color }}/>
+                </div>
+              )}
+              <div>
+                <h3
+                  className="text-xl font-bold text-amber-100"
+                  style={{ fontFamily: "var(--font-cinzel)" }}
+                >
+                  {stepKey ? "Ключ получен" : "Испытание за Ключ"}
+                </h3>
+                <p className="text-xs text-amber-200/70">
+                  {stepKey
+                    ? `Получен: ${formatKeyDate(stepKey.earnedAt)} · Попыток: ${stepKey.attempts}`
+                    : "Пройдите тест на 100%, чтобы получить ключ от Сокровищницы Мастера"}
+                </p>
+              </div>
+            </div>
+
+            <p className="text-sm text-amber-100/85 mb-4 leading-relaxed">
+              {stepKey ? (
+                <>
+                  Вы прошли испытание этого шага и получили один из 14 ключей.
+                  Соберите все ключи, чтобы открыть <strong className="text-emerald-300">Сокровищницу Мастера</strong> —
+                  таинственную дверь, за которой скрыто финальное послание пути.
+                </>
+              ) : (
+                <>
+                  За этим шагом скрыто испытание — 5 вопросов по теме шага.
+                  Ответьте правильно на все 5, чтобы получить <strong style={{ color: step.color }}>ключ №{step.number}</strong>.
+                  Собрав все 14 ключей, вы откроете дверь к тайне, доступной только Мастерам пути.
+                </>
+              )}
+            </p>
+
+            {stepKey ? (
+              <div className="flex items-center gap-2 text-sm text-emerald-200">
+                <CheckCircle2 className="w-4 h-4"/>
+                <span>Испытание пройдено. Ключ у вас.</span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={onTakeQuiz}
+                  className="ml-auto border-amber-400/40 text-amber-200 hover:bg-amber-400/10"
+                >
+                  <RefreshCw className="w-3.5 h-3.5 mr-1"/>
+                  Пройти заново
+                </Button>
+              </div>
+            ) : (
+              <Button
+                onClick={onTakeQuiz}
+                className="btn-gold w-full py-3 text-base"
+              >
+                <Key className="w-5 h-5 mr-2"/>
+                Пройти испытание за Ключ №{step.number}
+              </Button>
+            )}
+          </div>
+        </div>
+      </section>
+    </div>
+  )
+}
+
+// ===================== QUIZ DIALOG (ИСПЫТАНИЕ) =====================
+function QuizDialog({
+  stepNumber,
+  onClose,
+  onPass,
+}: {
+  stepNumber: number | null
+  onClose: () => void
+  onPass: (score: number, attempts: number) => void
+}) {
+  const [currentQ, setCurrentQ] = useState(0)
+  const [answers, setAnswers] = useState<number[]>([])
+  const [showResult, setShowResult] = useState(false)
+  const [attempts, setAttempts] = useState(1)
+  const [keyEarned, setKeyEarned] = useState(false)
+  const [activeStep, setActiveStep] = useState<number | null>(null)
+
+  // Сброс состояния при смене шага
+  if (stepNumber !== activeStep) {
+    setActiveStep(stepNumber)
+    setCurrentQ(0)
+    setAnswers([])
+    setShowResult(false)
+    setKeyEarned(false)
+  }
+
+  if (stepNumber === null) return null
+  const quiz = getStepQuiz(stepNumber)
+  if (!quiz) return null
+
+  const totalQuestions = quiz.questions.length
+  const question = quiz.questions[currentQ]
+  const selectedAnswer = answers[currentQ]
+  const score = answers.filter((a, i) => a === quiz.questions[i].correctIndex).length
+  const isPerfect = showResult && score === totalQuestions
+  const isLastQ = currentQ === totalQuestions - 1
+
+  const handleAnswer = (idx: number) => {
+    if (selectedAnswer !== undefined) return
+    const newAnswers = [...answers]
+    newAnswers[currentQ] = idx
+    setAnswers(newAnswers)
+  }
+
+  const handleNext = () => {
+    if (isLastQ) {
+      const finalScore = answers.filter((a, i) => a === quiz.questions[i].correctIndex).length
+      setShowResult(true)
+      if (finalScore === totalQuestions) {
+        setKeyEarned(true)
+        setTimeout(() => {
+          onPass(100, attempts)
+        }, 2500)
+      }
+    } else {
+      setCurrentQ(currentQ + 1)
+    }
+  }
+
+  const handleRetry = () => {
+    setCurrentQ(0)
+    setAnswers([])
+    setShowResult(false)
+    setKeyEarned(false)
+    setAttempts(attempts + 1)
+  }
+
+  return (
+    <Dialog open={stepNumber !== null} onOpenChange={(open) => { if (!open) onClose() }}>
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-hidden p-0 bg-[#1a0a3a] border-amber-400/40">
+        <ScrollArea className="max-h-[90vh]">
+          <div className="p-6 sm:p-8">
+            {/* Шапка */}
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <Badge
+                  className="border"
+                  style={{
+                    backgroundColor: `${successSteps[stepNumber - 1].color}25`,
+                    color: successSteps[stepNumber - 1].color,
+                    borderColor: `${successSteps[stepNumber - 1].color}50`,
+                  }}
+                >
+                  Испытание · Шаг {stepNumber}/14
+                </Badge>
+                <h2
+                  className="text-2xl font-bold text-amber-100 mt-2"
+                  style={{ fontFamily: "var(--font-cinzel)" }}
+                >
+                  {keyEarned ? "🔑 Ключ получен!" : showResult ? "Результат" : `Вопрос ${currentQ + 1} из ${totalQuestions}`}
+                </h2>
+              </div>
+              <Key className="w-8 h-8 text-amber-300/60"/>
+            </div>
+
+            {/* Прогресс вопроса */}
+            {!showResult && (
+              <Progress
+                value={((currentQ + (selectedAnswer !== undefined ? 1 : 0)) / totalQuestions) * 100}
+                className="mb-6 bg-purple-950/60"
+              />
+            )}
+
+            {/* Сам вопрос */}
+            {!showResult && (
+              <div>
+                <Card className="glass-mystic border-amber-400/30 mb-4">
+                  <CardContent className="pt-5">
+                    <p className="text-lg text-amber-100 leading-relaxed mb-5">
+                      {question.question}
+                    </p>
+                    <div className="space-y-2">
+                      {question.options.map((opt, idx) => {
+                        const isSelected = selectedAnswer === idx
+                        const isCorrect = idx === question.correctIndex
+                        const showCorrect = selectedAnswer !== undefined && isCorrect
+                        const showWrong = isSelected && !isCorrect
+                        return (
+                          <button
+                            key={idx}
+                            onClick={() => handleAnswer(idx)}
+                            disabled={selectedAnswer !== undefined}
+                            className={`w-full text-left p-3 rounded-lg border transition-all ${
+                              showCorrect
+                                ? "bg-emerald-400/20 border-emerald-400/60 text-emerald-100"
+                                : showWrong
+                                ? "bg-rose-400/20 border-rose-400/60 text-rose-100"
+                                : isSelected
+                                ? "bg-amber-400/20 border-amber-400/60 text-amber-100"
+                                : "bg-purple-950/40 border-amber-400/20 text-amber-100/85 hover:bg-amber-400/10 hover:border-amber-400/40"
+                            }`}
+                          >
+                            <div className="flex items-start gap-3">
+                              <div
+                                className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${
+                                  showCorrect
+                                    ? "bg-emerald-400 text-purple-950"
+                                    : showWrong
+                                    ? "bg-rose-400 text-purple-950"
+                                    : "bg-amber-400/30 text-amber-200"
+                                }`}
+                              >
+                                {showCorrect ? "✓" : showWrong ? "✗" : String.fromCharCode(65 + idx)}
+                              </div>
+                              <span className="text-sm leading-relaxed">{opt}</span>
+                            </div>
+                          </button>
+                        )
+                      })}
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {selectedAnswer !== undefined && (
+                  <Card className="glass-card border-amber-400/30 mb-4 animate-fade-in">
+                    <CardContent className="pt-4">
+                      <div className="flex items-start gap-2">
+                        <Lightbulb className="w-4 h-4 text-amber-300 mt-0.5 shrink-0"/>
+                        <p className="text-sm text-amber-100/85 italic leading-relaxed">
+                          {question.explanation}
+                        </p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+
+                <div className="flex justify-between items-center">
+                  <div className="text-sm text-amber-200/70">
+                    {selectedAnswer !== undefined && (
+                      selectedAnswer === question.correctIndex
+                        ? <span className="text-emerald-300">✓ Верно!</span>
+                        : <span className="text-rose-300">✗ Неверно</span>
+                    )}
+                  </div>
+                  <Button
+                    onClick={handleNext}
+                    disabled={selectedAnswer === undefined}
+                    className="btn-gold"
+                  >
+                    {isLastQ ? (
+                      <>
+                        <Trophy className="w-4 h-4 mr-1"/>
+                        Завершить
+                      </>
+                    ) : (
+                      <>
+                        Далее
+                        <ArrowRight className="w-4 h-4 ml-1"/>
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {/* Результат */}
+            {showResult && (
+              <div className="text-center animate-fade-in">
+                {isPerfect ? (
+                  <>
+                    {/* Анимация получения ключа */}
+                    <div className="relative w-32 h-32 mx-auto mb-6">
+                      <div className="absolute inset-0 rounded-full bg-amber-400/20 animate-pulse-glow"/>
+                      <div className="absolute inset-2 rounded-full bg-amber-400/30 animate-pulse-glow" style={{ animationDelay: "0.3s" }}/>
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <Key className="w-16 h-16 text-amber-300 animate-float"/>
+                      </div>
+                      {/* Лучи вокруг */}
+                      {Array.from({ length: 12 }).map((_, i) => {
+                        const a = (i / 12) * Math.PI * 2
+                        return (
+                          <line
+                            key={i}
+                            x1="64"
+                            y1="64"
+                            x2={64 + Math.cos(a) * 60}
+                            y2={64 + Math.sin(a) * 60}
+                            stroke="#fbbf24"
+                            strokeWidth="1"
+                            opacity="0.6"
+                          />
+                        )
+                      })}
+                    </div>
+                    <h3
+                      className="text-3xl font-bold text-gold-gradient mb-2"
+                      style={{ fontFamily: "var(--font-cinzel)" }}
+                    >
+                      100% верно!
+                    </h3>
+                    <p className="text-amber-100 mb-1">
+                      Вы прошли испытание Шага {stepNumber}
+                    </p>
+                    <p className="text-emerald-300 mb-6 font-medium">
+                      🔑 Ключ №{stepNumber} из 14 получен!
+                    </p>
+                    <Card className="glass-mystic border-amber-400/40 mb-6">
+                      <CardContent className="pt-5 text-left">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Sparkles className="w-4 h-4 text-amber-300"/>
+                          <span className="text-xs uppercase tracking-wider text-amber-300">Мудрость шага</span>
+                        </div>
+                        <p className="text-amber-100 italic">{successSteps[stepNumber - 1].keyInsight}</p>
+                      </CardContent>
+                    </Card>
+                    <p className="text-sm text-amber-200/70 mb-4">
+                      Окно закроется автоматически через несколько секунд...
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <div
+                      className="w-24 h-24 mx-auto mb-4 rounded-full flex items-center justify-center"
+                      style={{
+                        backgroundColor: "rgba(248,113,113,0.2)",
+                        border: "2px solid rgba(248,113,113,0.5)",
+                      }}
+                    >
+                      <span className="text-4xl font-bold text-rose-300">
+                        {score}/{totalQuestions}
+                      </span>
+                    </div>
+                    <h3
+                      className="text-2xl font-bold text-rose-200 mb-2"
+                      style={{ fontFamily: "var(--font-cinzel)" }}
+                    >
+                      Почти получилось!
+                    </h3>
+                    <p className="text-amber-100/85 mb-1">
+                      Правильных ответов: <strong>{score}</strong> из <strong>{totalQuestions}</strong>
+                    </p>
+                    <p className="text-amber-200/70 text-sm mb-6">
+                      Для получения ключа нужно ответить на все вопросы верно.
+                      Повторите теорию и попробуйте снова.
+                    </p>
+                    <div className="flex gap-3 justify-center">
+                      <Button
+                        onClick={handleRetry}
+                        className="btn-gold"
+                      >
+                        <RefreshCw className="w-4 h-4 mr-1"/>
+                        Попробовать снова
+                      </Button>
+                      <Button
+                        variant="outline"
+                        onClick={onClose}
+                        className="border-amber-400/40 text-amber-200 hover:bg-amber-400/10"
+                      >
+                        Выйти
+                      </Button>
+                    </div>
+                  </>
+                )}
+              </div>
+            )}
+          </div>
+        </ScrollArea>
+      </DialogContent>
+    </Dialog>
+  )
+}
+
+// ===================== VAULT DOOR (ДВЕРЬ СОКРОВИЩНИЦЫ) =====================
+function VaultDoor({
+  keysCount,
+  allKeys,
+  onOpen,
+}: {
+  keysCount: number
+  allKeys: Record<number, StepKey>
+  onOpen: () => void
+}) {
+  const isUnlocked = keysCount === 14
+  const wasOpenedBefore = isVaultUnlocked()
+  const [showSpark, setShowSpark] = useState(false)
+
+  useEffect(() => {
+    if (isUnlocked) {
+      const t1 = setTimeout(() => setShowSpark(true), 100)
+      const t2 = setTimeout(() => setShowSpark(false), 2100)
+      return () => {
+        clearTimeout(t1)
+        clearTimeout(t2)
+      }
+    }
+  }, [isUnlocked])
+
+  return (
+    <Card
+      className={`mb-8 relative overflow-hidden transition-all ${
+        isUnlocked
+          ? "glass-mystic border-amber-400/60 animate-glow"
+          : "glass-card border-purple-400/30"
+      }`}
+    >
+      <CardContent className="pt-6">
+        <div className="text-center">
+          {/* SVG двери */}
+          <div className="relative w-48 h-64 mx-auto mb-4">
+            <svg viewBox="0 0 200 280" className="w-full h-full">
+              <defs>
+                <linearGradient id="door-bg" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stopColor={isUnlocked ? "#fbbf24" : "#2d1b4e"} stopOpacity="0.4"/>
+                  <stop offset="100%" stopColor={isUnlocked ? "#f59e0b" : "#1a0a3a"} stopOpacity="0.6"/>
+                </linearGradient>
+                <radialGradient id="door-glow" cx="50%" cy="50%" r="60%">
+                  <stop offset="0%" stopColor="rgba(251,191,36,0.6)"/>
+                  <stop offset="100%" stopColor="rgba(251,191,36,0)"/>
+                </radialGradient>
+              </defs>
+
+              {/* Свечение если открыто */}
+              {isUnlocked && (
+                <rect x="0" y="0" width="200" height="280" fill="url(#door-glow)"/>
+              )}
+
+              {/* Дверная рама */}
+              <rect x="20" y="20" width="160" height="240" fill="url(#door-bg)" stroke={isUnlocked ? "#fbbf24" : "#a78bfa"} strokeWidth="3" rx="6"/>
+              <rect x="28" y="28" width="144" height="224" fill="none" stroke={isUnlocked ? "rgba(251,191,36,0.4)" : "rgba(167,139,250,0.4)"} strokeWidth="1" rx="3"/>
+
+              {/* Дверное полотно */}
+              <rect x="35" y="35" width="130" height="210" fill={isUnlocked ? "rgba(251,191,36,0.2)" : "rgba(26,10,58,0.7)"} stroke={isUnlocked ? "#fbbf24" : "#7c3aed"} strokeWidth="2" rx="3"/>
+
+              {/* Панели двери */}
+              <rect x="45" y="45" width="110" height="80" fill="none" stroke={isUnlocked ? "rgba(251,191,36,0.5)" : "rgba(167,139,250,0.4)"} strokeWidth="1" rx="2"/>
+              <rect x="45" y="135" width="110" height="100" fill="none" stroke={isUnlocked ? "rgba(251,191,36,0.5)" : "rgba(167,139,250,0.4)"} strokeWidth="1" rx="2"/>
+
+              {/* Орнамент на верхней панели — 8-конечная звезда */}
+              <g transform="translate(100, 85)">
+                <path
+                  d="M 0 -16 L 4 -5 L 16 -5 L 6 2 L 10 13 L 0 6 L -10 13 L -6 2 L -16 -5 L -4 -5 Z"
+                  fill={isUnlocked ? "rgba(251,191,36,0.9)" : "rgba(167,139,250,0.5)"}
+                  stroke={isUnlocked ? "#fef3c7" : "#a78bfa"}
+                  strokeWidth="0.5"
+                />
+                <circle r="2" fill={isUnlocked ? "#fef3c7" : "#c4b5fd"}/>
+              </g>
+
+              {/* Орнамент на нижней — 14 ключей вокруг */}
+              <g transform="translate(100, 185)">
+                {Array.from({ length: 14 }).map((_, i) => {
+                  const a = (i / 14) * Math.PI * 2 - Math.PI / 2
+                  const x = Math.cos(a) * 28
+                  const y = Math.sin(a) * 28
+                  const hasKey = allKeys[i + 1]
+                  return (
+                    <g key={i} transform={`translate(${x}, ${y})`}>
+                      <circle
+                        r="3"
+                        fill={hasKey ? "#fbbf24" : "rgba(148,163,184,0.3)"}
+                        stroke={hasKey ? "#fef3c7" : "rgba(167,139,250,0.4)"}
+                        strokeWidth="0.5"
+                      />
+                      {hasKey && (
+                        <text y="1.5" fontSize="4" textAnchor="middle" fill="#1a0a3a">🔑</text>
+                      )}
+                    </g>
+                  )
+                })}
+                {/* Центральный символ */}
+                <circle r="6" fill={isUnlocked ? "rgba(251,191,36,0.5)" : "rgba(167,139,250,0.3)"} stroke={isUnlocked ? "#fbbf24" : "#a78bfa"} strokeWidth="1"/>
+                <text y="2.5" fontSize="8" textAnchor="middle" fill={isUnlocked ? "#fef3c7" : "#c4b5fd"}>
+                  {isUnlocked ? "✦" : "🔒"}
+                </text>
+              </g>
+
+              {/* Замочная скважина если закрыто */}
+              {!isUnlocked && (
+                <g transform="translate(100, 245)">
+                  <circle r="3" fill="rgba(167,139,250,0.4)" stroke="#a78bfa" strokeWidth="0.8"/>
+                  <rect x="-1" y="2" width="2" height="6" fill="rgba(167,139,250,0.4)" stroke="#a78bfa" strokeWidth="0.4"/>
+                </g>
+              )}
+
+              {/* Искры при открытии */}
+              {showSpark && Array.from({ length: 12 }).map((_, i) => {
+                const a = (i / 12) * Math.PI * 2
+                return (
+                  <circle
+                    key={i}
+                    cx={100 + Math.cos(a) * 80}
+                    cy={140 + Math.sin(a) * 100}
+                    r="2"
+                    fill="#fef3c7"
+                    opacity="0.8"
+                  >
+                    <animate attributeName="opacity" values="0.8;0;0.8" dur="1.5s" repeatCount="indefinite"/>
+                  </circle>
+                )
+              })}
+            </svg>
+
+            {/* Замок-бейдж сверху */}
+            <div
+              className={`absolute top-2 left-1/2 -translate-x-1/2 w-12 h-12 rounded-full flex items-center justify-center ${
+                isUnlocked
+                  ? "bg-amber-400/30 border-2 border-amber-400"
+                  : "bg-purple-950/60 border-2 border-purple-400/50"
+              }`}
+            >
+              {isUnlocked
+                ? <Unlock className="w-6 h-6 text-amber-200"/>
+                : <Lock className="w-6 h-6 text-purple-300"/>
+              }
+            </div>
+          </div>
+
+          <h3
+            className={`text-2xl font-bold mb-2 ${isUnlocked ? "text-gold-gradient" : "text-purple-200"}`}
+            style={{ fontFamily: "var(--font-cinzel)" }}
+          >
+            {isUnlocked ? "Сокровищница Открыта" : "Сокровищница Мастера"}
+          </h3>
+
+          <p className={`text-sm mb-4 ${isUnlocked ? "text-amber-100/85" : "text-amber-200/70"}`}>
+            {isUnlocked
+              ? "Все 14 ключей собраны. Дверь открыта. Войдите, чтобы получить тайну Мастера."
+              : `Соберите все 14 ключей, пройдя испытания каждого шага на 100%. Сейчас у вас: ${keysCount} из 14.`}
+          </p>
+
+          {/* Прогресс ключей */}
+          <div className="max-w-md mx-auto mb-4">
+            <div className="flex justify-between text-xs text-amber-200/60 mb-1">
+              <span>Ключи</span>
+              <span>{keysCount} / 14</span>
+            </div>
+            <Progress
+              value={(keysCount / 14) * 100}
+              className="bg-purple-950/60"
+            />
+          </div>
+
+          {/* Сетка с мини-ключами */}
+          <div className="grid grid-cols-7 gap-2 max-w-md mx-auto mb-4">
+            {Array.from({ length: 14 }).map((_, i) => {
+              const hasKey = !!allKeys[i + 1]
+              return (
+                <div
+                  key={i}
+                  className={`aspect-square rounded-lg flex items-center justify-center text-xs ${
+                    hasKey
+                      ? "bg-amber-400/30 border border-amber-400/60"
+                      : "bg-purple-950/40 border border-purple-400/20"
+                  }`}
+                  title={hasKey ? `Шаг ${i + 1}: ${successSteps[i].title}` : `Шаг ${i + 1}: не пройден`}
+                >
+                  {hasKey ? (
+                    <Key className="w-3 h-3 text-amber-300"/>
+                  ) : (
+                    <span className="text-purple-300/40">{i + 1}</span>
+                  )}
+                </div>
+              )
+            })}
+          </div>
+
+          <Button
+            onClick={onOpen}
+            disabled={!isUnlocked}
+            className={isUnlocked ? "btn-gold px-8 py-3 text-base" : "opacity-50 cursor-not-allowed px-8 py-3"}
+          >
+            {isUnlocked ? (
+              <>
+                <DoorOpen className="w-5 h-5 mr-2"/>
+                {wasOpenedBefore ? "Войти снова" : "Войти в Сокровищницу"}
+              </>
+            ) : (
+              <>
+                <Lock className="w-5 h-5 mr-2"/>
+                Дверь заперта
+              </>
+            )}
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
+  )
+}
+
+// ===================== VAULT CONTENT (ТАЙНА ЗА ДВЕРЬЮ) =====================
+function VaultContent({
+  keysCount,
+  allKeys,
+}: {
+  keysCount: number
+  allKeys: Record<number, StepKey>
+}) {
+  const today = new Date().toLocaleDateString("ru-RU", {
+    day: "numeric", month: "long", year: "numeric",
+  })
+
+  return (
+    <div className="p-6 sm:p-8">
+      {/* Шапка — сертификат */}
+      <div className="text-center mb-6">
+        {/* Большая звезда */}
+        <div className="relative w-32 h-32 mx-auto mb-4">
+          <svg viewBox="0 0 128 128" className="w-full h-full">
+            <defs>
+              <radialGradient id="cert-glow" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stopColor="rgba(251,191,36,0.6)"/>
+                <stop offset="100%" stopColor="rgba(251,191,36,0)"/>
+              </radialGradient>
+              <linearGradient id="cert-star" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#fef3c7"/>
+                <stop offset="50%" stopColor="#fbbf24"/>
+                <stop offset="100%" stopColor="#f59e0b"/>
+              </linearGradient>
+            </defs>
+            <circle cx="64" cy="64" r="60" fill="url(#cert-glow)"/>
+            {Array.from({ length: 16 }).map((_, i) => {
+              const a = (i / 16) * Math.PI * 2
+              return (
+                <line
+                  key={i}
+                  x1={64 + Math.cos(a) * 30}
+                  y1={64 + Math.sin(a) * 30}
+                  x2={64 + Math.cos(a) * (i % 2 === 0 ? 55 : 45)}
+                  y2={64 + Math.sin(a) * (i % 2 === 0 ? 55 : 45)}
+                  stroke="#fbbf24"
+                  strokeWidth={i % 2 === 0 ? 2 : 1}
+                  opacity="0.6"
+                />
+              )
+            })}
+            <path
+              d="M 64 24 L 73 50 L 100 50 L 78 66 L 86 92 L 64 76 L 42 92 L 50 66 L 28 50 L 55 50 Z"
+              fill="url(#cert-star)"
+              stroke="#fef3c7"
+              strokeWidth="1"
+            />
+            <circle cx="64" cy="64" r="6" fill="#7c3aed"/>
+            <circle cx="64" cy="64" r="2" fill="#fef3c7"/>
+          </svg>
+        </div>
+
+        <div className="text-xs uppercase tracking-widest text-amber-300/80 mb-1">
+          ✦ Сокровищница Мастера ✦
+        </div>
+        <h2
+          className="text-3xl sm:text-4xl font-bold text-gold-gradient mb-2"
+          style={{ fontFamily: "var(--font-cinzel)" }}
+        >
+          14 Ключей Получены
+        </h2>
+        <p className="text-amber-100/80 mb-1">
+          Вы прошли все 14 испытаний пути Тойчи
+        </p>
+        <p className="text-amber-200/60 text-sm">{today}</p>
+      </div>
+
+      {/* Сертификат */}
+      <Card className="glass-mystic border-amber-400/40 mb-6 relative overflow-hidden">
+        <div className="absolute top-2 right-2 text-6xl opacity-10">📜</div>
+        <CardContent className="pt-6 relative z-10">
+          <div className="text-center mb-4">
+            <div className="text-xs uppercase tracking-wider text-amber-300 mb-1">Сертификат</div>
+            <h3
+              className="text-xl font-bold text-amber-100"
+              style={{ fontFamily: "var(--font-cinzel)" }}
+            >
+              Мастер 14 Шагов Успеха
+            </h3>
+          </div>
+          <p className="text-sm text-amber-100/85 text-center italic mb-4 leading-relaxed">
+            Настоящим подтверждается, что обладатель этого сертификата прошёл все 14
+            испытаний пути Тойчи — от Чёткого Намерения до Целостного Наследия.
+            Он(а) доказал(а) знание принципов, упражнений и материалов каждого шага.
+          </p>
+          <div className="grid grid-cols-2 gap-3 text-xs text-amber-200/70">
+            <div>
+              <div className="text-amber-300/60">Ключей собрано:</div>
+              <div className="text-amber-100 font-bold">14 / 14 ✦</div>
+            </div>
+            <div>
+              <div className="text-amber-300/60">Дата завершения:</div>
+              <div className="text-amber-100 font-bold">{today}</div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Тайное послание */}
+      <Card className="glass-mystic border-purple-400/40 mb-6">
+        <CardContent className="pt-6">
+          <div className="flex items-center gap-2 mb-3">
+            <Sparkles className="w-5 h-5 text-purple-300"/>
+            <h3
+              className="text-lg font-bold text-purple-100"
+              style={{ fontFamily: "var(--font-cinzel)" }}
+            >
+              Тайное послание Мастера
+            </h3>
+          </div>
+          <div className="space-y-3 text-amber-100/85 text-sm leading-relaxed italic">
+            <p>
+              «Ты прошел путь. 14 ключей — не просто символы, а 14 качеств, которые теперь
+              живут в тебе. Чёткое намерение, честный аудит, переплавленные убеждения,
+              архитектура привычек, управляемая энергия, глубокий фокус, эмоциональная мудрость,
+              финансовая свобода, сила отношений, непрерывное обучение, дисциплина действия,
+              резильентность, вклад в мир и целостное наследие.
+            </p>
+            <p>
+              Тайна, которую ты искал за этой дверью, была с тобой всё это время.
+              Она в том, что <strong className="text-amber-200 not-italic">Мастер — это не статус, а путь</strong>.
+              Каждый день ты выбираешь: оставаться там, где был, или пройти по спирали снова,
+              на новом уровне. Каждый раз, когда ты это делаешь, ты становишься глубже.
+            </p>
+            <p>
+              Теперь у тебя есть ключи. Но настоящая мудрость не в том, чтобы их хранить,
+              а в том, чтобы <strong className="text-amber-200 not-italic">открывать ими двери для других</strong>.
+              Поделись тем, что узнал. Стань ментором. Передай свет.
+              В этом — финальный шаг, который никогда не заканчивается.
+            </p>
+            <p className="text-amber-200/70 text-center pt-2">
+              ✦ Так говорит Тойчи ✦
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Все 14 ключей с датами */}
+      <Card className="glass-card border-amber-400/20 mb-6">
+        <CardHeader>
+          <CardTitle className="text-lg text-amber-100 flex items-center gap-2" style={{ fontFamily: "var(--font-cinzel)" }}>
+            <Key className="w-5 h-5 text-amber-300"/>
+            Ваши 14 Ключей
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-2">
+          {successSteps.map((s) => {
+            const key = allKeys[s.number]
+            return (
+              <div
+                key={s.number}
+                className="flex items-center gap-3 p-2 rounded-lg hover:bg-amber-400/5"
+              >
+                <div
+                  className="w-8 h-8 rounded-full flex items-center justify-center shrink-0"
+                  style={{
+                    backgroundColor: `${s.color}30`,
+                    border: `1px solid ${s.color}60`,
+                  }}
+                >
+                  <Key className="w-4 h-4" style={{ color: s.color }}/>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-medium text-amber-100 truncate">
+                    {s.number}. {s.title}
+                  </div>
+                  <div className="text-xs text-amber-200/60">
+                    {key ? `Получен: ${formatKeyDate(key.earnedAt)}` : "Не получен"}
+                  </div>
+                </div>
+                <Badge
+                  variant="outline"
+                  className="border text-xs shrink-0"
+                  style={{
+                    backgroundColor: `${s.color}20`,
+                    color: s.color,
+                    borderColor: `${s.color}50`,
+                  }}
+                >
+                  {key ? `${key.attempts} поп.` : "—"}
+                </Badge>
+              </div>
+            )
+          })}
+        </CardContent>
+      </Card>
+
+      {/* Финальный таро-расклад Мастера */}
+      <Card className="glass-mystic border-amber-400/40">
+        <CardContent className="pt-6 text-center">
+          <div className="flex items-center justify-center gap-2 mb-3">
+            <Crown className="w-5 h-5 text-amber-300"/>
+            <h3
+              className="text-lg font-bold text-gold-gradient"
+              style={{ fontFamily: "var(--font-cinzel)" }}
+            >
+              Карта Мастера
+            </h3>
+          </div>
+          <p className="text-sm text-amber-100/80 mb-4">
+            Карта, которая открывается только Мастерам 14 Шагов:
+          </p>
+          {/* Карта Мир (XXI) — финальная карта старших арканов */}
+          <div className="flex justify-center mb-4">
+            <CardSVG
+              card={allTarotCards.find(c => c.id === "major-21")!}
+              width={180}
+              height={288}
+              className="rounded-xl shadow-2xl shadow-amber-400/30 animate-float"
+            />
+          </div>
+          <p className="text-amber-100/85 italic text-sm leading-relaxed">
+            <strong className="text-amber-200">Мир (XXI)</strong> — финальный старший аркан.
+            Символ целостности, завершения великого цикла, интеграции всех частей.
+            Ты собрал все 14 ключей в единую систему. Теперь ты — космический танцор,
+            стоящий в венке жизни, окружённый четырьмя силами: силой действия (Лев),
+            силой устойчивости (Телец), силой духа (Ангел) и силой видения (Орёл).
+          </p>
+          <p className="text-amber-200/70 text-xs mt-3">
+            ✦ Этот расклад доступен только в Сокровищнице ✦
+          </p>
+        </CardContent>
+      </Card>
     </div>
   )
 }
