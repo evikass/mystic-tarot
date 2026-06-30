@@ -286,6 +286,49 @@ body {
   transform: translateY(-2px);
 }
 
+/* Outline-кнопки на мистик-дарк теме — читабельные */
+[data-slot="button"][data-variant="outline"] {
+  background-color: rgba(45, 27, 78, 0.6) !important;
+  color: rgba(254, 243, 199, 0.9) !important;
+  border-color: rgba(251, 191, 36, 0.35) !important;
+}
+[data-slot="button"][data-variant="outline"]:hover {
+  background-color: rgba(251, 191, 36, 0.15) !important;
+  color: rgba(254, 243, 199, 1) !important;
+  border-color: rgba(251, 191, 36, 0.6) !important;
+}
+
+/* Default-кнопки тоже приводим к мистик-теме */
+[data-slot="button"][data-variant="default"]:not(.btn-gold):not(.btn-mystic) {
+  background-color: rgba(251, 191, 36, 0.25) !important;
+  color: rgba(254, 243, 199, 0.95) !important;
+  border: 1px solid rgba(251, 191, 36, 0.5) !important;
+}
+[data-slot="button"][data-variant="default"]:not(.btn-gold):not(.btn-mystic):hover {
+  background-color: rgba(251, 191, 36, 0.4) !important;
+  color: rgba(255, 255, 255, 1) !important;
+}
+
+/* Ghost-кнопки */
+[data-slot="button"][data-variant="ghost"] {
+  color: rgba(254, 243, 199, 0.85) !important;
+}
+[data-slot="button"][data-variant="ghost"]:hover {
+  background-color: rgba(251, 191, 36, 0.1) !important;
+  color: rgba(254, 243, 199, 1) !important;
+}
+
+/* TabsTrigger в неактивном состоянии — тоже читабельные */
+[data-slot="tabs-trigger"]:not([data-state="active"]) {
+  background-color: rgba(45, 27, 78, 0.4) !important;
+  color: rgba(254, 243, 199, 0.7) !important;
+  border: 1px solid rgba(251, 191, 36, 0.25);
+}
+[data-slot="tabs-trigger"]:not([data-state="active"]):hover {
+  background-color: rgba(251, 191, 36, 0.1) !important;
+  color: rgba(254, 243, 199, 0.95) !important;
+}
+
 /* Section divider with decorative element */
 .section-divider {
   display: flex;
