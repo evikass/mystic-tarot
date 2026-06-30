@@ -1,17 +1,20 @@
 import type { NextConfig } from "next";
 
+// Базовый путь для GitHub Pages (имя репозитория)
+// Vercel при своём деплое устанавливает пустой basePath автоматически
+const isGithubPages = process.env.GITHUB_ACTIONS === "true";
+const repoName = "mystic-tarot";
+
 const nextConfig: NextConfig = {
   reactStrictMode: true,
-  // Для GitHub Pages статический экспорт
-  // (Vercel автоматически игнорирует это при деплое)
   output: "export",
   images: {
     unoptimized: true,
   },
-  // Базовый путь для GitHub Pages (замените <repo> на имя репозитория)
-  // Vercel автоматически убирает basePath при своём деплое
-  basePath: process.env.NODE_ENV === "production" ? "" : "",
-  assetPrefix: "",
+  // Для GitHub Pages — добавляем basePath с именем репозитория
+  // Vercel деплой: GITHUB_ACTIONS не задан → basePath пустой
+  basePath: isGithubPages ? `/${repoName}` : "",
+  assetPrefix: isGithubPages ? `/${repoName}/` : "",
   trailingSlash: true,
 };
 
