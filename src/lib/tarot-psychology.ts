@@ -1,4 +1,4 @@
-import type { Suit } from "./tarot-data"
+import type { Suit, TarotCard } from "./tarot-data"
 
 export interface ArchetypeInfo {
   name: string

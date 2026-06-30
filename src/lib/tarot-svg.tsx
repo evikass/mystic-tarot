@@ -1,4 +1,5 @@
 import { TarotCard, suitInfo } from "./tarot-data"
+import type { ReactElement } from "react"
 
 interface CardSVGProps {
   card: TarotCard
@@ -84,7 +85,7 @@ function getMajorSymbol(number: number): { roman: string; symbol: string } {
  * SVG для каждого старшего аркана — стилизованная иллюстрация
  */
 function MajorArcanaArt({ card }: { card: TarotCard }) {
-  const map: Record<string, JSX.Element> = {
+  const map: Record<string, ReactElement> = {
     "major-0": (
       // Шут: фигура на краю пропасти с посохом и узелком
       <g>
