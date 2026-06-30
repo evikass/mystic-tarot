@@ -2680,7 +2680,7 @@ function VaultDoor({
 
   return (
     <Card
-      className={`mb-8 relative overflow-hidden transition-all ${
+      className={`mt-8 mb-8 relative overflow-hidden transition-all ${
         isUnlocked
           ? "glass-mystic border-amber-400/60 animate-glow"
           : "glass-card border-purple-400/30"
