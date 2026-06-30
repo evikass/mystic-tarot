@@ -1741,16 +1741,6 @@ function SuccessStepsSection() {
         </CardContent>
       </Card>
 
-      {/* Таинственная Дверь — Сокровищница Мастера */}
-      <VaultDoor
-        keysCount={keysCount}
-        allKeys={allKeys}
-        onOpen={() => {
-          setShowVault(true)
-          markVaultUnlocked()
-        }}
-      />
-
       {/* Фильтр по категориям */}
       <div className="flex flex-wrap gap-2 mb-6 justify-center">
         <Button
@@ -1877,6 +1867,16 @@ function SuccessStepsSection() {
           )
         })}
       </div>
+
+      {/* Таинственная Дверь — Сокровищница Мастера (после всех шагов) */}
+      <VaultDoor
+        keysCount={keysCount}
+        allKeys={allKeys}
+        onOpen={() => {
+          setShowVault(true)
+          markVaultUnlocked()
+        }}
+      />
 
       {/* Модальное окно с деталями шага */}
       <Dialog open={selectedStep !== null && quizStep === null} onOpenChange={(open) => {
