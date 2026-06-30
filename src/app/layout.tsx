@@ -35,13 +35,13 @@ export const metadata: Metadata = {
     title: "Мистическое Таро",
     description: "Онлайн-приложение Таро с красивыми SVG-картами и интерпретациями",
     type: "website",
-    images: ["/mystic-tarot/favicon.svg"],
+    images: [{ url: "/favicon.svg" }],
   },
   twitter: {
     card: "summary",
     title: "Мистическое Таро",
     description: "Онлайн-приложение Таро с красивыми SVG-картами",
-    images: ["/mystic-tarot/favicon.svg"],
+    images: [{ url: "/favicon.svg" }],
   },
 };
 

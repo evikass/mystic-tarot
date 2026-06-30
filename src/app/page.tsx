@@ -26,6 +26,17 @@ import {
   type ReadingRecord,
 } from "@/lib/tarot-storage"
 import { initVKBridge, isVKEnvironment, vkShare } from "@/lib/vk-bridge"
+import { successSteps, stepCategories, type SuccessStep } from "@/lib/success-steps-data"
+import {
+  getAllProgress,
+  getStepProgress,
+  toggleChecklistItem,
+  toggleExercise,
+  updateNotes,
+  getOverallProgress,
+  resetAllProgress,
+  type StepProgress,
+} from "@/lib/success-progress"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -33,6 +44,9 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
+import { Checkbox } from "@/components/ui/checkbox"
+import { ScrollArea } from "@/components/ui/scroll-area"
 import { useToast } from "@/hooks/use-toast"
 import {
   Sparkles,
@@ -51,9 +65,20 @@ import {
   EyeOff,
   Compass,
   Zap,
+  Target,
+  CheckCircle2,
+  Circle,
+  RotateCcw,
+  Trophy,
+  Lightbulb,
+  Pencil,
+  BookMarked,
+  Video,
+  GraduationCap,
+  PenLine,
 } from "lucide-react"
 
-type Section = "home" | "daily" | "readings" | "compatibility" | "psychology" | "history"
+type Section = "home" | "daily" | "readings" | "compatibility" | "psychology" | "history" | "success"
 
 interface DrawnCard {
   card: TarotCard
@@ -75,6 +100,7 @@ export default function Home() {
     { id: "readings", label: "Расклады", icon: <Layers className="w-4 h-4"/> },
     { id: "compatibility", label: "Совместимость", icon: <Heart className="w-4 h-4"/> },
     { id: "psychology", label: "Психология", icon: <Brain className="w-4 h-4"/> },
+    { id: "success", label: "14 Шагов", icon: <Target className="w-4 h-4"/> },
     { id: "history", label: "История", icon: <History className="w-4 h-4"/> },
   ]
 
@@ -89,6 +115,7 @@ export default function Home() {
           {section === "readings" && <ReadingsSection/>}
           {section === "compatibility" && <CompatibilitySection/>}
           {section === "psychology" && <PsychologySection/>}
+          {section === "success" && <SuccessStepsSection/>}
           {section === "history" && <HistorySection/>}
         </main>
         <Footer/>
@@ -309,6 +336,13 @@ function HomeSection({ onNavigate }: { onNavigate: (s: Section) => void }) {
             description="Все ваши расклады сохраняются локально на устройстве. Возвращайтесь к ним, чтобы отследить динамику пути."
             onClick={() => onNavigate("history")}
             accent="#86efac"
+          />
+          <FeatureCard
+            icon={<Target className="w-7 h-7"/>}
+            title="14 Шагов Успеха"
+            description="Полный курс трансформации по методологии Тойчи: теория, упражнения, книги, курсы и чек-листы с отслеживанием прогресса."
+            onClick={() => onNavigate("success")}
+            accent="#fbbf24"
           />
           <FeatureCard
             icon={<BookOpen className="w-7 h-7"/>}
@@ -1598,6 +1632,533 @@ function PsychologySection() {
           )}
         </div>
       )}
+    </div>
+  )
+}
+
+// ===================== SUCCESS STEPS (14 ШАГОВ УСПЕХА) =====================
+function SuccessStepsSection() {
+  const [selectedStep, setSelectedStep] = useState<number | null>(null)
+  const [progressVersion, setProgressVersion] = useState(0)
+  const [filterCategory, setFilterCategory] = useState<string | null>(null)
+  const { toast } = useToast()
+
+  const overall = getOverallProgress()
+  const allProgress = getAllProgress()
+
+  const refresh = () => setProgressVersion(v => v + 1)
+
+  const filteredSteps = filterCategory
+    ? successSteps.filter(s => s.category === filterCategory)
+    : successSteps
+
+  const step = selectedStep !== null ? successSteps.find(s => s.number === selectedStep) : null
+
+  return (
+    <div className="py-8">
+      <div className="text-center mb-10">
+        <div className="section-divider mb-6">
+          <span>14 Шагов Успеха по Тойчи</span>
+        </div>
+        <h2
+          className="text-4xl sm:text-5xl font-bold mb-3 text-mystic-gradient inline-block"
+          style={{ fontFamily: "var(--font-cinzel)", lineHeight: 1.25, paddingTop: "0.2em" }}
+        >
+          Путь Мастера
+        </h2>
+        <p className="text-amber-200/70 max-w-2xl mx-auto">
+          Полный курс трансформации по методологии Тойчи — 14 шагов от ясного намерения
+          до целостного наследия. Каждый шаг включает теорию, практические упражнения,
+          рекомендованные книги и курсы, аффирмации и чек-листы с отслеживанием прогресса.
+        </p>
+      </div>
+
+      {/* Прогресс-бар */}
+      <Card className="glass-mystic border-amber-400/30 mb-8">
+        <CardContent className="pt-6">
+          <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+            <div className="flex-1">
+              <div className="flex items-center gap-2 mb-2">
+                <Trophy className="w-5 h-5 text-amber-300"/>
+                <h3 className="text-lg font-bold text-amber-100">Ваш прогресс</h3>
+              </div>
+              <div className="flex gap-4 text-sm text-amber-200/70 mb-2">
+                <span>Шагов начато: <strong className="text-amber-100">{overall.completedSteps} / 14</strong></span>
+                <span>Пунктов чек-листа: <strong className="text-amber-100">{overall.completedChecklist}</strong></span>
+              </div>
+              <Progress
+                value={(overall.completedSteps / 14) * 100}
+                className="bg-purple-950/60"
+              />
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                resetAllProgress()
+                refresh()
+                toast({ title: "Прогресс сброшен" })
+              }}
+              className="border-rose-400/30 text-rose-200 hover:bg-rose-400/10"
+            >
+              <RotateCcw className="w-3.5 h-3.5 mr-1"/>
+              Сбросить
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Фильтр по категориям */}
+      <div className="flex flex-wrap gap-2 mb-6 justify-center">
+        <Button
+          variant={filterCategory === null ? "default" : "outline"}
+          size="sm"
+          onClick={() => setFilterCategory(null)}
+          className={filterCategory === null
+            ? "bg-amber-400/30 text-amber-100 border-amber-400/40"
+            : "border-amber-400/30 text-amber-200 hover:bg-amber-400/10"}
+        >
+          Все шаги (14)
+        </Button>
+        {stepCategories.map(cat => (
+          <Button
+            key={cat.id}
+            variant={filterCategory === cat.id ? "default" : "outline"}
+            size="sm"
+            onClick={() => setFilterCategory(cat.id)}
+            className={filterCategory === cat.id
+              ? "text-white border"
+              : "border-amber-400/30 text-amber-200 hover:bg-amber-400/10"}
+            style={filterCategory === cat.id
+              ? { backgroundColor: `${cat.color}30`, borderColor: `${cat.color}50` }
+              : { borderColor: `${cat.color}30` }}
+          >
+            {cat.id}
+          </Button>
+        ))}
+      </div>
+
+      {/* Сетка из 14 шагов */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {filteredSteps.map((s) => {
+          const prog = allProgress[s.number]
+          const completedCount = prog?.completedChecklist.length || 0
+          const totalCount = s.checklist.length
+          const percent = totalCount > 0 ? (completedCount / totalCount) * 100 : 0
+          const isCompleted = completedCount === totalCount && totalCount > 0
+          return (
+            <button
+              key={s.number}
+              onClick={() => setSelectedStep(s.number)}
+              className="text-left glass-card rounded-2xl p-5 hover:scale-[1.02] transition-all duration-300 group relative overflow-hidden"
+              style={{ borderColor: `${s.color}30` }}
+            >
+              {/* Декоративный фон номера */}
+              <div
+                className="absolute -top-4 -right-4 text-8xl font-bold opacity-10 select-none"
+                style={{ color: s.color, fontFamily: "var(--font-cinzel)" }}
+              >
+                {s.number}
+              </div>
+
+              <div className="relative z-10">
+                <div className="flex items-start justify-between mb-3">
+                  <div
+                    className="w-12 h-12 rounded-full flex items-center justify-center text-2xl"
+                    style={{
+                      backgroundColor: `${s.color}25`,
+                      boxShadow: `0 0 15px ${s.color}30`,
+                    }}
+                  >
+                    {s.icon}
+                  </div>
+                  <Badge
+                    className="border"
+                    style={{
+                      backgroundColor: `${s.color}20`,
+                      color: s.color,
+                      borderColor: `${s.color}50`,
+                    }}
+                  >
+                    {s.category}
+                  </Badge>
+                </div>
+
+                <div className="text-xs text-amber-200/60 mb-1">
+                  Шаг {s.number} из 14
+                </div>
+                <h3
+                  className="text-lg font-bold text-amber-100 mb-1"
+                  style={{ fontFamily: "var(--font-cinzel)" }}
+                >
+                  {s.title}
+                </h3>
+                <p className="text-xs text-amber-200/70 mb-3 italic">{s.subtitle}</p>
+                <p className="text-sm text-amber-100/75 leading-relaxed line-clamp-3 mb-3">
+                  {s.description}
+                </p>
+
+                {/* Прогресс шага */}
+                {completedCount > 0 && (
+                  <div className="mt-3">
+                    <div className="flex justify-between text-xs text-amber-200/60 mb-1">
+                      <span>Прогресс чек-листа</span>
+                      <span>{completedCount}/{totalCount}</span>
+                    </div>
+                    <Progress value={percent} className="h-1.5 bg-purple-950/60"/>
+                  </div>
+                )}
+
+                {isCompleted && (
+                  <div className="mt-2 flex items-center gap-1 text-emerald-300 text-xs">
+                    <CheckCircle2 className="w-3 h-3"/>
+                    <span>Шаг завершён</span>
+                  </div>
+                )}
+              </div>
+            </button>
+          )
+        })}
+      </div>
+
+      {/* Модальное окно с деталями шага */}
+      <Dialog open={selectedStep !== null} onOpenChange={() => setSelectedStep(null)}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden p-0 bg-[#1a0a3a] border-amber-400/30">
+          <ScrollArea className="max-h-[90vh]">
+            {step && (
+              <StepDetails
+                step={step}
+                progress={allProgress[step.number]}
+                onToggleChecklist={(idx) => {
+                  toggleChecklistItem(step.number, idx)
+                  refresh()
+                }}
+                onToggleExercise={(idx) => {
+                  toggleExercise(step.number, idx)
+                  refresh()
+                }}
+                onNotesChange={(notes) => {
+                  updateNotes(step.number, notes)
+                  refresh()
+                }}
+                key={progressVersion}
+              />
+            )}
+          </ScrollArea>
+        </DialogContent>
+      </Dialog>
+    </div>
+  )
+}
+
+function StepDetails({
+  step,
+  progress,
+  onToggleChecklist,
+  onToggleExercise,
+  onNotesChange,
+}: {
+  step: SuccessStep
+  progress?: StepProgress
+  onToggleChecklist: (idx: number) => void
+  onToggleExercise: (idx: number) => void
+  onNotesChange: (notes: string) => void
+}) {
+  const [notes, setNotes] = useState(progress?.notes || "")
+  const completedChecklist = progress?.completedChecklist || []
+  const completedExercises = progress?.completedExercises || []
+
+  const materialIcon = (type: string) => {
+    switch (type) {
+      case "book": return <BookMarked className="w-4 h-4"/>
+      case "course": return <GraduationCap className="w-4 h-4"/>
+      case "video": return <Video className="w-4 h-4"/>
+      case "article": return <BookOpen className="w-4 h-4"/>
+      case "practice": return <PenLine className="w-4 h-4"/>
+      default: return <BookOpen className="w-4 h-4"/>
+    }
+  }
+
+  const materialLabel = (type: string) => {
+    const labels: Record<string, string> = {
+      book: "Книга",
+      course: "Курс",
+      video: "Видео",
+      article: "Статья",
+      practice: "Практика",
+    }
+    return labels[type] || type
+  }
+
+  return (
+    <div className="p-6 sm:p-8">
+      {/* Шапка */}
+      <div
+        className="rounded-2xl p-6 mb-6 relative overflow-hidden"
+        style={{
+          background: `linear-gradient(135deg, ${step.color}20, transparent)`,
+          border: `1px solid ${step.color}40`,
+        }}
+      >
+        <div
+          className="absolute -top-6 -right-6 text-9xl font-bold opacity-15 select-none"
+          style={{ color: step.color, fontFamily: "var(--font-cinzel)" }}
+        >
+          {step.number}
+        </div>
+        <div className="relative z-10">
+          <div className="flex items-center gap-3 mb-2">
+            <div
+              className="w-14 h-14 rounded-full flex items-center justify-center text-3xl"
+              style={{
+                backgroundColor: `${step.color}30`,
+                boxShadow: `0 0 25px ${step.color}40`,
+              }}
+            >
+              {step.icon}
+            </div>
+            <div>
+              <Badge
+                className="border"
+                style={{
+                  backgroundColor: `${step.color}25`,
+                  color: step.color,
+                  borderColor: `${step.color}50`,
+                }}
+              >
+                {step.category} · Шаг {step.number}/14
+              </Badge>
+              <h2
+                className="text-2xl sm:text-3xl font-bold text-amber-100 mt-1"
+                style={{ fontFamily: "var(--font-cinzel)" }}
+              >
+                {step.title}
+              </h2>
+            </div>
+          </div>
+          <p className="text-amber-200/80 italic">{step.subtitle}</p>
+          <p className="text-amber-100/85 mt-3 leading-relaxed">{step.description}</p>
+        </div>
+      </div>
+
+      {/* Ключевая мысль */}
+      <Card className="glass-card border-amber-400/40 mb-6">
+        <CardContent className="pt-5">
+          <div className="flex items-start gap-3">
+            <Lightbulb className="w-5 h-5 text-amber-300 mt-0.5 shrink-0"/>
+            <div>
+              <div className="text-xs uppercase tracking-wider text-amber-300 mb-1">Ключевая мысль</div>
+              <p className="text-amber-100 font-medium italic">{step.keyInsight}</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Теория */}
+      <section className="mb-6">
+        <h3 className="text-lg font-bold text-amber-100 mb-3 flex items-center gap-2" style={{ fontFamily: "var(--font-cinzel)" }}>
+          <BookOpen className="w-5 h-5 text-amber-300"/>
+          Теория
+        </h3>
+        <Card className="glass-card border-amber-400/20">
+          <CardContent className="pt-5">
+            <p className="text-amber-100/85 text-sm leading-relaxed whitespace-pre-line">
+              {step.fullTheory}
+            </p>
+          </CardContent>
+        </Card>
+      </section>
+
+      {/* Принципы */}
+      <section className="mb-6">
+        <h3 className="text-lg font-bold text-amber-100 mb-3 flex items-center gap-2" style={{ fontFamily: "var(--font-cinzel)" }}>
+          <Compass className="w-5 h-5 text-amber-300"/>
+          Ключевые принципы
+        </h3>
+        <Card className="glass-card border-amber-400/20">
+          <CardContent className="pt-5 space-y-2">
+            {step.principles.map((p, i) => (
+              <div key={i} className="flex gap-3 items-start text-sm text-amber-100/85">
+                <span className="text-amber-400 mt-1">✦</span>
+                <span>{p}</span>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      </section>
+
+      {/* Упражнения */}
+      <section className="mb-6">
+        <h3 className="text-lg font-bold text-amber-100 mb-3 flex items-center gap-2" style={{ fontFamily: "var(--font-cinzel)" }}>
+          <Zap className="w-5 h-5 text-amber-300"/>
+          Практические упражнения
+        </h3>
+        <div className="space-y-3">
+          {step.exercises.map((ex, i) => {
+            const isDone = completedExercises.includes(i)
+            return (
+              <Card key={i} className={`glass-card transition-all ${isDone ? "border-emerald-400/40" : "border-amber-400/20"}`}>
+                <CardContent className="pt-5">
+                  <div className="flex items-start gap-3">
+                    <button
+                      onClick={() => onToggleExercise(i)}
+                      className="mt-1 shrink-0"
+                      aria-label="Отметить упражнение"
+                    >
+                      {isDone
+                        ? <CheckCircle2 className="w-5 h-5 text-emerald-400"/>
+                        : <Circle className="w-5 h-5 text-amber-400/60 hover:text-amber-300"/>
+                      }
+                    </button>
+                    <div className="flex-1">
+                      <div className="flex items-start justify-between gap-2 mb-1">
+                        <h4 className={`font-semibold ${isDone ? "text-emerald-200 line-through" : "text-amber-100"}`}>
+                          {ex.title}
+                        </h4>
+                        <Badge variant="outline" className="text-xs border-amber-400/40 text-amber-200/70 shrink-0">
+                          {ex.duration}
+                        </Badge>
+                      </div>
+                      <p className="text-sm text-amber-100/75 leading-relaxed">{ex.description}</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )
+          })}
+        </div>
+      </section>
+
+      {/* Материалы и курсы */}
+      <section className="mb-6">
+        <h3 className="text-lg font-bold text-amber-100 mb-3 flex items-center gap-2" style={{ fontFamily: "var(--font-cinzel)" }}>
+          <GraduationCap className="w-5 h-5 text-amber-300"/>
+          Рекомендованные материалы ({step.materials.length})
+        </h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {step.materials.map((m, i) => (
+            <Card key={i} className="glass-card border-amber-400/20">
+              <CardContent className="pt-5">
+                <div className="flex items-start gap-3">
+                  <div
+                    className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0"
+                    style={{
+                      backgroundColor: `${step.color}25`,
+                      color: step.color,
+                    }}
+                  >
+                    {materialIcon(m.type)}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      <Badge
+                        variant="outline"
+                        className="text-xs border"
+                        style={{
+                          backgroundColor: `${step.color}20`,
+                          color: step.color,
+                          borderColor: `${step.color}50`,
+                        }}
+                      >
+                        {materialLabel(m.type)}
+                      </Badge>
+                      {m.duration && (
+                        <span className="text-xs text-amber-200/60">{m.duration}</span>
+                      )}
+                    </div>
+                    <h4 className="font-semibold text-amber-100 text-sm mb-0.5">{m.title}</h4>
+                    {m.author && (
+                      <p className="text-xs text-amber-200/70 mb-1">{m.author}</p>
+                    )}
+                    <p className="text-xs text-amber-100/70 leading-relaxed">{m.description}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </section>
+
+      {/* Аффирмации */}
+      <section className="mb-6">
+        <h3 className="text-lg font-bold text-amber-100 mb-3 flex items-center gap-2" style={{ fontFamily: "var(--font-cinzel)" }}>
+          <Sparkles className="w-5 h-5 text-amber-300"/>
+          Аффирмации
+        </h3>
+        <Card className="glass-card border-purple-400/20">
+          <CardContent className="pt-5 space-y-2">
+            {step.affirmations.map((a, i) => (
+              <div key={i} className="text-sm italic text-amber-100/85 pl-4 border-l-2" style={{ borderColor: `${step.color}50` }}>
+                {a}
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      </section>
+
+      {/* Вопросы для размышления */}
+      <section className="mb-6">
+        <h3 className="text-lg font-bold text-amber-100 mb-3 flex items-center gap-2" style={{ fontFamily: "var(--font-cinzel)" }}>
+          <Brain className="w-5 h-5 text-amber-300"/>
+          Вопросы для размышления
+        </h3>
+        <Card className="glass-card border-purple-400/20">
+          <CardContent className="pt-5 space-y-3">
+            {step.reflectionQuestions.map((q, i) => (
+              <div key={i} className="flex gap-3 items-start text-sm text-amber-100/85">
+                <span className="text-purple-300 font-bold mt-0.5">{i + 1}.</span>
+                <span>{q}</span>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      </section>
+
+      {/* Чек-лист */}
+      <section className="mb-6">
+        <h3 className="text-lg font-bold text-amber-100 mb-3 flex items-center gap-2" style={{ fontFamily: "var(--font-cinzel)" }}>
+          <CheckCircle2 className="w-5 h-5 text-amber-300"/>
+          Чек-лист ({completedChecklist.length}/{step.checklist.length})
+        </h3>
+        <Card className="glass-card border-amber-400/30">
+          <CardContent className="pt-5 space-y-2">
+            {step.checklist.map((item, i) => {
+              const isDone = completedChecklist.includes(i)
+              return (
+                <button
+                  key={i}
+                  onClick={() => onToggleChecklist(i)}
+                  className="flex gap-3 items-start text-left w-full hover:bg-amber-400/5 p-2 rounded-lg transition-colors"
+                >
+                  {isDone
+                    ? <CheckCircle2 className="w-5 h-5 text-emerald-400 mt-0.5 shrink-0"/>
+                    : <Circle className="w-5 h-5 text-amber-400/60 mt-0.5 shrink-0"/>
+                  }
+                  <span className={`text-sm ${isDone ? "text-emerald-200 line-through" : "text-amber-100/85"}`}>
+                    {item}
+                  </span>
+                </button>
+              )
+            })}
+          </CardContent>
+        </Card>
+      </section>
+
+      {/* Заметки пользователя */}
+      <section className="mb-6">
+        <h3 className="text-lg font-bold text-amber-100 mb-3 flex items-center gap-2" style={{ fontFamily: "var(--font-cinzel)" }}>
+          <Pencil className="w-5 h-5 text-amber-300"/>
+          Мои заметки
+        </h3>
+        <Textarea
+          value={notes}
+          onChange={(e) => setNotes(e.target.value)}
+          onBlur={() => onNotesChange(notes)}
+          placeholder="Запишите свои инсайты, открытия, планы по этому шагу..."
+          className="bg-purple-950/40 border-amber-400/30 text-amber-100 placeholder:text-amber-200/40 min-h-[120px]"
+        />
+        <p className="text-xs text-amber-200/50 mt-1">Заметки сохраняются автоматически при потере фокуса</p>
+      </section>
     </div>
   )
 }
