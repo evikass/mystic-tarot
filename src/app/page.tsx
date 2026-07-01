@@ -22,10 +22,14 @@ import {
   getZodiacSign,
   colorArchetypes,
   geometryArchetypes,
+  palmLines,
+  getZodiacCompatibility,
   type BirthDateResult,
   type ZodiacSign,
   type ColorArchetype,
   type GeometryArchetype,
+  type PalmLine,
+  type ZodiacCompatibility,
 } from "@/lib/psychology-data"
 import {
   getHistory,
@@ -113,6 +117,7 @@ import {
   Calendar,
   Palette,
   Hexagon,
+  Hand,
 } from "lucide-react"
 
 type Section = "home" | "daily" | "readings" | "compatibility" | "psychology" | "history" | "success"
@@ -356,14 +361,14 @@ function HomeSection({ onNavigate }: { onNavigate: (s: Section) => void }) {
           <FeatureCard
             icon={<Heart className="w-7 h-7"/>}
             title="Совместимость"
-            description="Анализ совместимости двух людей через стихии и карты. Узнайте сильные стороны и точки роста вашего союза."
+            description="Совместимость пары по картам Таро (стихии арканов) и по гороскопу (знаки зодиака). Сильные стороны союза, зоны роста и совет паре."
             onClick={() => onNavigate("compatibility")}
             accent="#f9a8d4"
           />
           <FeatureCard
             icon={<Brain className="w-7 h-7"/>}
             title="Психология"
-            description="Архетипический анализ расклада. Какие силы души активированы, какие раны и дары проявляются, путь интеграции."
+            description="Шесть инструментов самопознания: архетип Таро, дата рождения, гороскоп, цвет, геометрия и линии на ладони."
             onClick={() => onNavigate("psychology")}
             accent="#7dd3fc"
           />
@@ -1187,6 +1192,51 @@ function YesNoReading() {
 
 // ===================== COMPATIBILITY =====================
 function CompatibilitySection() {
+  const [compatTab, setCompatTab] = useState<"tarot" | "zodiac">("tarot")
+
+  return (
+    <div className="py-8">
+      <div className="text-center mb-10">
+        <div className="section-divider mb-6">
+          <span>Совместимость</span>
+        </div>
+        <h2
+          className="text-4xl sm:text-5xl font-bold mb-3 text-mystic-gradient inline-block"
+          style={{ fontFamily: "var(--font-cinzel)", lineHeight: 1.25, paddingTop: "0.2em" }}
+        >
+          Парный расклад
+        </h2>
+        <p className="text-amber-200/70 max-w-2xl mx-auto">
+          Два способа узнать совместимость пары: через карты Таро (по стихиям арканов)
+          и по знакам зодиака (по стихиям знаков).
+        </p>
+      </div>
+
+      <Tabs value={compatTab} onValueChange={(v) => setCompatTab(v as typeof compatTab)}>
+        <TabsList className="grid grid-cols-2 max-w-md mx-auto mb-8 bg-purple-950/40 border border-amber-400/20">
+          <TabsTrigger value="tarot" className="data-[state=active]:bg-amber-400/20 data-[state=active]:text-amber-100">
+            <Layers className="w-3.5 h-3.5 mr-1"/>
+            По Таро
+          </TabsTrigger>
+          <TabsTrigger value="zodiac" className="data-[state=active]:bg-amber-400/20 data-[state=active]:text-amber-100">
+            <Star className="w-3.5 h-3.5 mr-1"/>
+            По гороскопу
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="tarot">
+          <CompatibilityTarotTab/>
+        </TabsContent>
+        <TabsContent value="zodiac">
+          <CompatibilityZodiacTab/>
+        </TabsContent>
+      </Tabs>
+    </div>
+  )
+}
+
+// === Таб 1: Совместимость по Таро (существующий) ===
+function CompatibilityTarotTab() {
   const [person1Cards, setPerson1Cards] = useState<DrawnCard | null>(null)
   const [person2Cards, setPerson2Cards] = useState<DrawnCard | null>(null)
   const [name1, setName1] = useState("")
@@ -1231,18 +1281,12 @@ function CompatibilitySection() {
     : null
 
   return (
-    <div className="py-8">
-      <div className="text-center mb-10">
-        <div className="section-divider mb-6">
-          <span>Совместимость</span>
-        </div>
-        <h2
-          className="text-4xl sm:text-5xl font-bold mb-3 text-mystic-gradient inline-block"
-          style={{ fontFamily: "var(--font-cinzel)", lineHeight: 1.25, paddingTop: "0.2em" }}
-        >
-          Парный расклад
-        </h2>
-        <p className="text-amber-200/70 max-w-2xl mx-auto">
+    <div>
+      <div className="text-center mb-8">
+        <h3 className="text-2xl font-bold text-amber-100 mb-2" style={{ fontFamily: "var(--font-cinzel)" }}>
+          Совместимость по Таро
+        </h3>
+        <p className="text-sm text-amber-200/70 max-w-xl mx-auto">
           Вытяните карту для каждого партнёра и узнайте совместимость стихий,
           сильные стороны союза и зоны роста.
         </p>
@@ -1407,9 +1451,250 @@ function CompatibilitySection() {
   )
 }
 
+// === Таб 2: Совместимость по гороскопу ===
+function CompatibilityZodiacTab() {
+  const [name1, setName1] = useState("")
+  const [name2, setName2] = useState("")
+  const [day1, setDay1] = useState("")
+  const [month1, setMonth1] = useState("")
+  const [day2, setDay2] = useState("")
+  const [month2, setMonth2] = useState("")
+  const [sign1, setSign1] = useState<ZodiacSign | null>(null)
+  const [sign2, setSign2] = useState<ZodiacSign | null>(null)
+  const [error, setError] = useState("")
+
+  const handleCalculate = () => {
+    const d1 = parseInt(day1), m1 = parseInt(month1)
+    const d2 = parseInt(day2), m2 = parseInt(month2)
+    if (!d1 || !m1 || !d2 || !m2) {
+      setError("Заполните даты обоих партнёров")
+      setSign1(null); setSign2(null)
+      return
+    }
+    const s1 = getZodiacSign(d1, m1)
+    const s2 = getZodiacSign(d2, m2)
+    if (!s1 || !s2) {
+      setError("Проверьте даты")
+      setSign1(null); setSign2(null)
+      return
+    }
+    setError("")
+    setSign1(s1)
+    setSign2(s2)
+  }
+
+  const compatibility = sign1 && sign2 ? getZodiacCompatibility(sign1, sign2) : null
+
+  return (
+    <div>
+      <div className="text-center mb-8">
+        <h3 className="text-2xl font-bold text-amber-100 mb-2" style={{ fontFamily: "var(--font-cinzel)" }}>
+          Совместимость по гороскопу
+        </h3>
+        <p className="text-sm text-amber-200/70 max-w-xl mx-auto">
+          Введите даты рождения партнёров — узнаете знаки зодиака и совместимость
+          по стихиям, сильные стороны союза и зоны роста.
+        </p>
+      </div>
+
+      <div className="max-w-2xl mx-auto grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+        {/* Партнёр 1 */}
+        <Card className="glass-card border-amber-400/20">
+          <CardContent className="pt-5">
+            <div className="text-xs uppercase tracking-wider text-amber-300 mb-2">Партнёр 1</div>
+            <Input
+              value={name1}
+              onChange={(e) => setName1(e.target.value)}
+              placeholder="Имя"
+              className="bg-purple-950/40 border-amber-400/30 text-amber-100 placeholder:text-amber-200/40 mb-3"
+            />
+            <div className="grid grid-cols-2 gap-2">
+              <Input
+                type="number" min="1" max="31"
+                value={day1}
+                onChange={(e) => setDay1(e.target.value)}
+                placeholder="День"
+                className="bg-purple-950/40 border-amber-400/30 text-amber-100 placeholder:text-amber-200/40 text-center"
+              />
+              <Input
+                type="number" min="1" max="12"
+                value={month1}
+                onChange={(e) => setMonth1(e.target.value)}
+                placeholder="Месяц"
+                className="bg-purple-950/40 border-amber-400/30 text-amber-100 placeholder:text-amber-200/40 text-center"
+              />
+            </div>
+            {sign1 && (
+              <div className="mt-3 flex items-center gap-2 p-2 rounded-lg" style={{ background: `${sign1.color}20`, border: `1px solid ${sign1.color}40` }}>
+                <span className="text-2xl">{sign1.symbol}</span>
+                <div>
+                  <div className="text-sm font-bold" style={{ color: sign1.color }}>{sign1.name}</div>
+                  <div className="text-xs text-amber-200/70">{sign1.element}</div>
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Партнёр 2 */}
+        <Card className="glass-card border-amber-400/20">
+          <CardContent className="pt-5">
+            <div className="text-xs uppercase tracking-wider text-amber-300 mb-2">Партнёр 2</div>
+            <Input
+              value={name2}
+              onChange={(e) => setName2(e.target.value)}
+              placeholder="Имя"
+              className="bg-purple-950/40 border-amber-400/30 text-amber-100 placeholder:text-amber-200/40 mb-3"
+            />
+            <div className="grid grid-cols-2 gap-2">
+              <Input
+                type="number" min="1" max="31"
+                value={day2}
+                onChange={(e) => setDay2(e.target.value)}
+                placeholder="День"
+                className="bg-purple-950/40 border-amber-400/30 text-amber-100 placeholder:text-amber-200/40 text-center"
+              />
+              <Input
+                type="number" min="1" max="12"
+                value={month2}
+                onChange={(e) => setMonth2(e.target.value)}
+                placeholder="Месяц"
+                className="bg-purple-950/40 border-amber-400/30 text-amber-100 placeholder:text-amber-200/40 text-center"
+              />
+            </div>
+            {sign2 && (
+              <div className="mt-3 flex items-center gap-2 p-2 rounded-lg" style={{ background: `${sign2.color}20`, border: `1px solid ${sign2.color}40` }}>
+                <span className="text-2xl">{sign2.symbol}</span>
+                <div>
+                  <div className="text-sm font-bold" style={{ color: sign2.color }}>{sign2.name}</div>
+                  <div className="text-xs text-amber-200/70">{sign2.element}</div>
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="text-center mb-8">
+        <Button onClick={handleCalculate} className="btn-gold px-8 py-3">
+          <Heart className="w-5 h-5 mr-2"/>
+          Узнать совместимость
+        </Button>
+        {error && <p className="text-rose-300 text-sm mt-3">{error}</p>}
+      </div>
+
+      {compatibility && sign1 && sign2 && (
+        <div className="max-w-3xl mx-auto animate-fade-in space-y-4">
+          {/* Шапка пары */}
+          <Card className="glass-mystic border-amber-400/40">
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-center gap-4 sm:gap-8 flex-wrap">
+                <div className="text-center">
+                  <div
+                    className="w-16 h-16 sm:w-20 sm:h-20 rounded-full mx-auto flex items-center justify-center text-3xl sm:text-4xl"
+                    style={{
+                      backgroundColor: `${sign1.color}30`,
+                      border: `2px solid ${sign1.color}`,
+                      boxShadow: `0 0 20px ${sign1.color}40`,
+                    }}
+                  >
+                    {sign1.symbol}
+                  </div>
+                  <div className="text-sm font-bold text-amber-100 mt-2">{name1 || "Партнёр 1"}</div>
+                  <div className="text-xs" style={{ color: sign1.color }}>{sign1.name}</div>
+                </div>
+                <Heart className="w-10 h-10 text-rose-400 animate-pulse shrink-0"/>
+                <div className="text-center">
+                  <div
+                    className="w-16 h-16 sm:w-20 sm:h-20 rounded-full mx-auto flex items-center justify-center text-3xl sm:text-4xl"
+                    style={{
+                      backgroundColor: `${sign2.color}30`,
+                      border: `2px solid ${sign2.color}`,
+                      boxShadow: `0 0 20px ${sign2.color}40`,
+                    }}
+                  >
+                    {sign2.symbol}
+                  </div>
+                  <div className="text-sm font-bold text-amber-100 mt-2">{name2 || "Партнёр 2"}</div>
+                  <div className="text-xs" style={{ color: sign2.color }}>{sign2.name}</div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Результат */}
+          <Card className="glass-mystic border-amber-400/30 text-center">
+            <CardContent className="pt-6">
+              <div className="text-6xl font-bold text-gold-gradient mb-2" style={{ fontFamily: "var(--font-cinzel)" }}>
+                {compatibility.score}%
+              </div>
+              <h3 className="text-xl font-bold text-amber-100 mb-2" style={{ fontFamily: "var(--font-cinzel)" }}>
+                {compatibility.title}
+              </h3>
+              <p className="text-sm text-amber-200/80 leading-relaxed">{compatibility.description}</p>
+              <Progress value={compatibility.score} className="mt-4 bg-purple-950/60"/>
+            </CardContent>
+          </Card>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <Card className="glass-card border-emerald-400/20">
+              <CardHeader>
+                <CardTitle className="text-base text-emerald-200 flex items-center gap-2">
+                  <Sparkles className="w-4 h-4"/>
+                  Сильные стороны
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="pt-0">
+                <ul className="space-y-1.5">
+                  {compatibility.strengths.map((s, i) => (
+                    <li key={i} className="text-xs text-amber-100/85 flex gap-2">
+                      <span className="text-emerald-400">✦</span>
+                      <span>{s}</span>
+                    </li>
+                  ))}
+                </ul>
+              </CardContent>
+            </Card>
+            <Card className="glass-card border-rose-400/20">
+              <CardHeader>
+                <CardTitle className="text-base text-rose-200 flex items-center gap-2">
+                  <Compass className="w-4 h-4"/>
+                  Зоны роста
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="pt-0">
+                <ul className="space-y-1.5">
+                  {compatibility.challenges.map((c, i) => (
+                    <li key={i} className="text-xs text-amber-100/85 flex gap-2">
+                      <span className="text-rose-400">✦</span>
+                      <span>{c}</span>
+                    </li>
+                  ))}
+                </ul>
+              </CardContent>
+            </Card>
+          </div>
+
+          <Card className="glass-card border-amber-400/30">
+            <CardContent className="pt-5">
+              <h4 className="text-sm font-semibold text-amber-200 mb-2 flex items-center gap-2">
+                <Crown className="w-4 h-4"/>
+                Совет паре
+              </h4>
+              <p className="text-sm text-amber-100/85 italic leading-relaxed">
+                {compatibility.advice}
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+    </div>
+  )
+}
+
 // ===================== PSYCHOLOGY =====================
 function PsychologySection() {
-  const [psychTab, setPsychTab] = useState<"archetype" | "birthdate" | "zodiac" | "color" | "geometry">("archetype")
+  const [psychTab, setPsychTab] = useState<"archetype" | "birthdate" | "zodiac" | "color" | "geometry" | "palm">("archetype")
 
   return (
     <div className="py-8">
@@ -1424,26 +1709,26 @@ function PsychologySection() {
           Архетипы и Самопознание
         </h2>
         <p className="text-amber-200/70 max-w-2xl mx-auto">
-          Пять инструментов самопознания: архетипический портрет через Таро, психология
-          по дате рождения, гороскоп, цветовой и геометрический архетипы.
+          Шесть инструментов самопознания: архетипический портрет через Таро, психология
+          по дате рождения, гороскоп, цветовой и геометрический архетипы, линии на ладони.
         </p>
       </div>
 
       <Tabs value={psychTab} onValueChange={(v) => setPsychTab(v as typeof psychTab)}>
-        <TabsList className="grid grid-cols-2 sm:grid-cols-5 max-w-3xl mx-auto mb-8 bg-purple-950/40 border border-amber-400/20">
+        <TabsList className="grid grid-cols-3 sm:grid-cols-6 max-w-4xl mx-auto mb-8 bg-purple-950/40 border border-amber-400/20">
           <TabsTrigger value="archetype" className="data-[state=active]:bg-amber-400/20 data-[state=active]:text-amber-100 text-xs sm:text-sm">
             <Brain className="w-3.5 h-3.5 mr-1"/>
-            <span className="hidden sm:inline">Архетип Таро</span>
+            <span className="hidden sm:inline">Таро</span>
             <span className="sm:hidden">Таро</span>
           </TabsTrigger>
           <TabsTrigger value="birthdate" className="data-[state=active]:bg-amber-400/20 data-[state=active]:text-amber-100 text-xs sm:text-sm">
             <Calendar className="w-3.5 h-3.5 mr-1"/>
-            <span className="hidden sm:inline">Дата рождения</span>
+            <span className="hidden sm:inline">Дата</span>
             <span className="sm:hidden">Дата</span>
           </TabsTrigger>
           <TabsTrigger value="zodiac" className="data-[state=active]:bg-amber-400/20 data-[state=active]:text-amber-100 text-xs sm:text-sm">
             <Star className="w-3.5 h-3.5 mr-1"/>
-            <span className="hidden sm:inline">Гороскоп</span>
+            <span className="hidden sm:inline">Знак</span>
             <span className="sm:hidden">Знак</span>
           </TabsTrigger>
           <TabsTrigger value="color" className="data-[state=active]:bg-amber-400/20 data-[state=active]:text-amber-100 text-xs sm:text-sm">
@@ -1453,8 +1738,13 @@ function PsychologySection() {
           </TabsTrigger>
           <TabsTrigger value="geometry" className="data-[state=active]:bg-amber-400/20 data-[state=active]:text-amber-100 text-xs sm:text-sm">
             <Hexagon className="w-3.5 h-3.5 mr-1"/>
-            <span className="hidden sm:inline">Геометрия</span>
+            <span className="hidden sm:inline">Форма</span>
             <span className="sm:hidden">Форма</span>
+          </TabsTrigger>
+          <TabsTrigger value="palm" className="data-[state=active]:bg-amber-400/20 data-[state=active]:text-amber-100 text-xs sm:text-sm">
+            <Hand className="w-3.5 h-3.5 mr-1"/>
+            <span className="hidden sm:inline">Ладонь</span>
+            <span className="sm:hidden">Ладонь</span>
           </TabsTrigger>
         </TabsList>
 
@@ -1472,6 +1762,9 @@ function PsychologySection() {
         </TabsContent>
         <TabsContent value="geometry">
           <GeometryTab/>
+        </TabsContent>
+        <TabsContent value="palm">
+          <PalmTab/>
         </TabsContent>
       </Tabs>
     </div>
@@ -2455,6 +2748,285 @@ function GeometryTab() {
               Выбрать другую форму
             </Button>
           </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+// === Таб 6: Линии на ладони (хиромантия) ===
+function PalmTab() {
+  const [selectedLine, setSelectedLine] = useState<PalmLine | null>(null)
+  const [selectedVariation, setSelectedVariation] = useState<number | null>(null)
+
+  return (
+    <div>
+      <div className="text-center mb-6">
+        <h3 className="text-2xl font-bold text-amber-100 mb-2" style={{ fontFamily: "var(--font-cinzel)" }}>
+          Архетип по линиям на ладони
+        </h3>
+        <p className="text-sm text-amber-200/70 max-w-xl mx-auto">
+          Хиромантия — древняя система самопознания. Выберите основную линию ладони и
+          вариант, который больше всего похож на ваш. Помните: линии меняются вместе с вами.
+        </p>
+      </div>
+
+      {!selectedLine && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 max-w-4xl mx-auto">
+          {palmLines.map((line) => (
+            <button
+              key={line.id}
+              onClick={() => setSelectedLine(line)}
+              className="group glass-card rounded-2xl p-5 hover:scale-105 transition-all border-amber-400/20 hover:border-amber-400/50 text-left"
+            >
+              {/* SVG ладони с подсвеченной линией */}
+              <div className="flex justify-center mb-3">
+                <svg viewBox="0 0 120 130" className="w-20 h-24">
+                  {/* Контур ладони */}
+                  <path
+                    d="M 30 50 Q 30 25 45 25 Q 55 25 55 35 L 55 50 M 55 35 Q 55 18 65 18 Q 75 18 75 35 L 75 55 M 75 38 Q 75 22 85 22 Q 95 22 95 38 L 95 60 M 95 42 Q 95 30 105 30 Q 115 30 115 45 L 115 80 Q 115 110 90 120 L 50 120 Q 30 120 30 95 Z"
+                    fill="rgba(254,243,199,0.1)"
+                    stroke="rgba(251,191,36,0.4)"
+                    strokeWidth="1.5"
+                  />
+                  {/* Подсвеченная линия */}
+                  {line.id === "life" && (
+                    <path d="M 40 55 Q 50 75 60 95 Q 65 105 60 115" fill="none" stroke="#fbbf24" strokeWidth="2.5" strokeLinecap="round"/>
+                  )}
+                  {line.id === "head" && (
+                    <path d="M 45 60 Q 70 55 95 65" fill="none" stroke="#fbbf24" strokeWidth="2.5" strokeLinecap="round"/>
+                  )}
+                  {line.id === "heart" && (
+                    <path d="M 40 45 Q 65 35 95 45" fill="none" stroke="#fbbf24" strokeWidth="2.5" strokeLinecap="round"/>
+                  )}
+                  {line.id === "fate" && (
+                    <path d="M 65 120 L 65 50" fill="none" stroke="#fbbf24" strokeWidth="2.5" strokeLinecap="round"/>
+                  )}
+                  {line.id === "sun" && (
+                    <path d="M 80 120 L 80 50" fill="none" stroke="#fbbf24" strokeWidth="2.5" strokeLinecap="round"/>
+                  )}
+                </svg>
+              </div>
+              <div className="text-xs text-amber-300 mb-1">{line.element}</div>
+              <h4 className="text-base font-bold text-amber-100 mb-1" style={{ fontFamily: "var(--font-cinzel)" }}>
+                {line.russianName}
+              </h4>
+              <p className="text-xs text-amber-200/70 italic mb-2">{line.principle}</p>
+              <p className="text-xs text-amber-100/70 leading-relaxed line-clamp-2">{line.location}</p>
+            </button>
+          ))}
+        </div>
+      )}
+
+      {selectedLine && selectedVariation === null && (
+        <div className="max-w-3xl mx-auto animate-fade-in">
+          {/* Шапка линии */}
+          <Card className="glass-mystic border-amber-400/40 mb-5">
+            <CardContent className="pt-6">
+              <div className="flex items-start gap-4">
+                <div className="w-20 h-24 shrink-0">
+                  <svg viewBox="0 0 120 130" className="w-full h-full">
+                    <path
+                      d="M 30 50 Q 30 25 45 25 Q 55 25 55 35 L 55 50 M 55 35 Q 55 18 65 18 Q 75 18 75 35 L 75 55 M 75 38 Q 75 22 85 22 Q 95 22 95 38 L 95 60 M 95 42 Q 95 30 105 30 Q 115 30 115 45 L 115 80 Q 115 110 90 120 L 50 120 Q 30 120 30 95 Z"
+                      fill="rgba(254,243,199,0.1)"
+                      stroke="rgba(251,191,36,0.4)"
+                      strokeWidth="1.5"
+                    />
+                    {selectedLine.id === "life" && (
+                      <path d="M 40 55 Q 50 75 60 95 Q 65 105 60 115" fill="none" stroke="#fbbf24" strokeWidth="2.5" strokeLinecap="round"/>
+                    )}
+                    {selectedLine.id === "head" && (
+                      <path d="M 45 60 Q 70 55 95 65" fill="none" stroke="#fbbf24" strokeWidth="2.5" strokeLinecap="round"/>
+                    )}
+                    {selectedLine.id === "heart" && (
+                      <path d="M 40 45 Q 65 35 95 45" fill="none" stroke="#fbbf24" strokeWidth="2.5" strokeLinecap="round"/>
+                    )}
+                    {selectedLine.id === "fate" && (
+                      <path d="M 65 120 L 65 50" fill="none" stroke="#fbbf24" strokeWidth="2.5" strokeLinecap="round"/>
+                    )}
+                    {selectedLine.id === "sun" && (
+                      <path d="M 80 120 L 80 50" fill="none" stroke="#fbbf24" strokeWidth="2.5" strokeLinecap="round"/>
+                    )}
+                  </svg>
+                </div>
+                <div className="flex-1">
+                  <h3
+                    className="text-2xl font-bold text-gold-gradient mb-1"
+                    style={{ fontFamily: "var(--font-cinzel)" }}
+                  >
+                    {selectedLine.russianName}
+                  </h3>
+                  <p className="text-xs text-amber-200/70 mb-2">{selectedLine.name} · {selectedLine.element}</p>
+                  <p className="text-xs text-amber-300/80 mb-2 italic">{selectedLine.principle}</p>
+                  <p className="text-xs text-amber-100/70">{selectedLine.location}</p>
+                </div>
+              </div>
+              <p className="text-sm text-amber-100/85 leading-relaxed mt-4">{selectedLine.psychology}</p>
+            </CardContent>
+          </Card>
+
+          <div className="text-center mb-4">
+            <p className="text-sm text-amber-200/80 mb-2">
+              Выберите вариант, который больше всего похож на вашу линию:
+            </p>
+          </div>
+
+          {/* Варианты линии */}
+          <div className="space-y-3">
+            {selectedLine.variations.map((variation, i) => (
+              <button
+                key={i}
+                onClick={() => setSelectedVariation(i)}
+                className="w-full text-left glass-card rounded-xl p-4 hover:scale-[1.02] transition-all border-amber-400/20 hover:border-amber-400/50"
+              >
+                <div className="flex items-start gap-3">
+                  <div className="w-7 h-7 rounded-full bg-amber-400/30 border border-amber-400/50 flex items-center justify-center text-xs font-bold text-amber-100 shrink-0">
+                    {i + 1}
+                  </div>
+                  <div className="flex-1">
+                    <h4 className="text-sm font-bold text-amber-100 mb-1">{variation.type}</h4>
+                    <p className="text-xs text-amber-200/70 leading-relaxed">{variation.description}</p>
+                  </div>
+                </div>
+              </button>
+            ))}
+          </div>
+
+          <div className="text-center mt-6">
+            <Button
+              variant="outline"
+              onClick={() => setSelectedLine(null)}
+              className="border-amber-400/40 text-amber-200 hover:bg-amber-400/10"
+            >
+              <Hand className="w-4 h-4 mr-2"/>
+              Выбрать другую линию
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {selectedLine && selectedVariation !== null && (
+        <div className="max-w-3xl mx-auto animate-fade-in">
+          {(() => {
+            const variation = selectedLine.variations[selectedVariation]
+            return (
+              <>
+                {/* Шапка результата */}
+                <Card className="glass-mystic border-amber-400/40 mb-5">
+                  <CardContent className="pt-6">
+                    <div className="flex items-start gap-4">
+                      <div className="w-20 h-24 shrink-0">
+                        <svg viewBox="0 0 120 130" className="w-full h-full">
+                          <path
+                            d="M 30 50 Q 30 25 45 25 Q 55 25 55 35 L 55 50 M 55 35 Q 55 18 65 18 Q 75 18 75 35 L 75 55 M 75 38 Q 75 22 85 22 Q 95 22 95 38 L 95 60 M 95 42 Q 95 30 105 30 Q 115 30 115 45 L 115 80 Q 115 110 90 120 L 50 120 Q 30 120 30 95 Z"
+                            fill="rgba(254,243,199,0.1)"
+                            stroke="rgba(251,191,36,0.4)"
+                            strokeWidth="1.5"
+                          />
+                          {selectedLine.id === "life" && (
+                            <path d="M 40 55 Q 50 75 60 95 Q 65 105 60 115" fill="none" stroke="#fbbf24" strokeWidth="2.5" strokeLinecap="round"/>
+                          )}
+                          {selectedLine.id === "head" && (
+                            <path d="M 45 60 Q 70 55 95 65" fill="none" stroke="#fbbf24" strokeWidth="2.5" strokeLinecap="round"/>
+                          )}
+                          {selectedLine.id === "heart" && (
+                            <path d="M 40 45 Q 65 35 95 45" fill="none" stroke="#fbbf24" strokeWidth="2.5" strokeLinecap="round"/>
+                          )}
+                          {selectedLine.id === "fate" && (
+                            <path d="M 65 120 L 65 50" fill="none" stroke="#fbbf24" strokeWidth="2.5" strokeLinecap="round"/>
+                          )}
+                          {selectedLine.id === "sun" && (
+                            <path d="M 80 120 L 80 50" fill="none" stroke="#fbbf24" strokeWidth="2.5" strokeLinecap="round"/>
+                          )}
+                        </svg>
+                      </div>
+                      <div className="flex-1">
+                        <Badge variant="outline" className="border-amber-400/40 text-amber-200 text-xs mb-2">
+                          {selectedLine.russianName} · {selectedLine.element}
+                        </Badge>
+                        <h3
+                          className="text-xl font-bold text-gold-gradient mb-2"
+                          style={{ fontFamily: "var(--font-cinzel)" }}
+                        >
+                          {variation.type}
+                        </h3>
+                        <p className="text-xs text-amber-200/70">{variation.description}</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card className="glass-mystic border-amber-400/30 mb-5">
+                  <CardContent className="pt-5">
+                    <div className="text-xs uppercase tracking-wider text-amber-300 mb-2">Психология</div>
+                    <p className="text-amber-100/85 text-sm leading-relaxed">{variation.psychology}</p>
+                  </CardContent>
+                </Card>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
+                  <Card className="glass-card border-emerald-400/20">
+                    <CardHeader>
+                      <CardTitle className="text-base text-emerald-200">✦ Силы</CardTitle>
+                    </CardHeader>
+                    <CardContent className="pt-0">
+                      <ul className="space-y-1.5">
+                        {variation.strengths.map((s, i) => (
+                          <li key={i} className="text-xs text-amber-100/85 flex gap-2">
+                            <span className="text-emerald-400">✦</span>
+                            <span>{s}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </CardContent>
+                  </Card>
+                  <Card className="glass-card border-rose-400/20">
+                    <CardHeader>
+                      <CardTitle className="text-base text-rose-200">✦ Тень</CardTitle>
+                    </CardHeader>
+                    <CardContent className="pt-0">
+                      <ul className="space-y-1.5">
+                        {variation.challenges.map((c, i) => (
+                          <li key={i} className="text-xs text-amber-100/85 flex gap-2">
+                            <span className="text-rose-400">✦</span>
+                            <span>{c}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                <Card className="glass-mystic border-purple-400/30 mb-5">
+                  <CardContent className="pt-5">
+                    <div className="text-xs text-purple-300 mb-1">✦ Аффирмация</div>
+                    <p className="text-lg italic text-amber-100 text-center">{variation.affirmation}</p>
+                  </CardContent>
+                </Card>
+
+                <div className="flex gap-3 justify-center">
+                  <Button
+                    variant="outline"
+                    onClick={() => setSelectedVariation(null)}
+                    className="border-amber-400/40 text-amber-200 hover:bg-amber-400/10"
+                  >
+                    <RefreshCw className="w-4 h-4 mr-2"/>
+                    Другой вариант
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setSelectedLine(null)
+                      setSelectedVariation(null)
+                    }}
+                    className="border-amber-400/40 text-amber-200 hover:bg-amber-400/10"
+                  >
+                    <Hand className="w-4 h-4 mr-2"/>
+                    Другая линия
+                  </Button>
+                </div>
+              </>
+            )
+          })()}
         </div>
       )}
     </div>
