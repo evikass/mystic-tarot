@@ -18,6 +18,16 @@ import {
   majorPsychologyMap,
 } from "@/lib/tarot-psychology"
 import {
+  calculateBirthDate,
+  getZodiacSign,
+  colorArchetypes,
+  geometryArchetypes,
+  type BirthDateResult,
+  type ZodiacSign,
+  type ColorArchetype,
+  type GeometryArchetype,
+} from "@/lib/psychology-data"
+import {
   getHistory,
   saveReading,
   deleteReading,
@@ -100,6 +110,9 @@ import {
   ArrowLeft,
   RefreshCw,
   Sparkle,
+  Calendar,
+  Palette,
+  Hexagon,
 } from "lucide-react"
 
 type Section = "home" | "daily" | "readings" | "compatibility" | "psychology" | "history" | "success"
@@ -1396,6 +1409,77 @@ function CompatibilitySection() {
 
 // ===================== PSYCHOLOGY =====================
 function PsychologySection() {
+  const [psychTab, setPsychTab] = useState<"archetype" | "birthdate" | "zodiac" | "color" | "geometry">("archetype")
+
+  return (
+    <div className="py-8">
+      <div className="text-center mb-10">
+        <div className="section-divider mb-6">
+          <span>Психология и архетипы</span>
+        </div>
+        <h2
+          className="text-4xl sm:text-5xl font-bold mb-3 text-mystic-gradient inline-block"
+          style={{ fontFamily: "var(--font-cinzel)", lineHeight: 1.25, paddingTop: "0.2em" }}
+        >
+          Архетипы и Самопознание
+        </h2>
+        <p className="text-amber-200/70 max-w-2xl mx-auto">
+          Пять инструментов самопознания: архетипический портрет через Таро, психология
+          по дате рождения, гороскоп, цветовой и геометрический архетипы.
+        </p>
+      </div>
+
+      <Tabs value={psychTab} onValueChange={(v) => setPsychTab(v as typeof psychTab)}>
+        <TabsList className="grid grid-cols-2 sm:grid-cols-5 max-w-3xl mx-auto mb-8 bg-purple-950/40 border border-amber-400/20">
+          <TabsTrigger value="archetype" className="data-[state=active]:bg-amber-400/20 data-[state=active]:text-amber-100 text-xs sm:text-sm">
+            <Brain className="w-3.5 h-3.5 mr-1"/>
+            <span className="hidden sm:inline">Архетип Таро</span>
+            <span className="sm:hidden">Таро</span>
+          </TabsTrigger>
+          <TabsTrigger value="birthdate" className="data-[state=active]:bg-amber-400/20 data-[state=active]:text-amber-100 text-xs sm:text-sm">
+            <Calendar className="w-3.5 h-3.5 mr-1"/>
+            <span className="hidden sm:inline">Дата рождения</span>
+            <span className="sm:hidden">Дата</span>
+          </TabsTrigger>
+          <TabsTrigger value="zodiac" className="data-[state=active]:bg-amber-400/20 data-[state=active]:text-amber-100 text-xs sm:text-sm">
+            <Star className="w-3.5 h-3.5 mr-1"/>
+            <span className="hidden sm:inline">Гороскоп</span>
+            <span className="sm:hidden">Знак</span>
+          </TabsTrigger>
+          <TabsTrigger value="color" className="data-[state=active]:bg-amber-400/20 data-[state=active]:text-amber-100 text-xs sm:text-sm">
+            <Palette className="w-3.5 h-3.5 mr-1"/>
+            <span className="hidden sm:inline">Цвет</span>
+            <span className="sm:hidden">Цвет</span>
+          </TabsTrigger>
+          <TabsTrigger value="geometry" className="data-[state=active]:bg-amber-400/20 data-[state=active]:text-amber-100 text-xs sm:text-sm">
+            <Hexagon className="w-3.5 h-3.5 mr-1"/>
+            <span className="hidden sm:inline">Геометрия</span>
+            <span className="sm:hidden">Форма</span>
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="archetype">
+          <ArchetypeTab/>
+        </TabsContent>
+        <TabsContent value="birthdate">
+          <BirthDateTab/>
+        </TabsContent>
+        <TabsContent value="zodiac">
+          <ZodiacTab/>
+        </TabsContent>
+        <TabsContent value="color">
+          <ColorTab/>
+        </TabsContent>
+        <TabsContent value="geometry">
+          <GeometryTab/>
+        </TabsContent>
+      </Tabs>
+    </div>
+  )
+}
+
+// === Таб 1: Архетипический портрет (существующий) ===
+function ArchetypeTab() {
   const [drawnCards, setDrawnCards] = useState<DrawnCard[]>([])
   const [revealedIndexes, setRevealedIndexes] = useState<number[]>([])
   const [isDrawing, setIsDrawing] = useState(false)
@@ -1430,23 +1514,7 @@ function PsychologySection() {
     : null
 
   return (
-    <div className="py-8">
-      <div className="text-center mb-10">
-        <div className="section-divider mb-6">
-          <span>Психология и архетипы</span>
-        </div>
-        <h2
-          className="text-4xl sm:text-5xl font-bold mb-3 text-mystic-gradient inline-block"
-          style={{ fontFamily: "var(--font-cinzel)", lineHeight: 1.25, paddingTop: "0.2em" }}
-        >
-          Архетипический портрет
-        </h2>
-        <p className="text-amber-200/70 max-w-2xl mx-auto">
-          5 карт раскроют вашу внутреннюю панораму: текущее состояние, активные
-          субличности, тень и духовная задача. Этот расклад — инструмент самопознания,
-          основанный на юнгианской психологии.
-        </p>
-      </div>
+    <div>
 
       {!drawnCards.length && !isDrawing && (
         <div className="flex flex-col items-center gap-6">
@@ -1654,6 +1722,739 @@ function PsychologySection() {
               </Button>
             </div>
           )}
+        </div>
+      )}
+    </div>
+  )
+}
+
+// === Таб 2: Психология по дате рождения ===
+function BirthDateTab() {
+  const [day, setDay] = useState("")
+  const [month, setMonth] = useState("")
+  const [year, setYear] = useState("")
+  const [result, setResult] = useState<BirthDateResult | null>(null)
+  const [error, setError] = useState("")
+
+  const handleCalculate = () => {
+    const d = parseInt(day)
+    const m = parseInt(month)
+    const y = parseInt(year)
+    if (!d || !m || !y) {
+      setError("Заполните все поля")
+      setResult(null)
+      return
+    }
+    const r = calculateBirthDate(d, m, y)
+    if (!r) {
+      setError("Проверьте корректность даты")
+      setResult(null)
+      return
+    }
+    setError("")
+    setResult(r)
+  }
+
+  const renderNumberCard = (title: string, data: BirthDateResult["lifePath"], icon: string) => (
+    <Card className="glass-mystic border-amber-400/30">
+      <CardHeader>
+        <div className="flex items-center gap-3">
+          <div
+            className="w-14 h-14 rounded-full flex items-center justify-center text-2xl font-bold shrink-0"
+            style={{
+              background: "linear-gradient(135deg, rgba(251,191,36,0.3), rgba(167,139,250,0.3))",
+              border: "1px solid rgba(251,191,36,0.5)",
+              color: "#fef3c7",
+            }}
+          >
+            {data.number}
+          </div>
+          <div>
+            <Badge variant="outline" className="text-xs border-amber-400/40 text-amber-200/70">
+              {icon}
+            </Badge>
+            <CardTitle className="text-lg text-amber-100 mt-1" style={{ fontFamily: "var(--font-cinzel)" }}>
+              {data.title}
+            </CardTitle>
+            <CardDescription className="text-amber-200/70 text-xs">
+              {data.archetype} · {data.element} · {data.planet}
+            </CardDescription>
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        <div>
+          <div className="text-xs uppercase tracking-wider text-amber-300/80 mb-1">Психология</div>
+          <p className="text-sm text-amber-100/85 leading-relaxed">{data.psychology}</p>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="glass-card rounded-lg p-3">
+            <div className="text-xs text-emerald-300 mb-1">✦ Силы</div>
+            <ul className="text-xs text-amber-100/80 space-y-1">
+              {data.strengths.map((s, i) => <li key={i}>• {s}</li>)}
+            </ul>
+          </div>
+          <div className="glass-card rounded-lg p-3">
+            <div className="text-xs text-rose-300 mb-1">✦ Тень</div>
+            <ul className="text-xs text-amber-100/80 space-y-1">
+              {data.challenges.map((c, i) => <li key={i}>• {c}</li>)}
+            </ul>
+          </div>
+        </div>
+        <div className="space-y-2 text-sm">
+          <div>
+            <span className="text-amber-300/70 text-xs">💼 Карьера: </span>
+            <span className="text-amber-100/85">{data.career}</span>
+          </div>
+          <div>
+            <span className="text-amber-300/70 text-xs">❤️ Отношения: </span>
+            <span className="text-amber-100/85">{data.relationships}</span>
+          </div>
+          <div>
+            <span className="text-amber-300/70 text-xs">🌱 Путь роста: </span>
+            <span className="text-amber-100/85">{data.growth}</span>
+          </div>
+        </div>
+        <div className="glass-card rounded-lg p-3 border-purple-400/20">
+          <div className="text-xs text-purple-300 mb-1">✦ Аффирмация</div>
+          <p className="text-sm italic text-amber-100/90">{data.affirmation}</p>
+        </div>
+      </CardContent>
+    </Card>
+  )
+
+  return (
+    <div>
+      <div className="text-center mb-6">
+        <h3 className="text-2xl font-bold text-amber-100 mb-2" style={{ fontFamily: "var(--font-cinzel)" }}>
+          Психология по дате рождения
+        </h3>
+        <p className="text-sm text-amber-200/70 max-w-xl mx-auto">
+          Расчёт трёх ключевых чисел: Жизненного Пути (по полной дате), Души (по дню) и
+          Личности (по месяцу). Каждое число раскрывает свой архетип.
+        </p>
+      </div>
+
+      <div className="max-w-md mx-auto mb-6 grid grid-cols-3 gap-3">
+        <div>
+          <label className="text-xs text-amber-200/70 mb-1 block">День</label>
+          <Input
+            type="number"
+            min="1" max="31"
+            value={day}
+            onChange={(e) => setDay(e.target.value)}
+            placeholder="15"
+            className="bg-purple-950/40 border-amber-400/30 text-amber-100 placeholder:text-amber-200/40 text-center"
+          />
+        </div>
+        <div>
+          <label className="text-xs text-amber-200/70 mb-1 block">Месяц</label>
+          <Input
+            type="number"
+            min="1" max="12"
+            value={month}
+            onChange={(e) => setMonth(e.target.value)}
+            placeholder="08"
+            className="bg-purple-950/40 border-amber-400/30 text-amber-100 placeholder:text-amber-200/40 text-center"
+          />
+        </div>
+        <div>
+          <label className="text-xs text-amber-200/70 mb-1 block">Год</label>
+          <Input
+            type="number"
+            min="1900" max="2100"
+            value={year}
+            onChange={(e) => setYear(e.target.value)}
+            placeholder="1990"
+            className="bg-purple-950/40 border-amber-400/30 text-amber-100 placeholder:text-amber-200/40 text-center"
+          />
+        </div>
+      </div>
+
+      <div className="text-center mb-8">
+        <Button onClick={handleCalculate} className="btn-gold px-8 py-3">
+          <Sparkles className="w-5 h-5 mr-2"/>
+          Рассчитать архетип
+        </Button>
+        {error && <p className="text-rose-300 text-sm mt-3">{error}</p>}
+      </div>
+
+      {result && (
+        <div className="max-w-3xl mx-auto space-y-5 animate-fade-in">
+          <div className="section-divider">
+            <span>Ваш психологический портрет по дате</span>
+          </div>
+          {renderNumberCard("Число Жизненного Пути", result.lifePath, "🌟 Путь")}
+          {renderNumberCard("Число Души", result.soul, "💫 Душа")}
+          {renderNumberCard("Число Личности", result.personality, "🎭 Личность")}
+        </div>
+      )}
+    </div>
+  )
+}
+
+// === Таб 3: Гороскоп по дате рождения ===
+function ZodiacTab() {
+  const [day, setDay] = useState("")
+  const [month, setMonth] = useState("")
+  const [sign, setSign] = useState<ZodiacSign | null>(null)
+  const [error, setError] = useState("")
+
+  const handleCalculate = () => {
+    const d = parseInt(day)
+    const m = parseInt(month)
+    if (!d || !m) {
+      setError("Заполните день и месяц")
+      setSign(null)
+      return
+    }
+    const s = getZodiacSign(d, m)
+    if (!s) {
+      setError("Проверьте дату")
+      setSign(null)
+      return
+    }
+    setError("")
+    setSign(s)
+  }
+
+  return (
+    <div>
+      <div className="text-center mb-6">
+        <h3 className="text-2xl font-bold text-amber-100 mb-2" style={{ fontFamily: "var(--font-cinzel)" }}>
+          Гороскоп по дате рождения
+        </h3>
+        <p className="text-sm text-amber-200/70 max-w-xl mx-auto">
+          Введите день и месяц рождения, чтобы узнать свой знак зодиака, его стихию,
+          планету-управитель и психологический архетип.
+        </p>
+      </div>
+
+      <div className="max-w-xs mx-auto mb-6 grid grid-cols-2 gap-3">
+        <div>
+          <label className="text-xs text-amber-200/70 mb-1 block">День</label>
+          <Input
+            type="number" min="1" max="31"
+            value={day}
+            onChange={(e) => setDay(e.target.value)}
+            placeholder="15"
+            className="bg-purple-950/40 border-amber-400/30 text-amber-100 placeholder:text-amber-200/40 text-center"
+          />
+        </div>
+        <div>
+          <label className="text-xs text-amber-200/70 mb-1 block">Месяц</label>
+          <Input
+            type="number" min="1" max="12"
+            value={month}
+            onChange={(e) => setMonth(e.target.value)}
+            placeholder="08"
+            className="bg-purple-950/40 border-amber-400/30 text-amber-100 placeholder:text-amber-200/40 text-center"
+          />
+        </div>
+      </div>
+
+      <div className="text-center mb-8">
+        <Button onClick={handleCalculate} className="btn-gold px-8 py-3">
+          <Star className="w-5 h-5 mr-2"/>
+          Узнать знак зодиака
+        </Button>
+        {error && <p className="text-rose-300 text-sm mt-3">{error}</p>}
+      </div>
+
+      {sign && (
+        <div className="max-w-3xl mx-auto animate-fade-in">
+          {/* Шапка знака */}
+          <Card
+            className="mb-5 relative overflow-hidden"
+            style={{
+              background: `linear-gradient(135deg, ${sign.color}30, rgba(26,10,58,0.6))`,
+              border: `1px solid ${sign.color}60`,
+            }}
+          >
+            <CardContent className="pt-6">
+              <div className="flex items-center gap-4">
+                <div
+                  className="w-20 h-20 rounded-full flex items-center justify-center text-5xl shrink-0"
+                  style={{
+                    backgroundColor: `${sign.color}30`,
+                    border: `2px solid ${sign.color}`,
+                    boxShadow: `0 0 25px ${sign.color}50`,
+                  }}
+                >
+                  {sign.symbol}
+                </div>
+                <div>
+                  <h3
+                    className="text-3xl font-bold mb-1"
+                    style={{ color: sign.color, fontFamily: "var(--font-cinzel)" }}
+                  >
+                    {sign.name}
+                  </h3>
+                  <p className="text-amber-100/80 text-sm">{sign.dates}</p>
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    <Badge className="border" style={{ backgroundColor: `${sign.color}25`, color: sign.color, borderColor: `${sign.color}50` }}>
+                      {sign.element}
+                    </Badge>
+                    <Badge variant="outline" className="border-amber-400/40 text-amber-200">
+                      {sign.quality}
+                    </Badge>
+                    <Badge variant="outline" className="border-amber-400/40 text-amber-200">
+                      {sign.ruler}
+                    </Badge>
+                  </div>
+                </div>
+              </div>
+              <p className="text-amber-200/80 italic text-sm mt-4">{sign.archetype}</p>
+            </CardContent>
+          </Card>
+
+          <Card className="glass-mystic border-amber-400/30 mb-5">
+            <CardContent className="pt-5">
+              <div className="text-xs uppercase tracking-wider text-amber-300 mb-2">Психология</div>
+              <p className="text-amber-100/85 text-sm leading-relaxed">{sign.psychology}</p>
+            </CardContent>
+          </Card>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
+            <Card className="glass-card border-emerald-400/20">
+              <CardHeader>
+                <CardTitle className="text-base text-emerald-200">✦ Силы</CardTitle>
+              </CardHeader>
+              <CardContent className="pt-0">
+                <ul className="space-y-1.5">
+                  {sign.strengths.map((s, i) => (
+                    <li key={i} className="text-xs text-amber-100/85 flex gap-2">
+                      <span className="text-emerald-400">✦</span>
+                      <span>{s}</span>
+                    </li>
+                  ))}
+                </ul>
+              </CardContent>
+            </Card>
+            <Card className="glass-card border-rose-400/20">
+              <CardHeader>
+                <CardTitle className="text-base text-rose-200">✦ Тень</CardTitle>
+              </CardHeader>
+              <CardContent className="pt-0">
+                <ul className="space-y-1.5">
+                  {sign.shadow.map((s, i) => (
+                    <li key={i} className="text-xs text-amber-100/85 flex gap-2">
+                      <span className="text-rose-400">✦</span>
+                      <span>{s}</span>
+                    </li>
+                  ))}
+                </ul>
+              </CardContent>
+            </Card>
+          </div>
+
+          <Card className="glass-card border-amber-400/20 mb-5">
+            <CardContent className="pt-5 space-y-3">
+              <div>
+                <div className="text-xs text-amber-300/70 mb-1">💼 Карьера</div>
+                <p className="text-sm text-amber-100/85">{sign.career}</p>
+              </div>
+              <div>
+                <div className="text-xs text-amber-300/70 mb-1">❤️ Отношения</div>
+                <p className="text-sm text-amber-100/85">{sign.relationships}</p>
+              </div>
+              <div>
+                <div className="text-xs text-amber-300/70 mb-1">🌱 Путь роста</div>
+                <p className="text-sm text-amber-100/85">{sign.growth}</p>
+              </div>
+              <div>
+                <div className="text-xs text-amber-300/70 mb-1">✨ Совместимость</div>
+                <div className="flex flex-wrap gap-2 mt-1">
+                  {sign.compatibility.map((c, i) => (
+                    <Badge key={i} variant="outline" className="border-amber-400/40 text-amber-200">
+                      {c}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="glass-mystic border-purple-400/30">
+            <CardContent className="pt-5">
+              <div className="text-xs text-purple-300 mb-1">✦ Аффирмация</div>
+              <p className="text-lg italic text-amber-100 text-center">{sign.affirmation}</p>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+    </div>
+  )
+}
+
+// === Таб 4: Цветовой архетип ===
+function ColorTab() {
+  const [selected, setSelected] = useState<ColorArchetype | null>(null)
+
+  return (
+    <div>
+      <div className="text-center mb-6">
+        <h3 className="text-2xl font-bold text-amber-100 mb-2" style={{ fontFamily: "var(--font-cinzel)" }}>
+          Архетип по цвету
+        </h3>
+        <p className="text-sm text-amber-200/70 max-w-xl mx-auto">
+          Выберите цвет, который вас больше всего притягивает в данный момент. Не думайте
+          — чувствуйте. Выбор цвета раскрывает ваш текущий архетип и активную чакру.
+        </p>
+      </div>
+
+      {!selected && (
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
+          {colorArchetypes.map((c) => (
+            <button
+              key={c.color}
+              onClick={() => setSelected(c)}
+              className="group relative aspect-square rounded-2xl overflow-hidden transition-all hover:scale-105"
+              style={{
+                background: `radial-gradient(circle at 30% 30%, ${c.color}, ${c.color}80)`,
+                boxShadow: `0 0 20px ${c.color}40`,
+                border: `2px solid ${c.color}80`,
+              }}
+            >
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"/>
+              <div className="absolute bottom-0 left-0 right-0 p-3 text-left">
+                <div className="text-xs text-white/70">{c.chakra}</div>
+                <div className="text-sm font-bold text-white">{c.name.split(" — ")[0]}</div>
+              </div>
+              {/* Декоративный блик */}
+              <div
+                className="absolute top-2 left-2 w-8 h-8 rounded-full opacity-50"
+                style={{ background: "radial-gradient(circle at 30% 30%, rgba(255,255,255,0.6), transparent 70%)" }}
+              />
+            </button>
+          ))}
+        </div>
+      )}
+
+      {selected && (
+        <div className="max-w-3xl mx-auto animate-fade-in">
+          {/* Шапка */}
+          <Card
+            className="mb-5 relative overflow-hidden"
+            style={{
+              background: `linear-gradient(135deg, ${selected.color}30, rgba(26,10,58,0.6))`,
+              border: `1px solid ${selected.color}60`,
+            }}
+          >
+            <CardContent className="pt-6">
+              <div className="flex items-center gap-4">
+                <div
+                  className="w-20 h-20 rounded-full shrink-0"
+                  style={{
+                    background: `radial-gradient(circle at 30% 30%, ${selected.color}, ${selected.color}80)`,
+                    boxShadow: `0 0 30px ${selected.color}80`,
+                    border: `2px solid ${selected.color}`,
+                  }}
+                />
+                <div>
+                  <h3
+                    className="text-2xl font-bold mb-1"
+                    style={{ color: selected.color, fontFamily: "var(--font-cinzel)" }}
+                  >
+                    {selected.name}
+                  </h3>
+                  <div className="flex flex-wrap gap-2">
+                    <Badge variant="outline" className="border text-xs" style={{ backgroundColor: `${selected.color}20`, color: selected.color, borderColor: `${selected.color}50` }}>
+                      {selected.chakra}
+                    </Badge>
+                    <Badge variant="outline" className="border-amber-400/40 text-amber-200 text-xs">
+                      {selected.element}
+                    </Badge>
+                  </div>
+                  <p className="text-amber-100/80 text-sm mt-2 italic">{selected.energy}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="glass-mystic border-amber-400/30 mb-5">
+            <CardContent className="pt-5">
+              <div className="text-xs uppercase tracking-wider text-amber-300 mb-2">Психология</div>
+              <p className="text-amber-100/85 text-sm leading-relaxed">{selected.psychology}</p>
+            </CardContent>
+          </Card>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
+            <Card className="glass-card border-emerald-400/20">
+              <CardHeader>
+                <CardTitle className="text-base text-emerald-200">✦ Силы</CardTitle>
+              </CardHeader>
+              <CardContent className="pt-0">
+                <ul className="space-y-1.5">
+                  {selected.strengths.map((s, i) => (
+                    <li key={i} className="text-xs text-amber-100/85 flex gap-2">
+                      <span className="text-emerald-400">✦</span>
+                      <span>{s}</span>
+                    </li>
+                  ))}
+                </ul>
+              </CardContent>
+            </Card>
+            <Card className="glass-card border-rose-400/20">
+              <CardHeader>
+                <CardTitle className="text-base text-rose-200">✦ Тень</CardTitle>
+              </CardHeader>
+              <CardContent className="pt-0">
+                <ul className="space-y-1.5">
+                  {selected.challenges.map((c, i) => (
+                    <li key={i} className="text-xs text-amber-100/85 flex gap-2">
+                      <span className="text-rose-400">✦</span>
+                      <span>{c}</span>
+                    </li>
+                  ))}
+                </ul>
+              </CardContent>
+            </Card>
+          </div>
+
+          <Card className="glass-card border-amber-400/20 mb-5">
+            <CardContent className="pt-5">
+              <div className="text-xs text-amber-300/70 mb-1">🌱 Путь роста</div>
+              <p className="text-sm text-amber-100/85">{selected.path}</p>
+            </CardContent>
+          </Card>
+
+          <Card className="glass-mystic border-purple-400/30 mb-5">
+            <CardContent className="pt-5">
+              <div className="text-xs text-purple-300 mb-1">✦ Аффирмация</div>
+              <p className="text-lg italic text-amber-100 text-center">{selected.affirmation}</p>
+            </CardContent>
+          </Card>
+
+          <div className="text-center">
+            <Button
+              variant="outline"
+              onClick={() => setSelected(null)}
+              className="border-amber-400/40 text-amber-200 hover:bg-amber-400/10"
+            >
+              <Palette className="w-4 h-4 mr-2"/>
+              Выбрать другой цвет
+            </Button>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+// === Таб 5: Геометрический архетип ===
+function GeometryTab() {
+  const [selected, setSelected] = useState<GeometryArchetype | null>(null)
+
+  const renderShape = (shape: GeometryArchetype["shape"], size: number = 60, color: string = "#fbbf24") => {
+    const props = {
+      fill: "none",
+      stroke: color,
+      strokeWidth: 2,
+    }
+    switch (shape) {
+      case "circle":
+        return <circle cx={size/2} cy={size/2} r={size/2 - 4} {...props}/>
+      case "square":
+        return <rect x="6" y="6" width={size-12} height={size-12} {...props} rx="2"/>
+      case "triangle":
+        return <path d={`M ${size/2} 6 L ${size-6} ${size-6} L 6 ${size-6} Z`} {...props}/>
+      case "spiral":
+        return (
+          <path
+            d={`M ${size/2} ${size/2} Q ${size/2+8} ${size/2} ${size/2+8} ${size/2+8} Q ${size/2+8} ${size/2+16} ${size/2} ${size/2+16} Q ${size/2-12} ${size/2+16} ${size/2-12} ${size/2} Q ${size/2-12} ${size/2-16} ${size/2+8} ${size/2-16} Q ${size/2+20} ${size/2-16} ${size/2+20} ${size/2+12}`}
+            fill="none" stroke={color} strokeWidth="2" strokeLinecap="round"
+          />
+        )
+      case "cross":
+        return (
+          <g {...props}>
+            <line x1={size/2} y1="6" x2={size/2} y2={size-6}/>
+            <line x1="6" y1={size/2} x2={size-6} y2={size/2}/>
+          </g>
+        )
+      case "star":
+        return (
+          <path
+            d={`M ${size/2} 6 L ${size/2+6} ${size/2-8} L ${size-6} ${size/2-8} L ${size/2+8} ${size/2+4} L ${size/2+14} ${size-6} L ${size/2} ${size/2+10} L ${size/2-14} ${size-6} L ${size/2-8} ${size/2+4} L 6 ${size/2-8} L ${size/2-6} ${size/2-8} Z`}
+            fill="none" stroke={color} strokeWidth="2"
+          />
+        )
+      case "hexagon":
+        return (
+          <path
+            d={`M ${size/2} 6 L ${size-8} ${size/2-12} L ${size-8} ${size/2+12} L ${size/2} ${size-6} L 8 ${size/2+12} L 8 ${size/2-12} Z`}
+            fill="none" stroke={color} strokeWidth="2"
+          />
+        )
+      case "infinity":
+        return (
+          <path
+            d={`M ${size/2-12} ${size/2} C ${size/2-12} ${size/2-8} ${size/2-4} ${size/2-8} ${size/2} ${size/2} C ${size/2+4} ${size/2+8} ${size/2+12} ${size/2+8} ${size/2+12} ${size/2} C ${size/2+12} ${size/2-8} ${size/2+4} ${size/2-8} ${size/2} ${size/2} C ${size/2-4} ${size/2+8} ${size/2-12} ${size/2+8} ${size/2-12} ${size/2} Z`}
+            fill="none" stroke={color} strokeWidth="2"
+          />
+        )
+      case "crescent":
+        return (
+          <path
+            d={`M ${size-10} ${size/2} A ${size/2-8} ${size/2-8} 0 1 1 ${size-10} ${size/2-1} A ${size/2-16} ${size/2-16} 0 1 0 ${size-10} ${size/2} Z`}
+            fill={color} stroke={color}
+          />
+        )
+      case "eye":
+        return (
+          <g>
+            <path d={`M 6 ${size/2} Q ${size/2} 6 ${size-6} ${size/2} Q ${size/2} ${size-6} 6 ${size/2} Z`} fill="none" stroke={color} strokeWidth="2"/>
+            <circle cx={size/2} cy={size/2} r="6" fill={color}/>
+            <circle cx={size/2} cy={size/2} r="2" fill="#1a0a3a"/>
+          </g>
+        )
+      default:
+        return null
+    }
+  }
+
+  return (
+    <div>
+      <div className="text-center mb-6">
+        <h3 className="text-2xl font-bold text-amber-100 mb-2" style={{ fontFamily: "var(--font-cinzel)" }}>
+          Архетип по геометрической форме
+        </h3>
+        <p className="text-sm text-amber-200/70 max-w-xl mx-auto">
+          Выберите сакральную форму, которая резонирует с вами больше всего. Каждая
+          геометрическая фигура несёт свой архетип и принцип — от круга (целостность)
+          до спирали (эволюция).
+        </p>
+      </div>
+
+      {!selected && (
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 max-w-4xl mx-auto">
+          {geometryArchetypes.map((g) => (
+            <button
+              key={g.shape}
+              onClick={() => setSelected(g)}
+              className="group glass-card rounded-2xl p-4 hover:scale-105 transition-all border-amber-400/20 hover:border-amber-400/50 flex flex-col items-center gap-3"
+            >
+              <div
+                className="w-16 h-16 rounded-xl flex items-center justify-center"
+                style={{
+                  background: "radial-gradient(circle, rgba(251,191,36,0.15), transparent 70%)",
+                }}
+              >
+                <svg viewBox={`0 0 60 60`} className="w-12 h-12">
+                  {renderShape(g.shape, 60, "#fbbf24")}
+                </svg>
+              </div>
+              <div className="text-center">
+                <div className="text-sm font-bold text-amber-100">{g.name.split(" — ")[0]}</div>
+                <div className="text-xs text-amber-200/60 mt-0.5">{g.element}</div>
+              </div>
+            </button>
+          ))}
+        </div>
+      )}
+
+      {selected && (
+        <div className="max-w-3xl mx-auto animate-fade-in">
+          {/* Шапка */}
+          <Card className="glass-mystic border-amber-400/40 mb-5">
+            <CardContent className="pt-6">
+              <div className="flex items-center gap-4">
+                <div
+                  className="w-24 h-24 rounded-2xl flex items-center justify-center shrink-0"
+                  style={{
+                    background: "radial-gradient(circle, rgba(251,191,36,0.2), rgba(167,139,250,0.1))",
+                    border: "1px solid rgba(251,191,36,0.4)",
+                  }}
+                >
+                  <svg viewBox={`0 0 60 60`} className="w-16 h-16">
+                    {renderShape(selected.shape, 60, "#fbbf24")}
+                  </svg>
+                </div>
+                <div>
+                  <h3
+                    className="text-2xl font-bold mb-1 text-gold-gradient"
+                    style={{ fontFamily: "var(--font-cinzel)" }}
+                  >
+                    {selected.name}
+                  </h3>
+                  <div className="flex flex-wrap gap-2">
+                    <Badge variant="outline" className="border-amber-400/40 text-amber-200 text-xs">
+                      {selected.element}
+                    </Badge>
+                    <Badge variant="outline" className="border-purple-400/40 text-purple-200 text-xs">
+                      {selected.principle}
+                    </Badge>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="glass-mystic border-amber-400/30 mb-5">
+            <CardContent className="pt-5">
+              <div className="text-xs uppercase tracking-wider text-amber-300 mb-2">Психология</div>
+              <p className="text-amber-100/85 text-sm leading-relaxed">{selected.psychology}</p>
+            </CardContent>
+          </Card>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
+            <Card className="glass-card border-emerald-400/20">
+              <CardHeader>
+                <CardTitle className="text-base text-emerald-200">✦ Силы</CardTitle>
+              </CardHeader>
+              <CardContent className="pt-0">
+                <ul className="space-y-1.5">
+                  {selected.strengths.map((s, i) => (
+                    <li key={i} className="text-xs text-amber-100/85 flex gap-2">
+                      <span className="text-emerald-400">✦</span>
+                      <span>{s}</span>
+                    </li>
+                  ))}
+                </ul>
+              </CardContent>
+            </Card>
+            <Card className="glass-card border-rose-400/20">
+              <CardHeader>
+                <CardTitle className="text-base text-rose-200">✦ Тень</CardTitle>
+              </CardHeader>
+              <CardContent className="pt-0">
+                <ul className="space-y-1.5">
+                  {selected.challenges.map((c, i) => (
+                    <li key={i} className="text-xs text-amber-100/85 flex gap-2">
+                      <span className="text-rose-400">✦</span>
+                      <span>{c}</span>
+                    </li>
+                  ))}
+                </ul>
+              </CardContent>
+            </Card>
+          </div>
+
+          <Card className="glass-card border-amber-400/20 mb-5">
+            <CardContent className="pt-5">
+              <div className="text-xs text-amber-300/70 mb-1">🌱 Путь роста</div>
+              <p className="text-sm text-amber-100/85">{selected.path}</p>
+            </CardContent>
+          </Card>
+
+          <Card className="glass-mystic border-purple-400/30 mb-5">
+            <CardContent className="pt-5">
+              <div className="text-xs text-purple-300 mb-1">✦ Аффирмация</div>
+              <p className="text-lg italic text-amber-100 text-center">{selected.affirmation}</p>
+            </CardContent>
+          </Card>
+
+          <div className="text-center">
+            <Button
+              variant="outline"
+              onClick={() => setSelected(null)}
+              className="border-amber-400/40 text-amber-200 hover:bg-amber-400/10"
+            >
+              <Hexagon className="w-4 h-4 mr-2"/>
+              Выбрать другую форму
+            </Button>
+          </div>
         </div>
       )}
     </div>
