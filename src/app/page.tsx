@@ -24,12 +24,14 @@ import {
   geometryArchetypes,
   palmLines,
   getZodiacCompatibility,
+  calculateNumerologyCompatibility,
   type BirthDateResult,
   type ZodiacSign,
   type ColorArchetype,
   type GeometryArchetype,
   type PalmLine,
   type ZodiacCompatibility,
+  type NumerologyCompatibility,
 } from "@/lib/psychology-data"
 import {
   getHistory,
@@ -361,7 +363,7 @@ function HomeSection({ onNavigate }: { onNavigate: (s: Section) => void }) {
           <FeatureCard
             icon={<Heart className="w-7 h-7"/>}
             title="Совместимость"
-            description="Совместимость пары по картам Таро (стихии арканов) и по гороскопу (знаки зодиака). Сильные стороны союза, зоны роста и совет паре."
+            description="Совместимость пары по картам Таро, по знакам зодиака и по дате рождения (нумерология). Сильные стороны союза, зоны роста и совет паре."
             onClick={() => onNavigate("compatibility")}
             accent="#f9a8d4"
           />
@@ -1192,7 +1194,7 @@ function YesNoReading() {
 
 // ===================== COMPATIBILITY =====================
 function CompatibilitySection() {
-  const [compatTab, setCompatTab] = useState<"tarot" | "zodiac">("tarot")
+  const [compatTab, setCompatTab] = useState<"tarot" | "zodiac" | "birthdate">("tarot")
 
   return (
     <div className="py-8">
@@ -1207,20 +1209,27 @@ function CompatibilitySection() {
           Парный расклад
         </h2>
         <p className="text-amber-200/70 max-w-2xl mx-auto">
-          Два способа узнать совместимость пары: через карты Таро (по стихиям арканов)
-          и по знакам зодиака (по стихиям знаков).
+          Три способа узнать совместимость пары: через карты Таро (по стихиям арканов),
+          по знакам зодиака и по числам даты рождения (нумерология).
         </p>
       </div>
 
       <Tabs value={compatTab} onValueChange={(v) => setCompatTab(v as typeof compatTab)}>
-        <TabsList className="grid grid-cols-2 max-w-md mx-auto mb-8 bg-purple-950/40 border border-amber-400/20">
-          <TabsTrigger value="tarot" className="data-[state=active]:bg-amber-400/20 data-[state=active]:text-amber-100">
+        <TabsList className="grid grid-cols-3 max-w-2xl mx-auto mb-8 bg-purple-950/40 border border-amber-400/20">
+          <TabsTrigger value="tarot" className="data-[state=active]:bg-amber-400/20 data-[state=active]:text-amber-100 text-xs sm:text-sm">
             <Layers className="w-3.5 h-3.5 mr-1"/>
-            По Таро
+            <span className="hidden sm:inline">По Таро</span>
+            <span className="sm:hidden">Таро</span>
           </TabsTrigger>
-          <TabsTrigger value="zodiac" className="data-[state=active]:bg-amber-400/20 data-[state=active]:text-amber-100">
+          <TabsTrigger value="zodiac" className="data-[state=active]:bg-amber-400/20 data-[state=active]:text-amber-100 text-xs sm:text-sm">
             <Star className="w-3.5 h-3.5 mr-1"/>
-            По гороскопу
+            <span className="hidden sm:inline">По гороскопу</span>
+            <span className="sm:hidden">Знак</span>
+          </TabsTrigger>
+          <TabsTrigger value="birthdate" className="data-[state=active]:bg-amber-400/20 data-[state=active]:text-amber-100 text-xs sm:text-sm">
+            <Calendar className="w-3.5 h-3.5 mr-1"/>
+            <span className="hidden sm:inline">По дате рождения</span>
+            <span className="sm:hidden">Дата</span>
           </TabsTrigger>
         </TabsList>
 
@@ -1229,6 +1238,9 @@ function CompatibilitySection() {
         </TabsContent>
         <TabsContent value="zodiac">
           <CompatibilityZodiacTab/>
+        </TabsContent>
+        <TabsContent value="birthdate">
+          <CompatibilityBirthDateTab/>
         </TabsContent>
       </Tabs>
     </div>
@@ -1686,6 +1698,296 @@ function CompatibilityZodiacTab() {
               </p>
             </CardContent>
           </Card>
+        </div>
+      )}
+    </div>
+  )
+}
+
+// === Таб 3: Совместимость по дате рождения (нумерология) ===
+function CompatibilityBirthDateTab() {
+  const [name1, setName1] = useState("")
+  const [name2, setName2] = useState("")
+  const [day1, setDay1] = useState("")
+  const [month1, setMonth1] = useState("")
+  const [year1, setYear1] = useState("")
+  const [day2, setDay2] = useState("")
+  const [month2, setMonth2] = useState("")
+  const [year2, setYear2] = useState("")
+  const [result, setResult] = useState<{ birth1: BirthDateResult; birth2: BirthDateResult; compat: NumerologyCompatibility } | null>(null)
+  const [error, setError] = useState("")
+
+  const handleCalculate = () => {
+    const d1 = parseInt(day1), m1 = parseInt(month1), y1 = parseInt(year1)
+    const d2 = parseInt(day2), m2 = parseInt(month2), y2 = parseInt(year2)
+    if (!d1 || !m1 || !y1 || !d2 || !m2 || !y2) {
+      setError("Заполните все поля даты для обоих партнёров")
+      setResult(null)
+      return
+    }
+    const b1 = calculateBirthDate(d1, m1, y1)
+    const b2 = calculateBirthDate(d2, m2, y2)
+    if (!b1 || !b2) {
+      setError("Проверьте корректность дат")
+      setResult(null)
+      return
+    }
+    setError("")
+    setResult({ birth1: b1, birth2: b2, compat: calculateNumerologyCompatibility(b1, b2) })
+  }
+
+  const renderNumberCard = (n: number, title: string, name: string, accent: string) => (
+    <div
+      className="rounded-xl p-3 text-center"
+      style={{
+        background: `linear-gradient(135deg, ${accent}20, rgba(26,10,58,0.6))`,
+        border: `1px solid ${accent}40`,
+      }}
+    >
+      <div className="text-xs text-amber-200/70 mb-1">{name || "Партнёр"}</div>
+      <div
+        className="w-12 h-12 rounded-full mx-auto flex items-center justify-center text-xl font-bold mb-1"
+        style={{
+          background: `linear-gradient(135deg, ${accent}40, ${accent}20)`,
+          border: `1px solid ${accent}60`,
+          color: accent,
+        }}
+      >
+        {n}
+      </div>
+      <div className="text-xs text-amber-200/80">{title}</div>
+    </div>
+  )
+
+  return (
+    <div>
+      <div className="text-center mb-8">
+        <h3 className="text-2xl font-bold text-amber-100 mb-2" style={{ fontFamily: "var(--font-cinzel)" }}>
+          Совместимость по дате рождения
+        </h3>
+        <p className="text-sm text-amber-200/70 max-w-xl mx-auto">
+          Расчёт совместимости по трём числам нумерологии: Жизненный путь (по полной дате),
+          Душа (по дню), Личность (по месяцу). Узнайте архетипную совместимость пары.
+        </p>
+      </div>
+
+      <div className="max-w-2xl mx-auto grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+        {/* Партнёр 1 */}
+        <Card className="glass-card border-amber-400/20">
+          <CardContent className="pt-5">
+            <div className="text-xs uppercase tracking-wider text-amber-300 mb-2">Партнёр 1</div>
+            <Input
+              value={name1}
+              onChange={(e) => setName1(e.target.value)}
+              placeholder="Имя"
+              className="bg-purple-950/40 border-amber-400/30 text-amber-100 placeholder:text-amber-200/40 mb-3"
+            />
+            <div className="grid grid-cols-3 gap-2">
+              <Input
+                type="number" min="1" max="31"
+                value={day1}
+                onChange={(e) => setDay1(e.target.value)}
+                placeholder="День"
+                className="bg-purple-950/40 border-amber-400/30 text-amber-100 placeholder:text-amber-200/40 text-center"
+              />
+              <Input
+                type="number" min="1" max="12"
+                value={month1}
+                onChange={(e) => setMonth1(e.target.value)}
+                placeholder="Месяц"
+                className="bg-purple-950/40 border-amber-400/30 text-amber-100 placeholder:text-amber-200/40 text-center"
+              />
+              <Input
+                type="number" min="1900" max="2100"
+                value={year1}
+                onChange={(e) => setYear1(e.target.value)}
+                placeholder="Год"
+                className="bg-purple-950/40 border-amber-400/30 text-amber-100 placeholder:text-amber-200/40 text-center"
+              />
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Партнёр 2 */}
+        <Card className="glass-card border-amber-400/20">
+          <CardContent className="pt-5">
+            <div className="text-xs uppercase tracking-wider text-amber-300 mb-2">Партнёр 2</div>
+            <Input
+              value={name2}
+              onChange={(e) => setName2(e.target.value)}
+              placeholder="Имя"
+              className="bg-purple-950/40 border-amber-400/30 text-amber-100 placeholder:text-amber-200/40 mb-3"
+            />
+            <div className="grid grid-cols-3 gap-2">
+              <Input
+                type="number" min="1" max="31"
+                value={day2}
+                onChange={(e) => setDay2(e.target.value)}
+                placeholder="День"
+                className="bg-purple-950/40 border-amber-400/30 text-amber-100 placeholder:text-amber-200/40 text-center"
+              />
+              <Input
+                type="number" min="1" max="12"
+                value={month2}
+                onChange={(e) => setMonth2(e.target.value)}
+                placeholder="Месяц"
+                className="bg-purple-950/40 border-amber-400/30 text-amber-100 placeholder:text-amber-200/40 text-center"
+              />
+              <Input
+                type="number" min="1900" max="2100"
+                value={year2}
+                onChange={(e) => setYear2(e.target.value)}
+                placeholder="Год"
+                className="bg-purple-950/40 border-amber-400/30 text-amber-100 placeholder:text-amber-200/40 text-center"
+              />
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="text-center mb-8">
+        <Button onClick={handleCalculate} className="btn-gold px-8 py-3">
+          <Heart className="w-5 h-5 mr-2"/>
+          Рассчитать совместимость
+        </Button>
+        {error && <p className="text-rose-300 text-sm mt-3">{error}</p>}
+      </div>
+
+      {result && (
+        <div className="max-w-3xl mx-auto animate-fade-in space-y-4">
+          {/* Три числа обоих партнёров */}
+          <Card className="glass-mystic border-amber-400/40">
+            <CardContent className="pt-6">
+              <h4 className="text-sm font-semibold text-amber-200 mb-4 text-center" style={{ fontFamily: "var(--font-cinzel)" }}>
+                Числа пары
+              </h4>
+              <div className="grid grid-cols-3 gap-4">
+                <div>
+                  <div className="text-xs text-amber-300/80 text-center mb-2">Жизненный путь</div>
+                  <div className="grid grid-cols-2 gap-2">
+                    {renderNumberCard(result.birth1.lifePathNumber, result.birth1.lifePath.title.slice(0, 20), name1, "#fbbf24")}
+                    {renderNumberCard(result.birth2.lifePathNumber, result.birth2.lifePath.title.slice(0, 20), name2, "#fbbf24")}
+                  </div>
+                </div>
+                <div>
+                  <div className="text-xs text-amber-300/80 text-center mb-2">Душа</div>
+                  <div className="grid grid-cols-2 gap-2">
+                    {renderNumberCard(result.birth1.soulNumber, result.birth1.soul.title.slice(0, 20), name1, "#a78bfa")}
+                    {renderNumberCard(result.birth2.soulNumber, result.birth2.soul.title.slice(0, 20), name2, "#a78bfa")}
+                  </div>
+                </div>
+                <div>
+                  <div className="text-xs text-amber-300/80 text-center mb-2">Личность</div>
+                  <div className="grid grid-cols-2 gap-2">
+                    {renderNumberCard(result.birth1.personalityNumber, result.birth1.personality.title.slice(0, 20), name1, "#7dd3fc")}
+                    {renderNumberCard(result.birth2.personalityNumber, result.birth2.personality.title.slice(0, 20), name2, "#7dd3fc")}
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Результат совместимости */}
+          <Card className="glass-mystic border-amber-400/30 text-center">
+            <CardContent className="pt-6">
+              <div className="text-6xl font-bold text-gold-gradient mb-2" style={{ fontFamily: "var(--font-cinzel)" }}>
+                {result.compat.score}%
+              </div>
+              <h3 className="text-xl font-bold text-amber-100 mb-2" style={{ fontFamily: "var(--font-cinzel)" }}>
+                {result.compat.title}
+              </h3>
+              <p className="text-sm text-amber-200/80 leading-relaxed">{result.compat.description}</p>
+              <Progress value={result.compat.score} className="mt-4 bg-purple-950/60"/>
+              <div className="flex justify-center gap-3 mt-3 flex-wrap">
+                <Badge variant="outline" className="border-amber-400/40 text-amber-200 text-xs">
+                  Путь: {result.compat.lifePathPair}
+                </Badge>
+                <Badge variant="outline" className="border-purple-400/40 text-purple-200 text-xs">
+                  Душа: {result.compat.soulPair}
+                </Badge>
+                <Badge variant="outline" className="border-blue-400/40 text-blue-200 text-xs">
+                  Личность: {result.compat.personalityPair}
+                </Badge>
+              </div>
+            </CardContent>
+          </Card>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <Card className="glass-card border-emerald-400/20">
+              <CardHeader>
+                <CardTitle className="text-base text-emerald-200 flex items-center gap-2">
+                  <Sparkles className="w-4 h-4"/>
+                  Сильные стороны
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="pt-0">
+                <ul className="space-y-1.5">
+                  {result.compat.strengths.map((s, i) => (
+                    <li key={i} className="text-xs text-amber-100/85 flex gap-2">
+                      <span className="text-emerald-400">✦</span>
+                      <span>{s}</span>
+                    </li>
+                  ))}
+                </ul>
+              </CardContent>
+            </Card>
+            <Card className="glass-card border-rose-400/20">
+              <CardHeader>
+                <CardTitle className="text-base text-rose-200 flex items-center gap-2">
+                  <Compass className="w-4 h-4"/>
+                  Зоны роста
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="pt-0">
+                <ul className="space-y-1.5">
+                  {result.compat.challenges.map((c, i) => (
+                    <li key={i} className="text-xs text-amber-100/85 flex gap-2">
+                      <span className="text-rose-400">✦</span>
+                      <span>{c}</span>
+                    </li>
+                  ))}
+                </ul>
+              </CardContent>
+            </Card>
+          </div>
+
+          <Card className="glass-card border-amber-400/30">
+            <CardContent className="pt-5">
+              <h4 className="text-sm font-semibold text-amber-200 mb-2 flex items-center gap-2">
+                <Crown className="w-4 h-4"/>
+                Совет паре
+              </h4>
+              <p className="text-sm text-amber-100/85 italic leading-relaxed">
+                {result.compat.advice}
+              </p>
+            </CardContent>
+          </Card>
+
+          {/* Краткие архетипы партнёров */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <Card className="glass-card border-amber-400/20">
+              <CardHeader>
+                <CardTitle className="text-sm text-amber-100">
+                  {name1 || "Партнёр 1"} — Путь {result.birth1.lifePathNumber}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="pt-0">
+                <p className="text-xs text-amber-200/80 mb-1">{result.birth1.lifePath.title}</p>
+                <p className="text-xs text-amber-100/75 italic">{result.birth1.lifePath.archetype}</p>
+              </CardContent>
+            </Card>
+            <Card className="glass-card border-amber-400/20">
+              <CardHeader>
+                <CardTitle className="text-sm text-amber-100">
+                  {name2 || "Партнёр 2"} — Путь {result.birth2.lifePathNumber}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="pt-0">
+                <p className="text-xs text-amber-200/80 mb-1">{result.birth2.lifePath.title}</p>
+                <p className="text-xs text-amber-100/75 italic">{result.birth2.lifePath.archetype}</p>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       )}
     </div>
