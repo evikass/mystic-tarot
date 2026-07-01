@@ -37,11 +37,15 @@ import {
 } from "@/lib/psychology-data"
 import {
   calculateNatalChart,
+  calculateAspects,
+  calculateKeyDates,
   planets as natalPlanets,
   zodiacInNatal,
   natalHouses,
   type NatalChartResult,
   type PlanetPosition,
+  type CalculatedAspect,
+  type KeyDate,
 } from "@/lib/natal-chart-data"
 import {
   getHistory,
@@ -3092,31 +3096,70 @@ function NatalChartTab() {
           return <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} stroke="rgba(167,139,250,0.2)" strokeWidth="0.5"/>
         })}
 
-        {/* Планеты на своих позициях */}
-        {chart.planets.map((pp, i) => {
-          // Позиция планеты в знаке
-          const angle = ((pp.signIndex * 30 + pp.degree) - 90) * Math.PI / 180
-          // Смещение по радиусу для избежания наложения
-          const offset = i % 3 === 0 ? 0 : i % 3 === 1 ? -8 : 8
-          const pr = r3 + offset
-          const px = cx + Math.cos(angle) * pr
-          const py = cy + Math.sin(angle) * pr
+        {/* Планеты на своих позициях + расчёт координат для аспектов */}
+        {(() => {
+          // Сначала вычислим позиции всех планет
+          const planetCoords = chart.planets.map((pp, i) => {
+            const angle = ((pp.signIndex * 30 + pp.degree) - 90) * Math.PI / 180
+            const offset = i % 3 === 0 ? 0 : i % 3 === 1 ? -8 : 8
+            const pr = r3 + offset
+            return {
+              px: cx + Math.cos(angle) * pr,
+              py: cy + Math.sin(angle) * pr,
+              pp,
+              i,
+            }
+          })
+
+          // Вычислим аспекты
+          const calculatedAspects = calculateAspects(chart.planets)
 
           return (
-            <g key={i}>
-              {/* Свечение */}
-              <circle cx={px} cy={py} r="12" fill={pp.planet.color} opacity="0.15"/>
-              {/* Символ планеты */}
-              <text x={px} y={py + 5} fontSize="16" textAnchor="middle" fill={pp.planet.color} fontWeight="bold">
-                {pp.planet.symbol}
-              </text>
-              {/* Градус */}
-              <text x={px} y={py + 18} fontSize="6" textAnchor="middle" fill="rgba(254,243,199,0.5)">
-                {Math.round(pp.degree)}°
-              </text>
-            </g>
+            <>
+              {/* Линии аспектов */}
+              {calculatedAspects.map((asp, i) => {
+                const idx1 = chart.planets.findIndex(p => p.planet.id === asp.planet1.id)
+                const idx2 = chart.planets.findIndex(p => p.planet.id === asp.planet2.id)
+                if (idx1 === -1 || idx2 === -1) return null
+                const c1 = planetCoords[idx1]
+                const c2 = planetCoords[idx2]
+                if (!c1 || !c2) return null
+
+                const color = asp.aspect.type === "harmonious"
+                  ? "rgba(52,211,153,0.4)"
+                  : asp.aspect.type === "tense"
+                  ? "rgba(248,113,113,0.4)"
+                  : "rgba(251,191,36,0.35)"
+                const sw = asp.strength === "точный" ? 2 : asp.strength === "сильный" ? 1.5 : 1
+                const dash = asp.aspect.name === "Квадрат" ? "4 2"
+                  : asp.aspect.name === "Оппозиция" ? "6 3"
+                  : asp.aspect.name === "Секстиль" ? "2 2"
+                  : "none"
+
+                return (
+                  <line key={`asp-${i}`}
+                    x1={c1.px} y1={c1.py} x2={c2.px} y2={c2.py}
+                    stroke={color} strokeWidth={sw} strokeDasharray={dash}
+                    opacity={asp.strength === "умеренный" ? 0.5 : 0.8}
+                  />
+                )
+              })}
+
+              {/* Сами планеты */}
+              {planetCoords.map(({ px, py, pp, i }) => (
+                <g key={`planet-${i}`}>
+                  <circle cx={px} cy={py} r="12" fill={pp.planet.color} opacity="0.15"/>
+                  <text x={px} y={py + 5} fontSize="16" textAnchor="middle" fill={pp.planet.color} fontWeight="bold">
+                    {pp.planet.symbol}
+                  </text>
+                  <text x={px} y={py + 18} fontSize="6" textAnchor="middle" fill="rgba(254,243,199,0.5)">
+                    {Math.round(pp.degree)}°
+                  </text>
+                </g>
+              ))}
+            </>
           )
-        })}
+        })()}
 
         {/* Асцендент — отмечен на круге */}
         <line x1={cx} y1={cy} x2={cx + Math.cos((-90) * Math.PI / 180) * r1} y2={cy + Math.sin((-90) * Math.PI / 180) * r1}
@@ -3320,6 +3363,141 @@ function NatalChartTab() {
               </p>
             </CardContent>
           </Card>
+
+          {/* Аспекты между планетами */}
+          {(() => {
+            const calculatedAspects = calculateAspects(result.planets)
+            const tenseAspects = calculatedAspects.filter(a => a.aspect.type === "tense")
+            const harmoniousAspects = calculatedAspects.filter(a => a.aspect.type === "harmonious")
+            const conjunctions = calculatedAspects.filter(a => a.aspect.type === "neutral")
+
+            return (
+              <Card className="glass-card border-amber-400/20">
+                <CardHeader>
+                  <CardTitle className="text-lg text-amber-100" style={{ fontFamily: "var(--font-cinzel)" }}>
+                    Аспекты между планетами ({calculatedAspects.length})
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {/* Легенда */}
+                  <div className="flex flex-wrap gap-3 mb-4 text-xs">
+                    <div className="flex items-center gap-1.5">
+                      <div className="w-4 h-0.5 bg-emerald-400/60"/>
+                      <span className="text-emerald-200">Гармоничные ({harmoniousAspects.length})</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <div className="w-4 h-0.5 bg-rose-400/60"/>
+                      <span className="text-rose-200">Напряжённые ({tenseAspects.length})</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <div className="w-4 h-0.5 bg-amber-400/60"/>
+                      <span className="text-amber-200">Соединения ({conjunctions.length})</span>
+                    </div>
+                  </div>
+
+                  {/* Список аспектов */}
+                  <div className="space-y-2 max-h-96 overflow-y-auto pr-2">
+                    {calculatedAspects.map((asp, i) => (
+                      <div key={i} className="glass-card rounded-lg p-3">
+                        <div className="flex items-center gap-2 mb-1 flex-wrap">
+                          <span className="text-base" style={{ color: asp.planet1.color }}>{asp.planet1.symbol}</span>
+                          <span className="text-xs font-medium text-amber-100">{asp.planet1.name}</span>
+                          <span className="text-xs text-amber-200/50">→</span>
+                          <span className="text-xs" style={{
+                            color: asp.aspect.type === "harmonious" ? "#34d399"
+                              : asp.aspect.type === "tense" ? "#f87171" : "#fbbf24"
+                          }}>
+                            {asp.aspect.symbol} {asp.aspect.name}
+                          </span>
+                          <span className="text-xs text-amber-200/50">→</span>
+                          <span className="text-base" style={{ color: asp.planet2.color }}>{asp.planet2.symbol}</span>
+                          <span className="text-xs font-medium text-amber-100">{asp.planet2.name}</span>
+                          <Badge variant="outline" className={`text-xs ml-auto ${
+                            asp.strength === "точный" ? "border-amber-400/60 text-amber-200"
+                            : asp.strength === "сильный" ? "border-purple-400/40 text-purple-200"
+                            : "border-slate-400/30 text-slate-300"
+                          }`}>
+                            {asp.strength} · орб {Math.round(asp.orb)}°
+                          </Badge>
+                        </div>
+                        <p className="text-xs text-amber-100/75 leading-relaxed italic">
+                          {asp.interpretation}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+
+                  {calculatedAspects.length === 0 && (
+                    <p className="text-sm text-amber-200/60 text-center py-4">
+                      В вашей карте нет значимых аспектов в пределах допустимого орба.
+                      Это бывает редко — возможно, планеты находятся в промежуточных положениях.
+                    </p>
+                  )}
+                </CardContent>
+              </Card>
+            )
+          })()}
+
+          {/* Ключевые даты (возрастные точки) */}
+          {(() => {
+            const keyDates = calculateKeyDates(
+              parseInt(year || "1990"),
+              parseInt(month || "1"),
+              parseInt(day || "1")
+            )
+            return (
+              <Card className="glass-card border-amber-400/20">
+                <CardHeader>
+                  <CardTitle className="text-lg text-amber-100" style={{ fontFamily: "var(--font-cinzel)" }}>
+                    Ключевые даты жизни ({keyDates.length})
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-xs text-amber-200/60 mb-4">
+                    Возрастные точки — это моменты, когда планеты возвращаются на свои натальные позиции
+                    или делают значимые аспекты. Каждая отмечает важный жизненный переход.
+                  </p>
+                  <div className="space-y-2 max-h-96 overflow-y-auto pr-2">
+                    {keyDates.map((kd, i) => (
+                      <div key={i} className="glass-card rounded-lg p-3 flex items-start gap-3">
+                        <div
+                          className="w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold shrink-0"
+                          style={{
+                            background: kd.significance === "высокая"
+                              ? "rgba(251,191,36,0.25)"
+                              : "rgba(167,139,250,0.15)",
+                            border: kd.significance === "высокая"
+                              ? "1px solid rgba(251,191,36,0.5)"
+                              : "1px solid rgba(167,139,250,0.3)",
+                            color: kd.significance === "высокая" ? "#fbbf24" : "#c4b5fd",
+                          }}
+                        >
+                          {kd.age}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1 flex-wrap">
+                            <span className="text-sm font-bold text-amber-100">{kd.title}</span>
+                            <span className="text-xs text-amber-200/50">{kd.planet}</span>
+                            {kd.significance === "высокая" && (
+                              <Badge className="text-xs bg-amber-400/20 text-amber-200 border border-amber-400/40">
+                                высокая значимость
+                              </Badge>
+                            )}
+                          </div>
+                          <div className="text-xs text-amber-300/70 mb-1">
+                            Возраст {kd.age} · {kd.date}
+                          </div>
+                          <p className="text-xs text-amber-100/75 leading-relaxed">
+                            {kd.description}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )
+          })()}
 
           {/* Кнопка перестроения */}
           <div className="text-center">
