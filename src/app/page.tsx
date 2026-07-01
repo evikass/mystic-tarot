@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react"
 import { StarryBackground } from "@/components/starry-bg"
 import { TarotCardView } from "@/components/tarot-card"
 import { CardSVG, CardBack } from "@/lib/tarot-svg"
+import { ColorQuiz } from "@/components/color-quiz"
 import {
   allTarotCards,
   drawCards,
@@ -2682,159 +2683,9 @@ function ZodiacTab() {
   )
 }
 
-// === Таб 4: Цветовой архетип ===
+// === Таб 4: Цветовой архетип (интерактивный квиз) ===
 function ColorTab() {
-  const [selected, setSelected] = useState<ColorArchetype | null>(null)
-
-  return (
-    <div>
-      <div className="text-center mb-6">
-        <h3 className="text-2xl font-bold text-amber-100 mb-2" style={{ fontFamily: "var(--font-cinzel)" }}>
-          Архетип по цвету
-        </h3>
-        <p className="text-sm text-amber-200/70 max-w-xl mx-auto">
-          Выберите цвет, который вас больше всего притягивает в данный момент. Не думайте
-          — чувствуйте. Выбор цвета раскрывает ваш текущий архетип и активную чакру.
-        </p>
-      </div>
-
-      {!selected && (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
-          {colorArchetypes.map((c) => (
-            <button
-              key={c.color}
-              onClick={() => setSelected(c)}
-              className="group relative aspect-square rounded-2xl overflow-hidden transition-all hover:scale-105"
-              style={{
-                background: `radial-gradient(circle at 30% 30%, ${c.color}, ${c.color}80)`,
-                boxShadow: `0 0 20px ${c.color}40`,
-                border: `2px solid ${c.color}80`,
-              }}
-            >
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"/>
-              <div className="absolute bottom-0 left-0 right-0 p-3 text-left">
-                <div className="text-xs text-white/70">{c.chakra}</div>
-                <div className="text-sm font-bold text-white">{c.name.split(" — ")[0]}</div>
-              </div>
-              {/* Декоративный блик */}
-              <div
-                className="absolute top-2 left-2 w-8 h-8 rounded-full opacity-50"
-                style={{ background: "radial-gradient(circle at 30% 30%, rgba(255,255,255,0.6), transparent 70%)" }}
-              />
-            </button>
-          ))}
-        </div>
-      )}
-
-      {selected && (
-        <div className="max-w-3xl mx-auto animate-fade-in">
-          {/* Шапка */}
-          <Card
-            className="mb-5 relative overflow-hidden"
-            style={{
-              background: `linear-gradient(135deg, ${selected.color}30, rgba(26,10,58,0.6))`,
-              border: `1px solid ${selected.color}60`,
-            }}
-          >
-            <CardContent className="pt-6">
-              <div className="flex items-center gap-4">
-                <div
-                  className="w-20 h-20 rounded-full shrink-0"
-                  style={{
-                    background: `radial-gradient(circle at 30% 30%, ${selected.color}, ${selected.color}80)`,
-                    boxShadow: `0 0 30px ${selected.color}80`,
-                    border: `2px solid ${selected.color}`,
-                  }}
-                />
-                <div>
-                  <h3
-                    className="text-2xl font-bold mb-1"
-                    style={{ color: selected.color, fontFamily: "var(--font-cinzel)" }}
-                  >
-                    {selected.name}
-                  </h3>
-                  <div className="flex flex-wrap gap-2">
-                    <Badge variant="outline" className="border text-xs" style={{ backgroundColor: `${selected.color}20`, color: selected.color, borderColor: `${selected.color}50` }}>
-                      {selected.chakra}
-                    </Badge>
-                    <Badge variant="outline" className="border-amber-400/40 text-amber-200 text-xs">
-                      {selected.element}
-                    </Badge>
-                  </div>
-                  <p className="text-amber-100/80 text-sm mt-2 italic">{selected.energy}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="glass-mystic border-amber-400/30 mb-5">
-            <CardContent className="pt-5">
-              <div className="text-xs uppercase tracking-wider text-amber-300 mb-2">Психология</div>
-              <p className="text-amber-100/85 text-sm leading-relaxed">{selected.psychology}</p>
-            </CardContent>
-          </Card>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
-            <Card className="glass-card border-emerald-400/20">
-              <CardHeader>
-                <CardTitle className="text-base text-emerald-200">✦ Силы</CardTitle>
-              </CardHeader>
-              <CardContent className="pt-0">
-                <ul className="space-y-1.5">
-                  {selected.strengths.map((s, i) => (
-                    <li key={i} className="text-xs text-amber-100/85 flex gap-2">
-                      <span className="text-emerald-400">✦</span>
-                      <span>{s}</span>
-                    </li>
-                  ))}
-                </ul>
-              </CardContent>
-            </Card>
-            <Card className="glass-card border-rose-400/20">
-              <CardHeader>
-                <CardTitle className="text-base text-rose-200">✦ Тень</CardTitle>
-              </CardHeader>
-              <CardContent className="pt-0">
-                <ul className="space-y-1.5">
-                  {selected.challenges.map((c, i) => (
-                    <li key={i} className="text-xs text-amber-100/85 flex gap-2">
-                      <span className="text-rose-400">✦</span>
-                      <span>{c}</span>
-                    </li>
-                  ))}
-                </ul>
-              </CardContent>
-            </Card>
-          </div>
-
-          <Card className="glass-card border-amber-400/20 mb-5">
-            <CardContent className="pt-5">
-              <div className="text-xs text-amber-300/70 mb-1">🌱 Путь роста</div>
-              <p className="text-sm text-amber-100/85">{selected.path}</p>
-            </CardContent>
-          </Card>
-
-          <Card className="glass-mystic border-purple-400/30 mb-5">
-            <CardContent className="pt-5">
-              <div className="text-xs text-purple-300 mb-1">✦ Аффирмация</div>
-              <p className="text-lg italic text-amber-100 text-center">{selected.affirmation}</p>
-            </CardContent>
-          </Card>
-
-          <div className="text-center">
-            <Button
-              variant="outline"
-              onClick={() => setSelected(null)}
-              className="border-amber-400/40 text-amber-200 hover:bg-amber-400/10"
-            >
-              <Palette className="w-4 h-4 mr-2"/>
-              Выбрать другой цвет
-            </Button>
-          </div>
-        </div>
-      )}
-    </div>
-  )
+  return <ColorQuiz/>
 }
 
 // === Таб 5: Геометрический архетип ===
