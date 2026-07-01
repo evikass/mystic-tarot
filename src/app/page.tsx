@@ -36,6 +36,14 @@ import {
   type NumerologyCompatibility,
 } from "@/lib/psychology-data"
 import {
+  calculateNatalChart,
+  planets as natalPlanets,
+  zodiacInNatal,
+  natalHouses,
+  type NatalChartResult,
+  type PlanetPosition,
+} from "@/lib/natal-chart-data"
+import {
   getHistory,
   saveReading,
   deleteReading,
@@ -122,6 +130,7 @@ import {
   Palette,
   Hexagon,
   Hand,
+  Globe,
 } from "lucide-react"
 
 type Section = "home" | "daily" | "readings" | "compatibility" | "psychology" | "history" | "success"
@@ -1998,7 +2007,7 @@ function CompatibilityBirthDateTab() {
 
 // ===================== PSYCHOLOGY =====================
 function PsychologySection() {
-  const [psychTab, setPsychTab] = useState<"archetype" | "birthdate" | "zodiac" | "color" | "geometry" | "palm">("archetype")
+  const [psychTab, setPsychTab] = useState<"archetype" | "birthdate" | "zodiac" | "color" | "geometry" | "palm" | "natal">("archetype")
 
   return (
     <div className="py-8">
@@ -2019,7 +2028,7 @@ function PsychologySection() {
       </div>
 
       <Tabs value={psychTab} onValueChange={(v) => setPsychTab(v as typeof psychTab)}>
-        <TabsList className="grid grid-cols-3 sm:grid-cols-6 max-w-4xl mx-auto mb-8 bg-purple-950/40 border border-amber-400/20">
+        <TabsList className="grid grid-cols-4 sm:grid-cols-7 max-w-5xl mx-auto mb-8 bg-purple-950/40 border border-amber-400/20">
           <TabsTrigger value="archetype" className="data-[state=active]:bg-amber-400/20 data-[state=active]:text-amber-100 text-xs sm:text-sm">
             <Brain className="w-3.5 h-3.5 mr-1"/>
             <span className="hidden sm:inline">Таро</span>
@@ -2050,6 +2059,11 @@ function PsychologySection() {
             <span className="hidden sm:inline">Ладонь</span>
             <span className="sm:hidden">Ладонь</span>
           </TabsTrigger>
+          <TabsTrigger value="natal" className="data-[state=active]:bg-amber-400/20 data-[state=active]:text-amber-100 text-xs sm:text-sm">
+            <Globe className="w-3.5 h-3.5 mr-1"/>
+            <span className="hidden sm:inline">Натал</span>
+            <span className="sm:hidden">Натал</span>
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="archetype">
@@ -2069,6 +2083,9 @@ function PsychologySection() {
         </TabsContent>
         <TabsContent value="palm">
           <PalmTab/>
+        </TabsContent>
+        <TabsContent value="natal">
+          <NatalChartTab/>
         </TabsContent>
       </Tabs>
     </div>
@@ -2967,6 +2984,354 @@ function PalmTab() {
               </>
             )
           })()}
+        </div>
+      )}
+    </div>
+  )
+}
+
+// === Таб 7: Натальная карта ===
+function NatalChartTab() {
+  const [day, setDay] = useState("")
+  const [month, setMonth] = useState("")
+  const [year, setYear] = useState("")
+  const [hour, setHour] = useState("")
+  const [minute, setMinute] = useState("")
+  const [result, setResult] = useState<NatalChartResult | null>(null)
+  const [error, setError] = useState("")
+
+  const handleCalculate = () => {
+    const d = parseInt(day), m = parseInt(month), y = parseInt(year)
+    const h = parseInt(hour) || 12, min = parseInt(minute) || 0
+    if (!d || !m || !y) {
+      setError("Заполните дату рождения")
+      setResult(null)
+      return
+    }
+    const r = calculateNatalChart(d, m, y, h, min)
+    if (!r) {
+      setError("Проверьте корректность даты")
+      setResult(null)
+      return
+    }
+    setError("")
+    setResult(r)
+  }
+
+  // SVG зодиакального круга
+  const renderNatalWheel = (chart: NatalChartResult) => {
+    const cx = 200, cy = 200
+    const r1 = 180 // внешний круг
+    const r2 = 150 // круг знаков
+    const r3 = 110 // круг планет
+    const r4 = 70 // внутренний круг
+
+    return (
+      <svg viewBox="0 0 400 400" className="w-full h-full max-w-md mx-auto">
+        <defs>
+          <radialGradient id="natal-bg" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stopColor="rgba(251,191,36,0.08)"/>
+            <stop offset="100%" stopColor="rgba(167,139,250,0.05)"/>
+          </radialGradient>
+        </defs>
+
+        {/* Фон */}
+        <circle cx={cx} cy={cy} r={r1} fill="url(#natal-bg)" stroke="rgba(251,191,36,0.3)" strokeWidth="1"/>
+        <circle cx={cx} cy={cy} r={r2} fill="none" stroke="rgba(251,191,36,0.2)" strokeWidth="0.5"/>
+        <circle cx={cx} cy={cy} r={r3} fill="none" stroke="rgba(251,191,36,0.15)" strokeWidth="0.5"/>
+        <circle cx={cx} cy={cy} r={r4} fill="none" stroke="rgba(251,191,36,0.2)" strokeWidth="0.5"/>
+
+        {/* 12 секторов (знаков) */}
+        {zodiacInNatal.map((sign, i) => {
+          const angle = (i * 30 - 90) * Math.PI / 180
+          const angleNext = ((i + 1) * 30 - 90) * Math.PI / 180
+          const x1 = cx + Math.cos(angle) * r1
+          const y1 = cy + Math.sin(angle) * r1
+          const x2 = cx + Math.cos(angleNext) * r1
+          const y2 = cy + Math.sin(angleNext) * r1
+          const x3 = cx + Math.cos(angleNext) * r2
+          const y3 = cy + Math.sin(angleNext) * r2
+          const x4 = cx + Math.cos(angle) * r2
+          const y4 = cy + Math.sin(angle) * r2
+
+          // Позиция символа знака
+          const midAngle = ((i * 30 + 15) - 90) * Math.PI / 180
+          const sx = cx + Math.cos(midAngle) * ((r1 + r2) / 2)
+          const sy = cy + Math.sin(midAngle) * ((r1 + r2) / 2)
+
+          // Линии-разделители
+          const lx1 = cx + Math.cos(angle) * r4
+          const ly1 = cy + Math.sin(angle) * r4
+          const lx2 = cx + Math.cos(angle) * r1
+          const ly2 = cy + Math.sin(angle) * r1
+
+          return (
+            <g key={i}>
+              <path d={`M ${x1} ${y1} L ${x2} ${y2} L ${x3} ${y3} L ${x4} ${y4} Z`}
+                fill={sign.element === "Огонь" ? "rgba(251,146,60,0.08)"
+                  : sign.element === "Земля" ? "rgba(163,230,53,0.08)"
+                  : sign.element === "Воздух" ? "rgba(125,211,252,0.08)"
+                  : "rgba(96,165,250,0.08)"}
+                stroke="none"
+              />
+              <line x1={lx1} y1={ly1} x2={lx2} y2={ly2} stroke="rgba(251,191,36,0.15)" strokeWidth="0.5"/>
+              <text x={sx} y={sy + 5} fontSize="14" textAnchor="middle" fill="rgba(254,243,199,0.7)" fontWeight="bold">
+                {sign.symbol}
+              </text>
+            </g>
+          )
+        })}
+
+        {/* Линии домов (круг r4) */}
+        {Array.from({ length: 12 }).map((_, i) => {
+          const angle = (i * 30 - 90) * Math.PI / 180
+          const x1 = cx + Math.cos(angle) * r4
+          const y1 = cy + Math.sin(angle) * r4
+          const x2 = cx + Math.cos(angle) * r3
+          const y2 = cy + Math.sin(angle) * r3
+          return <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} stroke="rgba(167,139,250,0.2)" strokeWidth="0.5"/>
+        })}
+
+        {/* Планеты на своих позициях */}
+        {chart.planets.map((pp, i) => {
+          // Позиция планеты в знаке
+          const angle = ((pp.signIndex * 30 + pp.degree) - 90) * Math.PI / 180
+          // Смещение по радиусу для избежания наложения
+          const offset = i % 3 === 0 ? 0 : i % 3 === 1 ? -8 : 8
+          const pr = r3 + offset
+          const px = cx + Math.cos(angle) * pr
+          const py = cy + Math.sin(angle) * pr
+
+          return (
+            <g key={i}>
+              {/* Свечение */}
+              <circle cx={px} cy={py} r="12" fill={pp.planet.color} opacity="0.15"/>
+              {/* Символ планеты */}
+              <text x={px} y={py + 5} fontSize="16" textAnchor="middle" fill={pp.planet.color} fontWeight="bold">
+                {pp.planet.symbol}
+              </text>
+              {/* Градус */}
+              <text x={px} y={py + 18} fontSize="6" textAnchor="middle" fill="rgba(254,243,199,0.5)">
+                {Math.round(pp.degree)}°
+              </text>
+            </g>
+          )
+        })}
+
+        {/* Асцендент — отмечен на круге */}
+        <line x1={cx} y1={cy} x2={cx + Math.cos((-90) * Math.PI / 180) * r1} y2={cy + Math.sin((-90) * Math.PI / 180) * r1}
+          stroke="rgba(251,191,36,0.5)" strokeWidth="1.5" strokeDasharray="3 2"/>
+
+        {/* Центр */}
+        <circle cx={cx} cy={cy} r="4" fill="rgba(251,191,36,0.6)"/>
+        <text x={cx} y={cy - 12} fontSize="8" textAnchor="middle" fill="rgba(254,243,199,0.4)">ASC</text>
+
+        {/* Подпись даты */}
+        <text x={cx} y={cy + 8} fontSize="7" textAnchor="middle" fill="rgba(254,243,199,0.3)">
+          {chart.chartDate.slice(0, 10)}
+        </text>
+      </svg>
+    )
+  }
+
+  return (
+    <div>
+      <div className="text-center mb-6">
+        <h3 className="text-2xl font-bold text-amber-100 mb-2" style={{ fontFamily: "var(--font-cinzel)" }}>
+          Натальная карта
+        </h3>
+        <p className="text-sm text-amber-200/70 max-w-xl mx-auto">
+          Полная натальная карта по дате и времени рождения: 10 планет в знаках зодиака,
+          Асцендент, 12 домов, доминирующая стихия и качество. Визуализация зодиакального круга.
+        </p>
+      </div>
+
+      {!result && (
+        <Card className="glass-mystic border-amber-400/30 mb-6 max-w-xl mx-auto">
+          <CardContent className="pt-6">
+            <div className="text-center mb-4">
+              <Globe className="w-10 h-10 text-amber-300 mx-auto mb-2"/>
+              <p className="text-sm text-amber-100/80">
+                Введите дату и время рождения для построения натальной карты.
+                Время рождения влияет на Асцендент и положения домов.
+              </p>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 mb-4">
+              <div>
+                <label className="text-xs text-amber-200/70 mb-1 block">День</label>
+                <Input type="number" min="1" max="31" value={day}
+                  onChange={(e) => setDay(e.target.value)} placeholder="15"
+                  className="bg-purple-950/40 border-amber-400/30 text-amber-100 placeholder:text-amber-200/40 text-center"/>
+              </div>
+              <div>
+                <label className="text-xs text-amber-200/70 mb-1 block">Месяц</label>
+                <Input type="number" min="1" max="12" value={month}
+                  onChange={(e) => setMonth(e.target.value)} placeholder="08"
+                  className="bg-purple-950/40 border-amber-400/30 text-amber-100 placeholder:text-amber-200/40 text-center"/>
+              </div>
+              <div>
+                <label className="text-xs text-amber-200/70 mb-1 block">Год</label>
+                <Input type="number" min="1900" max="2100" value={year}
+                  onChange={(e) => setYear(e.target.value)} placeholder="1990"
+                  className="bg-purple-950/40 border-amber-400/30 text-amber-100 placeholder:text-amber-200/40 text-center"/>
+              </div>
+              <div>
+                <label className="text-xs text-amber-200/70 mb-1 block">Час</label>
+                <Input type="number" min="0" max="23" value={hour}
+                  onChange={(e) => setHour(e.target.value)} placeholder="12"
+                  className="bg-purple-950/40 border-amber-400/30 text-amber-100 placeholder:text-amber-200/40 text-center"/>
+              </div>
+              <div>
+                <label className="text-xs text-amber-200/70 mb-1 block">Мин</label>
+                <Input type="number" min="0" max="59" value={minute}
+                  onChange={(e) => setMinute(e.target.value)} placeholder="00"
+                  className="bg-purple-950/40 border-amber-400/30 text-amber-100 placeholder:text-amber-200/40 text-center"/>
+              </div>
+            </div>
+            <p className="text-xs text-amber-200/50 mb-4 text-center">
+              Если время рождения неизвестно — оставьте пустым, будет использовано 12:00
+            </p>
+            <div className="text-center">
+              <Button onClick={handleCalculate} className="btn-gold px-8 py-3">
+                <Globe className="w-5 h-5 mr-2"/>
+                Построить натальную карту
+              </Button>
+              {error && <p className="text-rose-300 text-sm mt-3">{error}</p>}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {result && (
+        <div className="max-w-4xl mx-auto animate-fade-in space-y-5">
+          {/* Зодиакальный круг */}
+          <Card className="glass-mystic border-amber-400/40">
+            <CardContent className="pt-6">
+              {renderNatalWheel(result)}
+            </CardContent>
+          </Card>
+
+          {/* Сводка */}
+          <Card className="glass-mystic border-amber-400/30">
+            <CardContent className="pt-5">
+              <div className="text-xs uppercase tracking-wider text-amber-300 mb-2">Сводка карты</div>
+              <p className="text-amber-100/85 text-sm leading-relaxed">{result.summary}</p>
+              <div className="flex flex-wrap gap-2 mt-3">
+                <Badge variant="outline" className="border-amber-400/40 text-amber-200 text-xs">
+                  ☉ Солнце: {result.sunSign.name}
+                </Badge>
+                <Badge variant="outline" className="border-purple-400/40 text-purple-200 text-xs">
+                  ☾ Луна: {result.moonSign.name}
+                </Badge>
+                <Badge variant="outline" className="border-emerald-400/40 text-emerald-200 text-xs">
+                  ASC: {result.ascendant.name}
+                </Badge>
+                <Badge variant="outline" className="border-blue-400/40 text-blue-200 text-xs">
+                  MC: {result.midheaven.name}
+                </Badge>
+                <Badge variant="outline" className="border-rose-400/40 text-rose-200 text-xs">
+                  Стихия: {result.dominantElement}
+                </Badge>
+                <Badge variant="outline" className="border-cyan-400/40 text-cyan-200 text-xs">
+                  Качество: {result.dominantQuality}
+                </Badge>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Планеты в знаках */}
+          <Card className="glass-card border-amber-400/20">
+            <CardHeader>
+              <CardTitle className="text-lg text-amber-100" style={{ fontFamily: "var(--font-cinzel)" }}>
+                Планеты в знаках зодиака
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {result.planets.map((pp, i) => (
+                <div key={i} className="border-l-2 pl-3" style={{ borderColor: `${pp.planet.color}50` }}>
+                  <div className="flex items-center gap-2 mb-1 flex-wrap">
+                    <span className="text-lg" style={{ color: pp.planet.color }}>{pp.planet.symbol}</span>
+                    <span className="text-sm font-bold text-amber-100">{pp.planet.name}</span>
+                    <span className="text-xs text-amber-200/70">в</span>
+                    <span className="text-sm font-semibold" style={{ color: pp.planet.color }}>{pp.sign.symbol} {pp.sign.name}</span>
+                    <span className="text-xs text-amber-200/50">· {Math.round(pp.degree)}°</span>
+                    <Badge variant="outline" className="text-xs border-amber-400/30 text-amber-200/60">
+                      Дом {pp.house}
+                    </Badge>
+                  </div>
+                  <p className="text-xs text-amber-100/75 leading-relaxed italic">
+                    {pp.interpretation}
+                  </p>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+
+          {/* Стихии */}
+          <Card className="glass-card border-amber-400/20">
+            <CardHeader>
+              <CardTitle className="text-base text-amber-100">Баланс стихий</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              {Object.entries(result.elementCounts).map(([el, count]) => (
+                <div key={el} className="flex items-center gap-2">
+                  <div className="text-xs text-amber-100/70 w-16">{el}</div>
+                  <div className="flex-1 bg-purple-950/40 rounded-full h-2.5 overflow-hidden">
+                    <div
+                      className="h-full rounded-full transition-all duration-700"
+                      style={{
+                        width: `${(count / 10) * 100}%`,
+                        background: el === "Огонь" ? "#fb923c"
+                          : el === "Земля" ? "#a3e635"
+                          : el === "Воздух" ? "#7dd3fc"
+                          : "#60a5fa",
+                      }}
+                    />
+                  </div>
+                  <div className="text-xs text-amber-200/60 w-6 text-right">{count}</div>
+                </div>
+              ))}
+              <p className="text-xs text-amber-100/60 mt-2 italic">
+                Доминирующая стихия — {result.dominantElement}. Это определяет общий тон вашей энергии.
+              </p>
+            </CardContent>
+          </Card>
+
+          {/* 12 домов */}
+          <Card className="glass-card border-amber-400/20">
+            <CardHeader>
+              <CardTitle className="text-base text-amber-100">12 домов натальной карты</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {natalHouses.map((house) => (
+                  <div key={house.number} className="glass-card rounded-lg p-2.5">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-xs font-bold text-amber-300">{house.number}</span>
+                      <span className="text-xs font-semibold text-amber-100">{house.name}</span>
+                    </div>
+                    <p className="text-xs text-amber-100/60 leading-relaxed">{house.sphere}</p>
+                  </div>
+                ))}
+              </div>
+              <p className="text-xs text-amber-100/50 mt-3 italic">
+                Дома показывают сферы жизни, в которых проявляются энергии планет.
+                Номер дома планеты указан в разделе "Планеты в знаках зодиака".
+              </p>
+            </CardContent>
+          </Card>
+
+          {/* Кнопка перестроения */}
+          <div className="text-center">
+            <Button
+              variant="outline"
+              onClick={() => setResult(null)}
+              className="border-amber-400/40 text-amber-200 hover:bg-amber-400/10"
+            >
+              <Globe className="w-4 h-4 mr-2"/>
+              Новая карта
+            </Button>
+          </div>
         </div>
       )}
     </div>
