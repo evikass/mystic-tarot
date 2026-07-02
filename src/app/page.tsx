@@ -175,7 +175,7 @@ import {
   Dices,
 } from "lucide-react"
 
-type Section = "home" | "daily" | "readings" | "compatibility" | "psychology" | "history" | "success" | "runes" | "moon" | "catalog" | "iching" | "biorhythms" | "psychomatrix" | "namenum" | "theme"
+type Section = "home" | "daily" | "readings" | "compatibility" | "psychology" | "history" | "success" | "moon" | "catalog" | "theme"
 
 interface DrawnCard {
   card: TarotCard
@@ -196,13 +196,8 @@ export default function Home() {
     { id: "daily", label: "Карта дня", icon: <Sun className="w-4 h-4"/> },
     { id: "readings", label: "Расклады", icon: <Layers className="w-4 h-4"/> },
     { id: "catalog", label: "Каталог", icon: <BookOpen className="w-4 h-4"/> },
-    { id: "runes", label: "Руны", icon: <Flame className="w-4 h-4"/> },
-    { id: "iching", label: "И-Цзин", icon: <Dices className="w-4 h-4"/> },
     { id: "compatibility", label: "Совместимость", icon: <Heart className="w-4 h-4"/> },
     { id: "psychology", label: "Психология", icon: <Brain className="w-4 h-4"/> },
-    { id: "biorhythms", label: "Биоритмы", icon: <Activity className="w-4 h-4"/> },
-    { id: "psychomatrix", label: "Матрица", icon: <Grid3x3 className="w-4 h-4"/> },
-    { id: "namenum", label: "Имя", icon: <Type className="w-4 h-4"/> },
     { id: "moon", label: "Луна", icon: <Moon className="w-4 h-4"/> },
     { id: "success", label: "14 Шагов", icon: <Target className="w-4 h-4"/> },
     { id: "history", label: "История", icon: <History className="w-4 h-4"/> },
@@ -219,13 +214,8 @@ export default function Home() {
           {section === "readings" && <ReadingsSection/>}
           {section === "compatibility" && <CompatibilitySection/>}
           {section === "psychology" && <PsychologySection/>}
-          {section === "runes" && <RunesSection/>}
-          {section === "iching" && <IChingSection/>}
           {section === "moon" && <MoonSection/>}
           {section === "catalog" && <CatalogSection/>}
-          {section === "biorhythms" && <BiorhythmsSection/>}
-          {section === "psychomatrix" && <PsychomatrixSection/>}
-          {section === "namenum" && <NameNumerologySection/>}
           {section === "success" && <SuccessStepsSection/>}
           {section === "history" && <HistorySection/>}
         </main>
@@ -423,7 +413,7 @@ function HomeSection({ onNavigate }: { onNavigate: (s: Section) => void }) {
           <FeatureCard
             icon={<Layers className="w-7 h-7"/>}
             title="Расклады"
-            description="Три карты (прошлое-настоящее-будущее), Кельтский крест (10 карт) и быстрый ответ Да/Нет на ваш вопрос."
+            description="Таро (3 карты, Кельтский крест, Да/Нет), руны Старшего Футарка, И-Цзин (64 гексаграммы), биоритмы и психоматрица Александрова — все расклады и гадания в одном разделе."
             onClick={() => onNavigate("readings")}
             accent="#a78bfa"
           />
@@ -437,7 +427,7 @@ function HomeSection({ onNavigate }: { onNavigate: (s: Section) => void }) {
           <FeatureCard
             icon={<Brain className="w-7 h-7"/>}
             title="Психология"
-            description="Шесть инструментов самопознания: архетип Таро, дата рождения, гороскоп, цвет, геометрия и линии на ладони."
+            description="Восемь инструментов самопознания: архетип Таро, дата рождения, гороскоп, цвет, геометрия, ладонь, натальная карта и нумерология имени."
             onClick={() => onNavigate("psychology")}
             accent="#7dd3fc"
           />
@@ -757,36 +747,57 @@ function DailyCardSection() {
 
 // ===================== READINGS =====================
 function ReadingsSection() {
-  const [readingType, setReadingType] = useState<"three-card" | "celtic-cross" | "yes-no">("three-card")
+  const [readingType, setReadingType] = useState<
+    "three-card" | "celtic-cross" | "yes-no" | "runes" | "iching" | "biorhythms" | "psychomatrix"
+  >("three-card")
 
   return (
     <div className="py-8">
       <div className="text-center mb-10">
         <div className="section-divider mb-6">
-          <span>Расклады Таро</span>
+          <span>Расклады и гадания</span>
         </div>
         <h2
           className="text-4xl sm:text-5xl font-bold mb-3 text-gold-gradient inline-block"
           style={{ fontFamily: "var(--font-cinzel)", lineHeight: 1.25, paddingTop: "0.2em" }}
         >
-          Глубокие расклады
+          Расклады
         </h2>
         <p className="text-amber-200/70 max-w-2xl mx-auto">
-          Выберите тип расклада в зависимости от глубины вопроса. Три карты — для быстрой
-          диагностики, Кельтский крест — для глубокого анализа, Да/Нет — для конкретного ответа.
+          Таро, руны, И-Цзин и нумерологические расчёты в одном месте. Выберите инструмент —
+          от быстрого ответа «Да/Нет» до глубокого анализа через Кельтский крест или психоматрицу.
         </p>
       </div>
 
       <Tabs value={readingType} onValueChange={(v) => setReadingType(v as typeof readingType)}>
-        <TabsList className="grid grid-cols-3 max-w-md mx-auto mb-8 bg-purple-950/40 border border-amber-400/20">
-          <TabsTrigger value="three-card" className="data-[state=active]:bg-amber-400/20 data-[state=active]:text-amber-100">
+        <TabsList className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 max-w-5xl mx-auto mb-8 bg-purple-950/40 border border-amber-400/20">
+          <TabsTrigger value="three-card" className="data-[state=active]:bg-amber-400/20 data-[state=active]:text-amber-100 text-xs sm:text-sm">
+            <Layers className="w-3.5 h-3.5 mr-1"/>
             3 карты
           </TabsTrigger>
-          <TabsTrigger value="celtic-cross" className="data-[state=active]:bg-amber-400/20 data-[state=active]:text-amber-100">
-            Кельтский крест
+          <TabsTrigger value="celtic-cross" className="data-[state=active]:bg-amber-400/20 data-[state=active]:text-amber-100 text-xs sm:text-sm">
+            <Compass className="w-3.5 h-3.5 mr-1"/>
+            Кельтский
           </TabsTrigger>
-          <TabsTrigger value="yes-no" className="data-[state=active]:bg-amber-400/20 data-[state=active]:text-amber-100">
+          <TabsTrigger value="yes-no" className="data-[state=active]:bg-amber-400/20 data-[state=active]:text-amber-100 text-xs sm:text-sm">
+            <Sparkles className="w-3.5 h-3.5 mr-1"/>
             Да / Нет
+          </TabsTrigger>
+          <TabsTrigger value="runes" className="data-[state=active]:bg-amber-400/20 data-[state=active]:text-amber-100 text-xs sm:text-sm">
+            <Flame className="w-3.5 h-3.5 mr-1"/>
+            Руны
+          </TabsTrigger>
+          <TabsTrigger value="iching" className="data-[state=active]:bg-amber-400/20 data-[state=active]:text-amber-100 text-xs sm:text-sm">
+            <Dices className="w-3.5 h-3.5 mr-1"/>
+            И-Цзин
+          </TabsTrigger>
+          <TabsTrigger value="biorhythms" className="data-[state=active]:bg-amber-400/20 data-[state=active]:text-amber-100 text-xs sm:text-sm">
+            <Activity className="w-3.5 h-3.5 mr-1"/>
+            Биоритмы
+          </TabsTrigger>
+          <TabsTrigger value="psychomatrix" className="data-[state=active]:bg-amber-400/20 data-[state=active]:text-amber-100 text-xs sm:text-sm">
+            <Grid3x3 className="w-3.5 h-3.5 mr-1"/>
+            Матрица
           </TabsTrigger>
         </TabsList>
 
@@ -798,6 +809,18 @@ function ReadingsSection() {
         </TabsContent>
         <TabsContent value="yes-no">
           <YesNoReading/>
+        </TabsContent>
+        <TabsContent value="runes">
+          <RunesSection/>
+        </TabsContent>
+        <TabsContent value="iching">
+          <IChingSection/>
+        </TabsContent>
+        <TabsContent value="biorhythms">
+          <BiorhythmsSection/>
+        </TabsContent>
+        <TabsContent value="psychomatrix">
+          <PsychomatrixSection/>
         </TabsContent>
       </Tabs>
     </div>
@@ -2063,7 +2086,7 @@ function CompatibilityBirthDateTab() {
 
 // ===================== PSYCHOLOGY =====================
 function PsychologySection() {
-  const [psychTab, setPsychTab] = useState<"archetype" | "birthdate" | "zodiac" | "color" | "geometry" | "palm" | "natal">("archetype")
+  const [psychTab, setPsychTab] = useState<"archetype" | "birthdate" | "zodiac" | "color" | "geometry" | "palm" | "natal" | "name">("archetype")
 
   return (
     <div className="py-8">
@@ -2078,13 +2101,14 @@ function PsychologySection() {
           Архетипы и Самопознание
         </h2>
         <p className="text-amber-200/70 max-w-2xl mx-auto">
-          Шесть инструментов самопознания: архетипический портрет через Таро, психология
-          по дате рождения, гороскоп, цветовой и геометрический архетипы, линии на ладони.
+          Восемь инструментов самопознания: архетипический портрет через Таро, психология
+          по дате рождения, гороскоп, цветовой и геометрический архетипы, линии на ладони,
+          натальная карта и нумерология имени.
         </p>
       </div>
 
       <Tabs value={psychTab} onValueChange={(v) => setPsychTab(v as typeof psychTab)}>
-        <TabsList className="grid grid-cols-4 sm:grid-cols-7 max-w-5xl mx-auto mb-8 bg-purple-950/40 border border-amber-400/20">
+        <TabsList className="grid grid-cols-4 lg:grid-cols-8 max-w-5xl mx-auto mb-8 bg-purple-950/40 border border-amber-400/20">
           <TabsTrigger value="archetype" className="data-[state=active]:bg-amber-400/20 data-[state=active]:text-amber-100 text-xs sm:text-sm">
             <Brain className="w-3.5 h-3.5 mr-1"/>
             <span className="hidden sm:inline">Таро</span>
@@ -2120,6 +2144,11 @@ function PsychologySection() {
             <span className="hidden sm:inline">Натал</span>
             <span className="sm:hidden">Натал</span>
           </TabsTrigger>
+          <TabsTrigger value="name" className="data-[state=active]:bg-amber-400/20 data-[state=active]:text-amber-100 text-xs sm:text-sm">
+            <Type className="w-3.5 h-3.5 mr-1"/>
+            <span className="hidden sm:inline">Имя</span>
+            <span className="sm:hidden">Имя</span>
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="archetype">
@@ -2142,6 +2171,9 @@ function PsychologySection() {
         </TabsContent>
         <TabsContent value="natal">
           <NatalChartTab/>
+        </TabsContent>
+        <TabsContent value="name">
+          <NameNumerologySection/>
         </TabsContent>
       </Tabs>
     </div>
@@ -3471,12 +3503,10 @@ function RunesSection() {
   }
 
   return (
-    <div className="py-8">
-      <div className="text-center mb-10">
-        <div className="section-divider mb-6"><span>Руны Старшего Футарка</span></div>
-        <h2 className="text-4xl sm:text-5xl font-bold mb-3 text-mystic-gradient inline-block" style={{ fontFamily: "var(--font-cinzel)", lineHeight: 1.25, paddingTop: "0.2em" }}>Руны</h2>
-        <p className="text-amber-200/70 max-w-2xl mx-auto">24 руны + пустая руна Вирд. Расклад из 3 рун: прошлое, настоящее, будущее.</p>
-      </div>
+    <div>
+      <p className="text-center text-amber-200/70 max-w-2xl mx-auto mb-6 text-sm">
+        24 руны + пустая руна Вирд. Расклад из 3 рун: прошлое, настоящее, будущее.
+      </p>
 
       <ReadingQuestionInput question={question} setQuestion={setQuestion} placeholder="О чём хотите спросить руны?" />
 
@@ -3772,12 +3802,10 @@ function IChingSection() {
   )
 
   return (
-    <div className="py-8">
-      <div className="text-center mb-10">
-        <div className="section-divider mb-6"><span>И-Цзин · Книга Перемен</span></div>
-        <h2 className="text-4xl sm:text-5xl font-bold mb-3 text-mystic-gradient inline-block" style={{ fontFamily: "var(--font-cinzel)", lineHeight: 1.25, paddingTop: "0.2em" }}>И-Цзин</h2>
-        <p className="text-amber-200/70 max-w-2xl mx-auto">64 гексаграммы древней китайской мудрости. Задайте вопрос и бросьте монеты.</p>
-      </div>
+    <div>
+      <p className="text-center text-amber-200/70 max-w-2xl mx-auto mb-6 text-sm">
+        64 гексаграммы древней китайской мудрости. Задайте вопрос и бросьте монеты.
+      </p>
 
       <ReadingQuestionInput question={question} setQuestion={setQuestion} placeholder="О чём хотите спросить И-Цзин?" />
 
@@ -3864,12 +3892,10 @@ function BiorhythmsSection() {
   const maxVal = 100
 
   return (
-    <div className="py-8">
-      <div className="text-center mb-10">
-        <div className="section-divider mb-6"><span>Биоритмы</span></div>
-        <h2 className="text-4xl sm:text-5xl font-bold mb-3 text-mystic-gradient inline-block" style={{ fontFamily: "var(--font-cinzel)", lineHeight: 1.25, paddingTop: "0.2em" }}>Биоритмы</h2>
-        <p className="text-amber-200/70 max-w-2xl mx-auto">Физический (23 дня), эмоциональный (28 дней) и интеллектуальный (33 дня) циклы по дате рождения.</p>
-      </div>
+    <div>
+      <p className="text-center text-amber-200/70 max-w-2xl mx-auto mb-6 text-sm">
+        Физический (23 дня), эмоциональный (28 дней) и интеллектуальный (33 дня) циклы по дате рождения.
+      </p>
 
       <div className="max-w-sm mx-auto mb-6 grid grid-cols-3 gap-3">
         <div><label className="text-xs text-amber-200/70 mb-1 block">День</label><Input type="number" min="1" max="31" value={day} onChange={(e) => setDay(e.target.value)} placeholder="15" className="bg-purple-950/40 border-amber-400/30 text-amber-100 placeholder:text-amber-200/40 text-center"/></div>
@@ -3966,12 +3992,10 @@ function PsychomatrixSection() {
   const cellColors = ["#fbbf24", "#a78bfa", "#7dd3fc", "#86efac", "#f9a8d4", "#fb923c", "#fde68a", "#60a5fa", "#c4b5fd"]
 
   return (
-    <div className="py-8">
-      <div className="text-center mb-10">
-        <div className="section-divider mb-6"><span>Психоматрица Александрова</span></div>
-        <h2 className="text-4xl sm:text-5xl font-bold mb-3 text-mystic-gradient inline-block" style={{ fontFamily: "var(--font-cinzel)", lineHeight: 1.25, paddingTop: "0.2em" }}>Матрица</h2>
-        <p className="text-amber-200/70 max-w-2xl mx-auto">Квадрат 3×3 по дате рождения. 9 ячеек показывают распределение ваших качеств.</p>
-      </div>
+    <div>
+      <p className="text-center text-amber-200/70 max-w-2xl mx-auto mb-6 text-sm">
+        Квадрат 3×3 по дате рождения. 9 ячеек показывают распределение ваших качеств.
+      </p>
 
       <div className="max-w-sm mx-auto mb-6 grid grid-cols-3 gap-3">
         <div><label className="text-xs text-amber-200/70 mb-1 block">День</label><Input type="number" min="1" max="31" value={day} onChange={(e) => setDay(e.target.value)} placeholder="15" className="bg-purple-950/40 border-amber-400/30 text-amber-100 placeholder:text-amber-200/40 text-center"/></div>
@@ -4049,12 +4073,10 @@ function NameNumerologySection() {
   }
 
   return (
-    <div className="py-8">
-      <div className="text-center mb-10">
-        <div className="section-divider mb-6"><span>Нумерология имени</span></div>
-        <h2 className="text-4xl sm:text-5xl font-bold mb-3 text-mystic-gradient inline-block" style={{ fontFamily: "var(--font-cinzel)", lineHeight: 1.25, paddingTop: "0.2em" }}>Имя</h2>
-        <p className="text-amber-200/70 max-w-2xl mx-auto">Три числа: души (гласные), личности (согласные) и судьбы (все буквы). Поддерживается русский и английский.</p>
-      </div>
+    <div>
+      <p className="text-center text-amber-200/70 max-w-2xl mx-auto mb-6 text-sm">
+        Три числа: души (гласные), личности (согласные) и судьбы (все буквы). Поддерживается русский и английский.
+      </p>
 
       <div className="max-w-md mx-auto mb-6">
         <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Введите полное имя..."
