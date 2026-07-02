@@ -56,6 +56,19 @@ import {
   type RuneDraw,
 } from "@/lib/runes-moon-data"
 import {
+  castIChing,
+  getHexagram,
+  calculateBiorhythm,
+  getBiorhythmSeries,
+  calculatePsychomatrix,
+  calculateNameNumerology,
+  shareResult,
+  type Hexagram,
+  type BiorhythmResult,
+  type Psychomatrix,
+  type NameNumerology,
+} from "@/lib/divination-data"
+import {
   calculateNatalChart,
   calculateAspects,
   calculateKeyDates,
@@ -155,9 +168,14 @@ import {
   Hexagon,
   Hand,
   Globe,
+  Activity,
+  Type,
+  Share2,
+  Grid3x3,
+  Dices,
 } from "lucide-react"
 
-type Section = "home" | "daily" | "readings" | "compatibility" | "psychology" | "history" | "success" | "runes" | "moon" | "catalog"
+type Section = "home" | "daily" | "readings" | "compatibility" | "psychology" | "history" | "success" | "runes" | "moon" | "catalog" | "iching" | "biorhythms" | "psychomatrix" | "namenum" | "theme"
 
 interface DrawnCard {
   card: TarotCard
@@ -178,9 +196,13 @@ export default function Home() {
     { id: "daily", label: "Карта дня", icon: <Sun className="w-4 h-4"/> },
     { id: "readings", label: "Расклады", icon: <Layers className="w-4 h-4"/> },
     { id: "catalog", label: "Каталог", icon: <BookOpen className="w-4 h-4"/> },
+    { id: "runes", label: "Руны", icon: <Flame className="w-4 h-4"/> },
+    { id: "iching", label: "И-Цзин", icon: <Dices className="w-4 h-4"/> },
     { id: "compatibility", label: "Совместимость", icon: <Heart className="w-4 h-4"/> },
     { id: "psychology", label: "Психология", icon: <Brain className="w-4 h-4"/> },
-    { id: "runes", label: "Руны", icon: <Flame className="w-4 h-4"/> },
+    { id: "biorhythms", label: "Биоритмы", icon: <Activity className="w-4 h-4"/> },
+    { id: "psychomatrix", label: "Матрица", icon: <Grid3x3 className="w-4 h-4"/> },
+    { id: "namenum", label: "Имя", icon: <Type className="w-4 h-4"/> },
     { id: "moon", label: "Луна", icon: <Moon className="w-4 h-4"/> },
     { id: "success", label: "14 Шагов", icon: <Target className="w-4 h-4"/> },
     { id: "history", label: "История", icon: <History className="w-4 h-4"/> },
@@ -198,8 +220,12 @@ export default function Home() {
           {section === "compatibility" && <CompatibilitySection/>}
           {section === "psychology" && <PsychologySection/>}
           {section === "runes" && <RunesSection/>}
+          {section === "iching" && <IChingSection/>}
           {section === "moon" && <MoonSection/>}
           {section === "catalog" && <CatalogSection/>}
+          {section === "biorhythms" && <BiorhythmsSection/>}
+          {section === "psychomatrix" && <PsychomatrixSection/>}
+          {section === "namenum" && <NameNumerologySection/>}
           {section === "success" && <SuccessStepsSection/>}
           {section === "history" && <HistorySection/>}
         </main>
@@ -3707,6 +3733,378 @@ function CatalogSection() {
           </ScrollArea>
         </DialogContent>
       </Dialog>
+    </div>
+  )
+}
+
+// ===================== И-ЦЗИН (КНИГА ПЕРЕМЕН) =====================
+function IChingSection() {
+  const [hexagram, setHexagram] = useState<Hexagram | null>(null)
+  const [isCasting, setIsCasting] = useState(false)
+  const [question, setQuestion] = useState("")
+
+  const cast = useCallback(() => {
+    setIsCasting(true)
+    setHexagram(null)
+    setTimeout(() => {
+      setHexagram(castIChing())
+      setIsCasting(false)
+      saveReading({ type: "psychology", typeLabel: "И-Цзин (гексаграмма)", question: question || undefined, cards: [] })
+    }, 1500)
+  }, [question])
+
+  const renderHexagram = (h: Hexagram) => (
+    <div className="flex flex-col items-center gap-1">
+      {h.lines.slice().reverse().map((line, i) => (
+        <div key={i} className="flex items-center gap-1">
+          {line ? (
+            <div className="w-24 h-3 bg-amber-400/70 rounded-sm" style={{ boxShadow: "0 0 8px rgba(251,191,36,0.3)" }}/>
+          ) : (
+            <>
+              <div className="w-11 h-3 bg-amber-400/70 rounded-sm"/>
+              <div className="w-2"/>
+              <div className="w-11 h-3 bg-amber-400/70 rounded-sm"/>
+            </>
+          )}
+        </div>
+      ))}
+    </div>
+  )
+
+  return (
+    <div className="py-8">
+      <div className="text-center mb-10">
+        <div className="section-divider mb-6"><span>И-Цзин · Книга Перемен</span></div>
+        <h2 className="text-4xl sm:text-5xl font-bold mb-3 text-mystic-gradient inline-block" style={{ fontFamily: "var(--font-cinzel)", lineHeight: 1.25, paddingTop: "0.2em" }}>И-Цзин</h2>
+        <p className="text-amber-200/70 max-w-2xl mx-auto">64 гексаграммы древней китайской мудрости. Задайте вопрос и бросьте монеты.</p>
+      </div>
+
+      <ReadingQuestionInput question={question} setQuestion={setQuestion} placeholder="О чём хотите спросить И-Цзин?" />
+
+      {!hexagram && !isCasting && (
+        <div className="flex flex-col items-center gap-6">
+          <div className="flex gap-3">
+            {[0,1,2].map((i) => <div key={i} className="w-10 h-10 rounded-full bg-amber-400/20 border-2 border-amber-400/40 flex items-center justify-center text-amber-300/40 text-lg">$</div>)}
+          </div>
+          <Button onClick={cast} className="btn-gold px-8 py-3"><Dices className="w-5 h-5 mr-2"/>Бросить монеты</Button>
+        </div>
+      )}
+
+      {isCasting && <div className="text-center py-8"><div className="spinner-mystic mx-auto mb-4"/><p className="text-amber-200/80 animate-pulse" style={{ fontFamily: "var(--font-cormorant)" }}>Монеты падают...</p></div>}
+
+      {hexagram && !isCasting && (
+        <div className="max-w-2xl mx-auto animate-fade-in space-y-4">
+          <Card className="glass-mystic border-amber-400/40 text-center">
+            <CardContent className="pt-8 pb-6">
+              {renderHexagram(hexagram)}
+              <div className="mt-6">
+                <Badge variant="outline" className="border-amber-400/40 text-amber-200 mb-2">Гексаграмма №{hexagram.number}</Badge>
+                <h3 className="text-2xl font-bold text-gold-gradient" style={{ fontFamily: "var(--font-cinzel)" }}>{hexagram.name}</h3>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="glass-mystic border-amber-400/30">
+            <CardContent className="pt-5">
+              <div className="text-xs uppercase tracking-wider text-amber-300 mb-2">📜 Суждение</div>
+              <p className="text-sm text-amber-100/85 italic leading-relaxed">{hexagram.judgment}</p>
+            </CardContent>
+          </Card>
+
+          <Card className="glass-card border-amber-400/20">
+            <CardContent className="pt-5">
+              <div className="text-xs text-amber-300/70 mb-1">🌅 Образ</div>
+              <p className="text-sm text-amber-100/85">{hexagram.image}</p>
+            </CardContent>
+          </Card>
+
+          <Card className="glass-card border-amber-400/20">
+            <CardContent className="pt-5">
+              <div className="text-xs text-amber-300/70 mb-1">💡 Значение</div>
+              <p className="text-sm text-amber-100/85">{hexagram.meaning}</p>
+            </CardContent>
+          </Card>
+
+          <Card className="glass-mystic border-purple-400/30">
+            <CardContent className="pt-5">
+              <div className="text-xs text-purple-300 mb-1">🧠 Психология</div>
+              <p className="text-sm text-amber-100/85 italic">{hexagram.psychology}</p>
+            </CardContent>
+          </Card>
+
+          <div className="flex gap-3 justify-center">
+            <Button onClick={cast} variant="outline" className="border-amber-400/40 text-amber-200 hover:bg-amber-400/10"><Dices className="w-4 h-4 mr-2"/>Новый вопрос</Button>
+            <Button onClick={() => shareResult("И-Цзин", `Гексаграмма №${hexagram.number} — ${hexagram.name}: ${hexagram.meaning}`)} variant="outline" className="border-amber-400/40 text-amber-200 hover:bg-amber-400/10"><Share2 className="w-4 h-4 mr-2"/>Поделиться</Button>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ===================== БИОРИТМЫ =====================
+function BiorhythmsSection() {
+  const [day, setDay] = useState("")
+  const [month, setMonth] = useState("")
+  const [year, setYear] = useState("")
+  const [result, setResult] = useState<BiorhythmResult | null>(null)
+  const [series, setSeries] = useState<BiorhythmResult[]>([])
+  const [error, setError] = useState("")
+
+  const handleCalculate = () => {
+    const d = parseInt(day), m = parseInt(month), y = parseInt(year)
+    if (!d || !m || !y) { setError("Заполните дату"); return }
+    const birthDate = new Date(y, m - 1, d)
+    setResult(calculateBiorhythm(birthDate))
+    setSeries(getBiorhythmSeries(birthDate, 30))
+    setError("")
+  }
+
+  // Макс для масштабирования графика
+  const maxVal = 100
+
+  return (
+    <div className="py-8">
+      <div className="text-center mb-10">
+        <div className="section-divider mb-6"><span>Биоритмы</span></div>
+        <h2 className="text-4xl sm:text-5xl font-bold mb-3 text-mystic-gradient inline-block" style={{ fontFamily: "var(--font-cinzel)", lineHeight: 1.25, paddingTop: "0.2em" }}>Биоритмы</h2>
+        <p className="text-amber-200/70 max-w-2xl mx-auto">Физический (23 дня), эмоциональный (28 дней) и интеллектуальный (33 дня) циклы по дате рождения.</p>
+      </div>
+
+      <div className="max-w-sm mx-auto mb-6 grid grid-cols-3 gap-3">
+        <div><label className="text-xs text-amber-200/70 mb-1 block">День</label><Input type="number" min="1" max="31" value={day} onChange={(e) => setDay(e.target.value)} placeholder="15" className="bg-purple-950/40 border-amber-400/30 text-amber-100 placeholder:text-amber-200/40 text-center"/></div>
+        <div><label className="text-xs text-amber-200/70 mb-1 block">Месяц</label><Input type="number" min="1" max="12" value={month} onChange={(e) => setMonth(e.target.value)} placeholder="08" className="bg-purple-950/40 border-amber-400/30 text-amber-100 placeholder:text-amber-200/40 text-center"/></div>
+        <div><label className="text-xs text-amber-200/70 mb-1 block">Год</label><Input type="number" min="1900" max="2100" value={year} onChange={(e) => setYear(e.target.value)} placeholder="1990" className="bg-purple-950/40 border-amber-400/30 text-amber-100 placeholder:text-amber-200/40 text-center"/></div>
+      </div>
+      <div className="text-center mb-8"><Button onClick={handleCalculate} className="btn-gold px-8 py-3"><Activity className="w-5 h-5 mr-2"/>Рассчитать биоритмы</Button>{error && <p className="text-rose-300 text-sm mt-3">{error}</p>}</div>
+
+      {result && (
+        <div className="max-w-2xl mx-auto animate-fade-in space-y-4">
+          {/* Текущие значения */}
+          <div className="grid grid-cols-3 gap-4">
+            {[
+              { label: "Физический", val: result.physical, color: "#dc2626", icon: "💪" },
+              { label: "Эмоциональный", val: result.emotional, color: "#7c3aed", icon: "❤️" },
+              { label: "Интеллект", val: result.intellectual, color: "#0891b2", icon: "🧠" },
+            ].map((b) => (
+              <Card key={b.label} className="glass-mystic text-center" style={{ borderColor: `${b.color}40` }}>
+                <CardContent className="pt-5">
+                  <div className="text-3xl mb-1">{b.icon}</div>
+                  <div className="text-3xl font-bold mb-1" style={{ color: b.color }}>{b.val > 0 ? "+" : ""}{b.val}%</div>
+                  <div className="text-xs text-amber-200/70">{b.label}</div>
+                  <div className="mt-2"><Progress value={(b.val + 100) / 2} className="bg-purple-950/60" /></div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+
+          {/* График */}
+          <Card className="glass-mystic border-amber-400/30">
+            <CardContent className="pt-5">
+              <div className="text-xs uppercase tracking-wider text-amber-300 mb-3">График биоритмов (15 дней до/после)</div>
+              <svg viewBox="0 0 600 200" className="w-full">
+                {/* Ось */}
+                <line x1="0" y1="100" x2="600" y2="100" stroke="rgba(251,191,36,0.2)" strokeWidth="1"/>
+                {/* Линии */}
+                {[
+                  { data: series.map(s => s.physical), color: "#dc2626" },
+                  { data: series.map(s => s.emotional), color: "#7c3aed" },
+                  { data: series.map(s => s.intellectual), color: "#0891b2" },
+                ].map((line, li) => {
+                  const points = line.data.map((v, i) => {
+                    const x = (i / (line.data.length - 1)) * 600
+                    const y = 100 - (v / maxVal) * 90
+                    return `${x},${y}`
+                  }).join(" ")
+                  return <polyline key={li} points={points} fill="none" stroke={line.color} strokeWidth="2" opacity="0.8"/>
+                })}
+                {/* Точка сегодня */}
+                <circle cx="300" cy="100" r="4" fill="#fbbf24"/>
+                <text x="300" y="120" fontSize="8" textAnchor="middle" fill="rgba(251,191,36,0.6)">сегодня</text>
+              </svg>
+              <div className="flex justify-center gap-4 mt-2 text-xs">
+                <span className="text-red-400">— Физический</span>
+                <span className="text-purple-400">— Эмоциональный</span>
+                <span className="text-cyan-400">— Интеллект</span>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="glass-card border-amber-400/20">
+            <CardContent className="pt-5">
+              <div className="text-xs text-amber-300/70 mb-1">📊 Дней прожито: {result.daysAlive}</div>
+              <p className="text-sm text-amber-100/85">
+                {result.physical > 50 ? "Физическая энергия на пике — действуйте!" : result.physical < -50 ? "Физическая энергия на минимуме — отдыхайте." : "Физическая энергия в норме."}
+                {" "}{result.emotional > 50 ? "Эмоции положительные." : result.emotional < -50 ? "Эмоции нестабильны — будьте осторожны." : "Эмоции стабильны."}
+                {" "}{result.intellectual > 50 ? "Ум ясный — принимайте решения." : result.intellectual < -50 ? "Ум затуманен — отложите важные решения." : "Мышление в норме."}
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ===================== ПСИХОМАТРИЦА АЛЕКСАНДРОВА =====================
+function PsychomatrixSection() {
+  const [day, setDay] = useState("")
+  const [month, setMonth] = useState("")
+  const [year, setYear] = useState("")
+  const [result, setResult] = useState<Psychomatrix | null>(null)
+  const [error, setError] = useState("")
+
+  const handleCalculate = () => {
+    const d = parseInt(day), m = parseInt(month), y = parseInt(year)
+    if (!d || !m || !y) { setError("Заполните дату"); setResult(null); return }
+    const r = calculatePsychomatrix(d, m, y)
+    if (!r) { setError("Ошибка"); return }
+    setError(""); setResult(r)
+  }
+
+  const cellLabels = ["Характер", "Энергия", "Интерес", "Здоровье", "Логика", "Труд", "Удача", "Долг", "Память"]
+  const cellColors = ["#fbbf24", "#a78bfa", "#7dd3fc", "#86efac", "#f9a8d4", "#fb923c", "#fde68a", "#60a5fa", "#c4b5fd"]
+
+  return (
+    <div className="py-8">
+      <div className="text-center mb-10">
+        <div className="section-divider mb-6"><span>Психоматрица Александрова</span></div>
+        <h2 className="text-4xl sm:text-5xl font-bold mb-3 text-mystic-gradient inline-block" style={{ fontFamily: "var(--font-cinzel)", lineHeight: 1.25, paddingTop: "0.2em" }}>Матрица</h2>
+        <p className="text-amber-200/70 max-w-2xl mx-auto">Квадрат 3×3 по дате рождения. 9 ячеек показывают распределение ваших качеств.</p>
+      </div>
+
+      <div className="max-w-sm mx-auto mb-6 grid grid-cols-3 gap-3">
+        <div><label className="text-xs text-amber-200/70 mb-1 block">День</label><Input type="number" min="1" max="31" value={day} onChange={(e) => setDay(e.target.value)} placeholder="15" className="bg-purple-950/40 border-amber-400/30 text-amber-100 placeholder:text-amber-200/40 text-center"/></div>
+        <div><label className="text-xs text-amber-200/70 mb-1 block">Месяц</label><Input type="number" min="1" max="12" value={month} onChange={(e) => setMonth(e.target.value)} placeholder="08" className="bg-purple-950/40 border-amber-400/30 text-amber-100 placeholder:text-amber-200/40 text-center"/></div>
+        <div><label className="text-xs text-amber-200/70 mb-1 block">Год</label><Input type="number" min="1900" max="2100" value={year} onChange={(e) => setYear(e.target.value)} placeholder="1990" className="bg-purple-950/40 border-amber-400/30 text-amber-100 placeholder:text-amber-200/40 text-center"/></div>
+      </div>
+      <div className="text-center mb-8"><Button onClick={handleCalculate} className="btn-gold px-8 py-3"><Grid3x3 className="w-5 h-5 mr-2"/>Рассчитать матрицу</Button>{error && <p className="text-rose-300 text-sm mt-3">{error}</p>}</div>
+
+      {result && (
+        <div className="max-w-xl mx-auto animate-fade-in space-y-4">
+          {/* Квадрат 3×3 */}
+          <Card className="glass-mystic border-amber-400/40">
+            <CardContent className="pt-6">
+              <div className="grid grid-cols-3 gap-2">
+                {result.grid.flat().map((count, i) => (
+                  <div key={i} className="aspect-square rounded-xl flex flex-col items-center justify-center p-2" style={{ background: `${cellColors[i]}15`, border: `1px solid ${cellColors[i]}40` }}>
+                    <div className="text-xs text-amber-200/60 mb-1">{cellLabels[i]}</div>
+                    <div className="text-2xl font-bold" style={{ color: cellColors[i] }}>{count > 0 ? count.toString().split("").join("-") : "—"}</div>
+                    <div className="text-[10px] text-amber-200/40 mt-1">({i + 1})</div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Описание */}
+          <Card className="glass-mystic border-amber-400/30">
+            <CardContent className="pt-5">
+              <div className="text-xs uppercase tracking-wider text-amber-300 mb-2">Расшифровка</div>
+              <p className="text-sm text-amber-100/85 leading-relaxed">{result.summary}</p>
+            </CardContent>
+          </Card>
+
+          {/* Детали по ячейкам */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {[
+              { label: "Характер (1)", val: result.workingEnergy, desc: "Сила воли, лидерство" },
+              { label: "Энергия (2)", val: result.energy, desc: "Жизненная сила" },
+              { label: "Интерес (3)", val: result.interest, desc: "Творчество, склонности" },
+              { label: "Здоровье (4)", val: result.health, desc: "Физическое тело" },
+              { label: "Логика (5)", val: result.logic, desc: "Аналитический ум" },
+              { label: "Труд (6)", val: result.labour, desc: "Мастерство, ремесло" },
+              { label: "Удача (7)", val: result.luck, desc: "Везение, интуиция" },
+              { label: "Долг (8)", val: result.duty, desc: "Ответственность" },
+              { label: "Память (9)", val: result.memory, desc: "Ум, воспоминания" },
+            ].map((cell, i) => (
+              <div key={i} className="glass-card rounded-lg p-3 flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold shrink-0" style={{ background: `${cellColors[i]}25`, color: cellColors[i], border: `1px solid ${cellColors[i]}50` }}>
+                  {cell.val > 0 ? cell.val : "0"}
+                </div>
+                <div>
+                  <div className="text-xs font-medium text-amber-100">{cell.label}</div>
+                  <div className="text-[10px] text-amber-200/60">{cell.desc}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ===================== НУМЕРОЛОГИЯ ИМЕНИ =====================
+function NameNumerologySection() {
+  const [name, setName] = useState("")
+  const [result, setResult] = useState<NameNumerology | null>(null)
+  const [error, setError] = useState("")
+
+  const handleCalculate = () => {
+    if (!name.trim() || name.trim().length < 2) { setError("Введите имя (минимум 2 буквы)"); setResult(null); return }
+    const r = calculateNameNumerology(name.trim())
+    if (!r) { setError("Не удалось рассчитать"); return }
+    setError(""); setResult(r)
+  }
+
+  return (
+    <div className="py-8">
+      <div className="text-center mb-10">
+        <div className="section-divider mb-6"><span>Нумерология имени</span></div>
+        <h2 className="text-4xl sm:text-5xl font-bold mb-3 text-mystic-gradient inline-block" style={{ fontFamily: "var(--font-cinzel)", lineHeight: 1.25, paddingTop: "0.2em" }}>Имя</h2>
+        <p className="text-amber-200/70 max-w-2xl mx-auto">Три числа: души (гласные), личности (согласные) и судьбы (все буквы). Поддерживается русский и английский.</p>
+      </div>
+
+      <div className="max-w-md mx-auto mb-6">
+        <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Введите полное имя..."
+          className="bg-purple-950/40 border-amber-400/30 text-amber-100 placeholder:text-amber-200/40 text-center text-lg" onKeyDown={(e) => e.key === "Enter" && handleCalculate()}/>
+      </div>
+      <div className="text-center mb-8"><Button onClick={handleCalculate} className="btn-gold px-8 py-3"><Type className="w-5 h-5 mr-2"/>Рассчитать</Button>{error && <p className="text-rose-300 text-sm mt-3">{error}</p>}</div>
+
+      {result && (
+        <div className="max-w-2xl mx-auto animate-fade-in space-y-4">
+          <Card className="glass-mystic border-amber-400/40 text-center">
+            <CardContent className="pt-8 pb-6">
+              <h3 className="text-2xl font-bold text-gold-gradient mb-6" style={{ fontFamily: "var(--font-cinzel)" }}>{result.name}</h3>
+              <div className="grid grid-cols-3 gap-4">
+                {[
+                  { label: "Число Души", num: result.soulNumber, meaning: result.soulMeaning, color: "#f9a8d4", icon: "💫" },
+                  { label: "Число Личности", num: result.personalityNumber, meaning: result.personalityMeaning, color: "#7dd3fc", icon: "🎭" },
+                  { label: "Число Судьбы", num: result.destinyNumber, meaning: result.destinyMeaning, color: "#fbbf24", icon: "🌟" },
+                ].map((item, i) => (
+                  <div key={i}>
+                    <div className="text-3xl mb-1">{item.icon}</div>
+                    <div className="text-5xl font-bold mb-1" style={{ color: item.color, fontFamily: "var(--font-cinzel)" }}>{item.num}</div>
+                    <div className="text-xs text-amber-200/70 mb-2">{item.label}</div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          {[
+            { label: "💫 Число Души (гласные)", num: result.soulNumber, meaning: result.soulMeaning, color: "#f9a8d4", desc: "Ваша внутренняя суть — то, что вы чувствуете глубоко внутри" },
+            { label: "🎭 Число Личности (согласные)", num: result.personalityNumber, meaning: result.personalityMeaning, color: "#7dd3fc", desc: "Как вас видят другие — внешняя маска, первое впечатление" },
+            { label: "🌟 Число Судьбы (все буквы)", num: result.destinyNumber, meaning: result.destinyMeaning, color: "#fbbf24", desc: "Ваша миссия — то, зачем вы пришли в этот мир" },
+          ].map((item, i) => (
+            <Card key={i} className="glass-card border-amber-400/20">
+              <CardContent className="pt-5">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="w-10 h-10 rounded-full flex items-center justify-center text-lg font-bold shrink-0" style={{ background: `${item.color}25`, color: item.color, border: `1px solid ${item.color}50` }}>{item.num}</div>
+                  <h4 className="text-sm font-bold text-amber-100">{item.label}</h4>
+                </div>
+                <p className="text-sm text-amber-100/85 mb-2">{item.meaning}</p>
+                <p className="text-xs text-amber-200/60 italic">{item.desc}</p>
+              </CardContent>
+            </Card>
+          ))}
+
+          <div className="flex gap-3 justify-center">
+            <Button onClick={() => shareResult("Нумерология имени", `${result.name}: Душа=${result.soulNumber}, Личность=${result.personalityNumber}, Судьба=${result.destinyNumber}`)} variant="outline" className="border-amber-400/40 text-amber-200 hover:bg-amber-400/10"><Share2 className="w-4 h-4 mr-2"/>Поделиться</Button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
