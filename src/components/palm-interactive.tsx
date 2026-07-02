@@ -197,24 +197,24 @@ export function PalmInteractive() {
         <text x="230" y="76" fontSize="6" textAnchor="middle" fill="rgba(254,243,199,0.3)">Миз.</text>
 
         {/* === БУГРЫ === */}
-        {/* Венера — основание большого пальца (слева внизу) */}
-        {renderMount("venus", 68, 285, 32, "#ec4899", "♀")}
+        {/* Венера — основание большого пальца (слева внизу, внутри контура) */}
+        {renderMount("venus", 85, 290, 22, "#ec4899", "♀")}
         {/* Юпитер — под указательным */}
-        {renderMount("jupiter", 108, 172, 20, "#f59e0b", "♃")}
+        {renderMount("jupiter", 108, 172, 18, "#f59e0b", "♃")}
         {/* Сатурн — под средним */}
-        {renderMount("saturn", 148, 172, 20, "#64748b", "♄")}
+        {renderMount("saturn", 148, 172, 18, "#64748b", "♄")}
         {/* Аполлон — под безымянным */}
-        {renderMount("apollo", 188, 172, 20, "#fbbf24", "☉")}
+        {renderMount("apollo", 188, 172, 18, "#fbbf24", "☉")}
         {/* Меркурий — под мизинцем */}
-        {renderMount("mercury", 228, 178, 18, "#60a5fa", "☿")}
+        {renderMount("mercury", 228, 178, 16, "#60a5fa", "☿")}
         {/* Марс внутренний — между большим и указательным */}
-        {renderMount("mars-positive", 92, 205, 16, "#dc2626", "♂")}
+        {renderMount("mars-positive", 100, 200, 14, "#dc2626", "♂")}
         {/* Марс внешний — под мизинцем с ребра */}
-        {renderMount("mars-negative", 242, 215, 16, "#dc2626", "♂")}
+        {renderMount("mars-negative", 240, 210, 14, "#dc2626", "♂")}
         {/* Луна — справа внизу */}
-        {renderMount("moon", 228, 295, 28, "#94a3b8", "☾")}
+        {renderMount("moon", 222, 295, 22, "#94a3b8", "☾")}
         {/* Равнина Марса — центр ладони */}
-        {renderMount("mars-plane", 158, 242, 20, "#a78bfa", "◇")}
+        {renderMount("mars-plane", 158, 240, 16, "#a78bfa", "◇")}
 
         {/* === ОСНОВНЫЕ ЛИНИИ === */}
         {renderLine("life")}
