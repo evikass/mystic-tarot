@@ -23,9 +23,13 @@ import {
 import {
   calculateBirthDate,
   getZodiacSign,
+  getChineseZodiac,
   colorArchetypes,
   geometryArchetypes,
   palmLines,
+  palmMounts,
+  palmExtraLines,
+  handTypes,
   getZodiacCompatibility,
   calculateNumerologyCompatibility,
   type BirthDateResult,
@@ -35,6 +39,7 @@ import {
   type PalmLine,
   type ZodiacCompatibility,
   type NumerologyCompatibility,
+  type ChineseZodiac,
 } from "@/lib/psychology-data"
 import {
   calculateNatalChart,
@@ -2512,29 +2517,34 @@ function BirthDateTab() {
   )
 }
 
-// === Таб 3: Гороскоп по дате рождения ===
+
+// === Таб 3: Гороскоп по дате рождения (европейский + китайский) ===
 function ZodiacTab() {
   const [day, setDay] = useState("")
   const [month, setMonth] = useState("")
+  const [year, setYear] = useState("")
   const [sign, setSign] = useState<ZodiacSign | null>(null)
+  const [chinese, setChinese] = useState<ChineseZodiac | null>(null)
   const [error, setError] = useState("")
 
   const handleCalculate = () => {
     const d = parseInt(day)
     const m = parseInt(month)
+    const y = parseInt(year)
     if (!d || !m) {
       setError("Заполните день и месяц")
-      setSign(null)
+      setSign(null); setChinese(null)
       return
     }
     const s = getZodiacSign(d, m)
     if (!s) {
       setError("Проверьте дату")
-      setSign(null)
+      setSign(null); setChinese(null)
       return
     }
     setError("")
     setSign(s)
+    if (y) setChinese(getChineseZodiac(y))
   }
 
   return (
@@ -2544,82 +2554,67 @@ function ZodiacTab() {
           Гороскоп по дате рождения
         </h3>
         <p className="text-sm text-amber-200/70 max-w-xl mx-auto">
-          Введите день и месяц рождения, чтобы узнать свой знак зодиака, его стихию,
-          планету-управитель и психологический архетип.
+          Две системы: европейский (западный) знак зодиака по дню и месяцу +
+          китайский (восточный) знак года по 12-летнему и 60-летнему циклу с пятью стихиями.
         </p>
       </div>
 
-      <div className="max-w-xs mx-auto mb-6 grid grid-cols-2 gap-3">
+      <div className="max-w-sm mx-auto mb-6 grid grid-cols-3 gap-3">
         <div>
           <label className="text-xs text-amber-200/70 mb-1 block">День</label>
-          <Input
-            type="number" min="1" max="31"
-            value={day}
-            onChange={(e) => setDay(e.target.value)}
-            placeholder="15"
-            className="bg-purple-950/40 border-amber-400/30 text-amber-100 placeholder:text-amber-200/40 text-center"
-          />
+          <Input type="number" min="1" max="31" value={day}
+            onChange={(e) => setDay(e.target.value)} placeholder="15"
+            className="bg-purple-950/40 border-amber-400/30 text-amber-100 placeholder:text-amber-200/40 text-center"/>
         </div>
         <div>
           <label className="text-xs text-amber-200/70 mb-1 block">Месяц</label>
-          <Input
-            type="number" min="1" max="12"
-            value={month}
-            onChange={(e) => setMonth(e.target.value)}
-            placeholder="08"
-            className="bg-purple-950/40 border-amber-400/30 text-amber-100 placeholder:text-amber-200/40 text-center"
-          />
+          <Input type="number" min="1" max="12" value={month}
+            onChange={(e) => setMonth(e.target.value)} placeholder="08"
+            className="bg-purple-950/40 border-amber-400/30 text-amber-100 placeholder:text-amber-200/40 text-center"/>
+        </div>
+        <div>
+          <label className="text-xs text-amber-200/70 mb-1 block">Год</label>
+          <Input type="number" min="1900" max="2100" value={year}
+            onChange={(e) => setYear(e.target.value)} placeholder="1990"
+            className="bg-purple-950/40 border-amber-400/30 text-amber-100 placeholder:text-amber-200/40 text-center"/>
         </div>
       </div>
 
       <div className="text-center mb-8">
         <Button onClick={handleCalculate} className="btn-gold px-8 py-3">
           <Star className="w-5 h-5 mr-2"/>
-          Узнать знак зодиака
+          Узнать знаки зодиака
         </Button>
         {error && <p className="text-rose-300 text-sm mt-3">{error}</p>}
+        {year && !sign && <p className="text-xs text-amber-200/50 mt-2">Год нужен для китайского гороскопа</p>}
       </div>
 
       {sign && (
-        <div className="max-w-3xl mx-auto animate-fade-in">
-          {/* Шапка знака */}
-          <Card
-            className="mb-5 relative overflow-hidden"
-            style={{
-              background: `linear-gradient(135deg, ${sign.color}30, rgba(26,10,58,0.6))`,
-              border: `1px solid ${sign.color}60`,
-            }}
-          >
+        <div className="max-w-3xl mx-auto animate-fade-in space-y-5">
+          {/* Разделитель — европейский */}
+          <div className="section-divider">
+            <span>♈ Европейский гороскоп</span>
+          </div>
+
+          {/* Шапка европейского знака */}
+          <Card className="mb-4 relative overflow-hidden" style={{
+            background: `linear-gradient(135deg, ${sign.color}30, rgba(26,10,58,0.6))`,
+            border: `1px solid ${sign.color}60`,
+          }}>
             <CardContent className="pt-6">
               <div className="flex items-center gap-4">
-                <div
-                  className="w-20 h-20 rounded-full flex items-center justify-center text-5xl shrink-0"
-                  style={{
-                    backgroundColor: `${sign.color}30`,
-                    border: `2px solid ${sign.color}`,
-                    boxShadow: `0 0 25px ${sign.color}50`,
-                  }}
-                >
+                <div className="w-20 h-20 rounded-full flex items-center justify-center text-5xl shrink-0" style={{
+                  backgroundColor: `${sign.color}30`, border: `2px solid ${sign.color}`, boxShadow: `0 0 25px ${sign.color}50`,
+                }}>
                   {sign.symbol}
                 </div>
                 <div>
-                  <h3
-                    className="text-3xl font-bold mb-1"
-                    style={{ color: sign.color, fontFamily: "var(--font-cinzel)" }}
-                  >
-                    {sign.name}
-                  </h3>
+                  <h3 className="text-3xl font-bold mb-1" style={{ color: sign.color, fontFamily: "var(--font-cinzel)" }}>{sign.name}</h3>
                   <p className="text-amber-100/80 text-sm">{sign.dates}</p>
                   <div className="flex flex-wrap gap-2 mt-2">
-                    <Badge className="border" style={{ backgroundColor: `${sign.color}25`, color: sign.color, borderColor: `${sign.color}50` }}>
-                      {sign.element}
-                    </Badge>
-                    <Badge variant="outline" className="border-amber-400/40 text-amber-200">
-                      {sign.quality}
-                    </Badge>
-                    <Badge variant="outline" className="border-amber-400/40 text-amber-200">
-                      {sign.ruler}
-                    </Badge>
+                    <Badge className="border" style={{ backgroundColor: `${sign.color}25`, color: sign.color, borderColor: `${sign.color}50` }}>{sign.element}</Badge>
+                    <Badge variant="outline" className="border-amber-400/40 text-amber-200">{sign.quality}</Badge>
+                    <Badge variant="outline" className="border-amber-400/40 text-amber-200">{sign.ruler}</Badge>
                   </div>
                 </div>
               </div>
@@ -2627,79 +2622,127 @@ function ZodiacTab() {
             </CardContent>
           </Card>
 
-          <Card className="glass-mystic border-amber-400/30 mb-5">
+          <Card className="glass-mystic border-amber-400/30 mb-4">
             <CardContent className="pt-5">
               <div className="text-xs uppercase tracking-wider text-amber-300 mb-2">Психология</div>
               <p className="text-amber-100/85 text-sm leading-relaxed">{sign.psychology}</p>
             </CardContent>
           </Card>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
             <Card className="glass-card border-emerald-400/20">
-              <CardHeader>
-                <CardTitle className="text-base text-emerald-200">✦ Силы</CardTitle>
-              </CardHeader>
-              <CardContent className="pt-0">
-                <ul className="space-y-1.5">
-                  {sign.strengths.map((s, i) => (
-                    <li key={i} className="text-xs text-amber-100/85 flex gap-2">
-                      <span className="text-emerald-400">✦</span>
-                      <span>{s}</span>
-                    </li>
-                  ))}
-                </ul>
-              </CardContent>
+              <CardHeader><CardTitle className="text-base text-emerald-200">✦ Силы</CardTitle></CardHeader>
+              <CardContent className="pt-0"><ul className="space-y-1.5">
+                {sign.strengths.map((s, i) => <li key={i} className="text-xs text-amber-100/85 flex gap-2"><span className="text-emerald-400">✦</span><span>{s}</span></li>)}
+              </ul></CardContent>
             </Card>
             <Card className="glass-card border-rose-400/20">
-              <CardHeader>
-                <CardTitle className="text-base text-rose-200">✦ Тень</CardTitle>
-              </CardHeader>
-              <CardContent className="pt-0">
-                <ul className="space-y-1.5">
-                  {sign.shadow.map((s, i) => (
-                    <li key={i} className="text-xs text-amber-100/85 flex gap-2">
-                      <span className="text-rose-400">✦</span>
-                      <span>{s}</span>
-                    </li>
-                  ))}
-                </ul>
-              </CardContent>
+              <CardHeader><CardTitle className="text-base text-rose-200">✦ Тень</CardTitle></CardHeader>
+              <CardContent className="pt-0"><ul className="space-y-1.5">
+                {sign.shadow.map((s, i) => <li key={i} className="text-xs text-amber-100/85 flex gap-2"><span className="text-rose-400">✦</span><span>{s}</span></li>)}
+              </ul></CardContent>
             </Card>
           </div>
 
-          <Card className="glass-card border-amber-400/20 mb-5">
+          <Card className="glass-card border-amber-400/20 mb-4">
             <CardContent className="pt-5 space-y-3">
-              <div>
-                <div className="text-xs text-amber-300/70 mb-1">💼 Карьера</div>
-                <p className="text-sm text-amber-100/85">{sign.career}</p>
-              </div>
-              <div>
-                <div className="text-xs text-amber-300/70 mb-1">❤️ Отношения</div>
-                <p className="text-sm text-amber-100/85">{sign.relationships}</p>
-              </div>
-              <div>
-                <div className="text-xs text-amber-300/70 mb-1">🌱 Путь роста</div>
-                <p className="text-sm text-amber-100/85">{sign.growth}</p>
-              </div>
-              <div>
-                <div className="text-xs text-amber-300/70 mb-1">✨ Совместимость</div>
-                <div className="flex flex-wrap gap-2 mt-1">
-                  {sign.compatibility.map((c, i) => (
-                    <Badge key={i} variant="outline" className="border-amber-400/40 text-amber-200">
-                      {c}
-                    </Badge>
-                  ))}
-                </div>
+              <div><div className="text-xs text-amber-300/70 mb-1">💼 Карьера</div><p className="text-sm text-amber-100/85">{sign.career}</p></div>
+              <div><div className="text-xs text-amber-300/70 mb-1">❤️ Отношения</div><p className="text-sm text-amber-100/85">{sign.relationships}</p></div>
+              <div><div className="text-xs text-amber-300/70 mb-1">🌱 Путь роста</div><p className="text-sm text-amber-100/85">{sign.growth}</p></div>
+              <div><div className="text-xs text-amber-300/70 mb-1">✨ Совместимость</div>
+                <div className="flex flex-wrap gap-2 mt-1">{sign.compatibility.map((c, i) => <Badge key={i} variant="outline" className="border-amber-400/40 text-amber-200">{c}</Badge>)}</div>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="glass-mystic border-purple-400/30">
+          <Card className="glass-mystic border-purple-400/30 mb-6">
             <CardContent className="pt-5">
               <div className="text-xs text-purple-300 mb-1">✦ Аффирмация</div>
               <p className="text-lg italic text-amber-100 text-center">{sign.affirmation}</p>
             </CardContent>
           </Card>
+
+          {/* === КИТАЙСКИЙ ГОРОСКОП === */}
+          {chinese && (
+            <>
+              <div className="section-divider">
+                <span>🐉 Китайский гороскоп</span>
+              </div>
+
+              <Card className="mb-4 relative overflow-hidden" style={{
+                background: `linear-gradient(135deg, ${chinese.elementColor}25, rgba(26,10,58,0.6))`,
+                border: `1px solid ${chinese.elementColor}50`,
+              }}>
+                <CardContent className="pt-6">
+                  <div className="flex items-center gap-4">
+                    <div className="w-20 h-20 rounded-full flex items-center justify-center text-5xl shrink-0" style={{
+                      backgroundColor: `${chinese.elementColor}25`, border: `2px solid ${chinese.elementColor}`, boxShadow: `0 0 25px ${chinese.elementColor}40`,
+                    }}>
+                      {chinese.animalSymbol}
+                    </div>
+                    <div>
+                      <h3 className="text-3xl font-bold mb-1" style={{ color: chinese.elementColor, fontFamily: "var(--font-cinzel)" }}>
+                        {chinese.animal}
+                      </h3>
+                      <div className="flex flex-wrap gap-2 mt-1">
+                        <Badge className="border" style={{ backgroundColor: `${chinese.elementColor}20`, color: chinese.elementColor, borderColor: `${chinese.elementColor}50` }}>
+                          Стихия: {chinese.element}
+                        </Badge>
+                        <Badge variant="outline" className="border-amber-400/40 text-amber-200">
+                          60-летний цикл
+                        </Badge>
+                      </div>
+                      <p className="text-xs text-amber-200/60 mt-2">
+                        Годы: {chinese.years.join(", ")}
+                      </p>
+                    </div>
+                  </div>
+                  <p className="text-amber-200/80 italic text-sm mt-4">{chinese.archetype}</p>
+                </CardContent>
+              </Card>
+
+              <Card className="glass-mystic border-amber-400/30 mb-4">
+                <CardContent className="pt-5">
+                  <div className="text-xs uppercase tracking-wider text-amber-300 mb-2">Психология</div>
+                  <p className="text-amber-100/85 text-sm leading-relaxed">{chinese.psychology}</p>
+                </CardContent>
+              </Card>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                <Card className="glass-card border-emerald-400/20">
+                  <CardHeader><CardTitle className="text-base text-emerald-200">✦ Силы</CardTitle></CardHeader>
+                  <CardContent className="pt-0"><ul className="space-y-1.5">
+                    {chinese.strengths.map((s, i) => <li key={i} className="text-xs text-amber-100/85 flex gap-2"><span className="text-emerald-400">✦</span><span>{s}</span></li>)}
+                  </ul></CardContent>
+                </Card>
+                <Card className="glass-card border-rose-400/20">
+                  <CardHeader><CardTitle className="text-base text-rose-200">✦ Тень</CardTitle></CardHeader>
+                  <CardContent className="pt-0"><ul className="space-y-1.5">
+                    {chinese.challenges.map((c, i) => <li key={i} className="text-xs text-amber-100/85 flex gap-2"><span className="text-rose-400">✦</span><span>{c}</span></li>)}
+                  </ul></CardContent>
+                </Card>
+              </div>
+
+              <Card className="glass-card border-amber-400/20 mb-4">
+                <CardContent className="pt-5 space-y-3">
+                  <div><div className="text-xs text-amber-300/70 mb-1">💼 Карьера</div>
+                    <div className="flex flex-wrap gap-1.5">{chinese.career.map((c, i) => <Badge key={i} variant="outline" className="text-xs border-amber-400/30 text-amber-200">{c}</Badge>)}</div>
+                  </div>
+                  <div><div className="text-xs text-amber-300/70 mb-1">❤️ Отношения</div><p className="text-sm text-amber-100/85">{chinese.relationships}</p></div>
+                  <div><div className="text-xs text-amber-300/70 mb-1">✨ Совместимость</div>
+                    <div className="flex flex-wrap gap-2 mt-1">{chinese.compatibility.map((c, i) => <Badge key={i} variant="outline" className="border-amber-400/40 text-amber-200">{c}</Badge>)}</div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="glass-mystic border-purple-400/30">
+                <CardContent className="pt-5">
+                  <div className="text-xs text-purple-300 mb-1">✦ Аффирмация</div>
+                  <p className="text-lg italic text-amber-100 text-center">{chinese.affirmation}</p>
+                </CardContent>
+              </Card>
+            </>
+          )}
         </div>
       )}
     </div>
