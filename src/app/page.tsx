@@ -24,6 +24,9 @@ import {
   calculateBirthDate,
   getZodiacSign,
   getChineseZodiac,
+  getBirthStone,
+  getFlowerSign,
+  getCelticTree,
   colorArchetypes,
   geometryArchetypes,
   palmLines,
@@ -40,7 +43,18 @@ import {
   type ZodiacCompatibility,
   type NumerologyCompatibility,
   type ChineseZodiac,
+  type BirthStone,
+  type FlowerSign,
+  type CelticTree,
 } from "@/lib/psychology-data"
+import {
+  runes,
+  drawRunes,
+  getMoonPhase,
+  getMoonAdvice,
+  moonPhases,
+  type RuneDraw,
+} from "@/lib/runes-moon-data"
 import {
   calculateNatalChart,
   calculateAspects,
@@ -143,7 +157,7 @@ import {
   Globe,
 } from "lucide-react"
 
-type Section = "home" | "daily" | "readings" | "compatibility" | "psychology" | "history" | "success"
+type Section = "home" | "daily" | "readings" | "compatibility" | "psychology" | "history" | "success" | "runes" | "moon" | "catalog"
 
 interface DrawnCard {
   card: TarotCard
@@ -163,8 +177,11 @@ export default function Home() {
     { id: "home", label: "Главная", icon: <Sparkles className="w-4 h-4"/> },
     { id: "daily", label: "Карта дня", icon: <Sun className="w-4 h-4"/> },
     { id: "readings", label: "Расклады", icon: <Layers className="w-4 h-4"/> },
+    { id: "catalog", label: "Каталог", icon: <BookOpen className="w-4 h-4"/> },
     { id: "compatibility", label: "Совместимость", icon: <Heart className="w-4 h-4"/> },
     { id: "psychology", label: "Психология", icon: <Brain className="w-4 h-4"/> },
+    { id: "runes", label: "Руны", icon: <Flame className="w-4 h-4"/> },
+    { id: "moon", label: "Луна", icon: <Moon className="w-4 h-4"/> },
     { id: "success", label: "14 Шагов", icon: <Target className="w-4 h-4"/> },
     { id: "history", label: "История", icon: <History className="w-4 h-4"/> },
   ]
@@ -180,6 +197,9 @@ export default function Home() {
           {section === "readings" && <ReadingsSection/>}
           {section === "compatibility" && <CompatibilitySection/>}
           {section === "psychology" && <PsychologySection/>}
+          {section === "runes" && <RunesSection/>}
+          {section === "moon" && <MoonSection/>}
+          {section === "catalog" && <CatalogSection/>}
           {section === "success" && <SuccessStepsSection/>}
           {section === "history" && <HistorySection/>}
         </main>
@@ -2743,6 +2763,117 @@ function ZodiacTab() {
               </Card>
             </>
           )}
+
+          {/* === КАМЕНЬ ПО МЕСЯЦУ === */}
+          {(() => {
+            const stone = sign ? getBirthStone(parseInt(month)) : null
+            if (!stone) return null
+            return (
+              <>
+                <div className="section-divider">
+                  <span>💎 Камень по месяцу рождения</span>
+                </div>
+                <Card className="mb-4 relative overflow-hidden" style={{
+                  background: `linear-gradient(135deg, ${stone.hexColor}25, rgba(26,10,58,0.6))`,
+                  border: `1px solid ${stone.hexColor}50`,
+                }}>
+                  <CardContent className="pt-6">
+                    <div className="flex items-center gap-4">
+                      <div className="w-16 h-16 rounded-full shrink-0" style={{
+                        background: `radial-gradient(circle at 30% 30%, ${stone.hexColor}, ${stone.hexColor}80)`,
+                        boxShadow: `0 0 20px ${stone.hexColor}60`,
+                        border: `2px solid ${stone.hexColor}`,
+                      }}/>
+                      <div>
+                        <h3 className="text-2xl font-bold mb-1" style={{ color: stone.hexColor, fontFamily: "var(--font-cinzel)" }}>{stone.name}</h3>
+                        <Badge variant="outline" className="text-xs border" style={{ backgroundColor: `${stone.hexColor}20`, color: stone.hexColor, borderColor: `${stone.hexColor}50` }}>{stone.color}</Badge>
+                      </div>
+                    </div>
+                    <p className="text-amber-100/85 text-sm leading-relaxed mt-4">{stone.psychology}</p>
+                    <div className="flex flex-wrap gap-2 mt-3">
+                      {stone.properties.map((p, i) => <Badge key={i} variant="outline" className="text-xs border-amber-400/30 text-amber-200">{p}</Badge>)}
+                    </div>
+                  </CardContent>
+                </Card>
+              </>
+            )
+          })()}
+
+          {/* === ЦВЕТОЧНЫЙ ГОРОСКОП === */}
+          {(() => {
+            const flower = sign ? getFlowerSign(parseInt(month)) : null
+            if (!flower) return null
+            return (
+              <>
+                <div className="section-divider">
+                  <span>🌸 Цветочный гороскоп</span>
+                </div>
+                <Card className="mb-4 relative overflow-hidden" style={{
+                  background: `linear-gradient(135deg, ${flower.color}20, rgba(26,10,58,0.6))`,
+                  border: `1px solid ${flower.color}40`,
+                }}>
+                  <CardContent className="pt-6">
+                    <div className="flex items-center gap-4">
+                      <div className="w-16 h-16 rounded-full flex items-center justify-center text-4xl shrink-0" style={{
+                        background: `${flower.color}25`, border: `2px solid ${flower.color}60`,
+                      }}>{flower.emoji}</div>
+                      <div>
+                        <h3 className="text-2xl font-bold mb-1" style={{ color: flower.color, fontFamily: "var(--font-cinzel)" }}>{flower.name}</h3>
+                      </div>
+                    </div>
+                    <p className="text-amber-100/85 text-sm leading-relaxed mt-4">{flower.psychology}</p>
+                    <div className="flex flex-wrap gap-2 mt-3">
+                      {flower.qualities.map((q, i) => <Badge key={i} variant="outline" className="text-xs border-amber-400/30 text-amber-200">{q}</Badge>)}
+                    </div>
+                  </CardContent>
+                </Card>
+              </>
+            )
+          })()}
+
+          {/* === КЕЛЬТСКИЙ ГОРОСКОП ДЕРЕВЬЕВ === */}
+          {(() => {
+            const tree = sign ? getCelticTree(parseInt(month), parseInt(day)) : null
+            if (!tree) return null
+            return (
+              <>
+                <div className="section-divider">
+                  <span>🌳 Кельтский гороскоп деревьев</span>
+                </div>
+                <Card className="mb-4 relative overflow-hidden" style={{
+                  background: `linear-gradient(135deg, rgba(134,239,172,0.15), rgba(26,10,58,0.6))`,
+                  border: `1px solid rgba(134,239,172,0.4)`,
+                }}>
+                  <CardContent className="pt-6">
+                    <div className="flex items-center gap-4">
+                      <div className="w-16 h-16 rounded-full flex items-center justify-center text-4xl shrink-0" style={{
+                        background: "rgba(134,239,172,0.2)", border: "2px solid rgba(134,239,172,0.5)",
+                      }}>{tree.symbol}</div>
+                      <div>
+                        <h3 className="text-2xl font-bold mb-1 text-emerald-300" style={{ fontFamily: "var(--font-cinzel)" }}>{tree.name}</h3>
+                        <p className="text-xs text-amber-200/60">{tree.dates} · {tree.element}</p>
+                      </div>
+                    </div>
+                    <p className="text-amber-100/85 text-sm leading-relaxed mt-4">{tree.psychology}</p>
+                    <div className="grid grid-cols-2 gap-3 mt-3">
+                      <div className="glass-card rounded-lg p-2">
+                        <div className="text-xs text-emerald-300 mb-1">✦ Силы</div>
+                        <ul className="text-xs text-amber-100/80 space-y-0.5">
+                          {tree.strengths.map((s, i) => <li key={i}>• {s}</li>)}
+                        </ul>
+                      </div>
+                      <div className="glass-card rounded-lg p-2">
+                        <div className="text-xs text-rose-300 mb-1">✦ Вызовы</div>
+                        <ul className="text-xs text-amber-100/80 space-y-0.5">
+                          {tree.challenges.map((c, i) => <li key={i}>• {c}</li>)}
+                        </ul>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </>
+            )
+          })()}
         </div>
       )}
     </div>
@@ -3282,6 +3413,300 @@ function NatalChartTab() {
           </div>
         </div>
       )}
+    </div>
+  )
+}
+
+// ===================== RUNES (РУНЫ) =====================
+function RunesSection() {
+  const [drawnRunes, setDrawnRunes] = useState<RuneDraw[]>([])
+  const [isDrawing, setIsDrawing] = useState(false)
+  const [revealedIndexes, setRevealedIndexes] = useState<number[]>([])
+  const [question, setQuestion] = useState("")
+
+  const draw = useCallback(() => {
+    setIsDrawing(true)
+    setDrawnRunes([])
+    setRevealedIndexes([])
+    setTimeout(() => {
+      setDrawnRunes(drawRunes(3))
+      setIsDrawing(false)
+      saveReading({
+        type: "psychology",
+        typeLabel: "Расклад рун (3 руны)",
+        question: question || undefined,
+        cards: [],
+      })
+    }, 1200)
+  }, [question])
+
+  const revealRune = (i: number) => {
+    if (!revealedIndexes.includes(i)) setRevealedIndexes([...revealedIndexes, i])
+  }
+
+  return (
+    <div className="py-8">
+      <div className="text-center mb-10">
+        <div className="section-divider mb-6"><span>Руны Старшего Футарка</span></div>
+        <h2 className="text-4xl sm:text-5xl font-bold mb-3 text-mystic-gradient inline-block" style={{ fontFamily: "var(--font-cinzel)", lineHeight: 1.25, paddingTop: "0.2em" }}>Руны</h2>
+        <p className="text-amber-200/70 max-w-2xl mx-auto">24 руны + пустая руна Вирд. Расклад из 3 рун: прошлое, настоящее, будущее.</p>
+      </div>
+
+      <ReadingQuestionInput question={question} setQuestion={setQuestion} placeholder="О чём хотите спросить руны?" />
+
+      {!drawnRunes.length && !isDrawing && (
+        <div className="flex flex-col items-center gap-6">
+          <div className="flex gap-3">
+            {[0,1,2].map((i) => <div key={i} style={{ transform: `rotate(${(i-1)*5}deg)` }}>
+              <div className="w-20 h-28 rounded-xl glass-mystic border-amber-400/30 flex items-center justify-center">
+                <span className="text-3xl text-amber-300/30">ᚱ</span>
+              </div>
+            </div>)}
+          </div>
+          <Button onClick={draw} className="btn-gold px-8 py-3"><Flame className="w-5 h-5 mr-2"/>Бросить руны</Button>
+        </div>
+      )}
+
+      {isDrawing && <div className="text-center py-8"><div className="spinner-mystic mx-auto mb-4"/><p className="text-amber-200/80 animate-pulse" style={{ fontFamily: "var(--font-cormorant)" }}>Руны выбирают вас...</p></div>}
+
+      {drawnRunes.length > 0 && !isDrawing && (
+        <div>
+          <div className="flex flex-wrap justify-center gap-6 mb-8">
+            {drawnRunes.map((rd, i) => {
+              const revealed = revealedIndexes.includes(i)
+              return (
+                <div key={i} className="flex flex-col items-center">
+                  <div className="text-xs uppercase tracking-wider text-amber-200/60 mb-2">{rd.position}</div>
+                  <button onClick={() => revealRune(i)} className="w-24 h-32 rounded-xl glass-mystic border-amber-400/40 flex items-center justify-center transition-all hover:scale-105">
+                    {revealed ? (
+                      <span className="text-5xl text-amber-300" style={{ transform: rd.isReversed ? "rotate(180deg)" : "none" }}>{rd.rune.symbol}</span>
+                    ) : <span className="text-3xl text-amber-300/30">?</span>}
+                  </button>
+                  {revealed && (
+                    <div className="mt-2 text-center animate-fade-in">
+                      <div className="text-sm font-bold text-amber-100">{rd.rune.name}</div>
+                      {rd.isReversed && <div className="text-xs text-rose-300">перевёрнута</div>}
+                    </div>
+                  )}
+                </div>
+              )
+            })}
+          </div>
+
+          {revealedIndexes.length === 3 && (
+            <div className="max-w-2xl mx-auto space-y-3 animate-fade-in">
+              {drawnRunes.map((rd, i) => (
+                <Card key={i} className="glass-mystic border-amber-400/20">
+                  <CardContent className="p-4">
+                    <div className="flex items-center gap-3 mb-2">
+                      <Badge variant="outline" className="border-amber-400/40 text-amber-200 text-xs">{rd.position}</Badge>
+                      <span className="text-2xl text-amber-300" style={{ transform: rd.isReversed ? "rotate(180deg)" : "none", display: "inline-block" }}>{rd.rune.symbol}</span>
+                      <h4 className="text-lg font-bold text-amber-100">{rd.rune.name}</h4>
+                      {rd.isReversed && <Badge variant="outline" className="text-xs text-rose-300 border-rose-400/40">перевёрнута</Badge>}
+                    </div>
+                    <p className="text-sm text-amber-100/80 italic">{rd.rune.psychology}</p>
+                    <p className="text-xs text-amber-100/70 mt-2">
+                      <span className="text-emerald-300">Прямое:</span> {rd.rune.upright}
+                    </p>
+                    {rd.rune.id !== 25 && rd.rune.reversed !== rd.rune.upright && (
+                      <p className="text-xs text-amber-100/70 mt-1">
+                        <span className="text-rose-300">Перевёрнутое:</span> {rd.rune.reversed}
+                      </p>
+                    )}
+                  </CardContent>
+                </Card>
+              ))}
+              <Button onClick={draw} variant="outline" className="border-amber-400/40 text-amber-200 hover:bg-amber-400/10"><Flame className="w-4 h-4 mr-2"/>Новый расклад</Button>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ===================== MOON (ЛУННЫЙ КАЛЕНДАРЬ) =====================
+function MoonSection() {
+  const [moonData, setMoonData] = useState(() => getMoonPhase(new Date()))
+  const advice = getMoonAdvice(moonData.phaseIndex)
+
+  return (
+    <div className="py-8">
+      <div className="text-center mb-10">
+        <div className="section-divider mb-6"><span>Лунный календарь</span></div>
+        <h2 className="text-4xl sm:text-5xl font-bold mb-3 text-mystic-gradient inline-block" style={{ fontFamily: "var(--font-cinzel)", lineHeight: 1.25, paddingTop: "0.2em" }}>Фаза Луны</h2>
+        <p className="text-amber-200/70 max-w-2xl mx-auto">Текущая фаза Луны, знак зодиака Луны и рекомендации.</p>
+      </div>
+
+      <div className="max-w-2xl mx-auto space-y-4">
+        {/* Текущая фаза */}
+        <Card className="glass-mystic border-amber-400/30 text-center" style={{ background: `linear-gradient(135deg, ${moonData.phase.color}20, rgba(26,10,58,0.6))` }}>
+          <CardContent className="pt-8 pb-6">
+            <div className="text-8xl mb-4">{moonData.phase.emoji}</div>
+            <h3 className="text-3xl font-bold text-gold-gradient mb-2" style={{ fontFamily: "var(--font-cinzel)" }}>{moonData.phase.name}</h3>
+            <div className="flex justify-center gap-4 mt-3">
+              <Badge variant="outline" className="border-amber-400/40 text-amber-200">Освещённость: {moonData.illumination}%</Badge>
+              <Badge variant="outline" className="border-purple-400/40 text-purple-200">Луна в {moonData.zodiacSign}</Badge>
+            </div>
+            {/* Прогресс-бар освещённости */}
+            <div className="mt-4 max-w-xs mx-auto">
+              <Progress value={moonData.illumination} className="bg-purple-950/60" />
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Описание */}
+        <Card className="glass-mystic border-amber-400/30">
+          <CardContent className="pt-5">
+            <div className="text-xs uppercase tracking-wider text-amber-300 mb-2">Описание</div>
+            <p className="text-amber-100/85 text-sm leading-relaxed">{moonData.phase.description}</p>
+          </CardContent>
+        </Card>
+
+        {/* Энергия */}
+        <Card className="glass-card border-purple-400/20">
+          <CardContent className="pt-5">
+            <div className="text-xs text-purple-300 mb-1">✦ Энергия фазы</div>
+            <p className="text-sm text-amber-100/85">{moonData.phase.energy}</p>
+          </CardContent>
+        </Card>
+
+        {/* Совет */}
+        <Card className="glass-card border-amber-400/20">
+          <CardContent className="pt-5">
+            <div className="text-xs text-amber-300/70 mb-1">💡 Совет дня</div>
+            <p className="text-sm text-amber-100/85 italic">{moonData.phase.advice}</p>
+          </CardContent>
+        </Card>
+
+        {/* Благоприятные и неблагоприятные дни */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <Card className="glass-card border-emerald-400/20">
+            <CardHeader><CardTitle className="text-base text-emerald-200">✦ Благоприятно</CardTitle></CardHeader>
+            <CardContent className="pt-0">
+              <ul className="space-y-1.5">
+                {advice.favorable.map((f, i) => <li key={i} className="text-xs text-amber-100/85 flex gap-2"><span className="text-emerald-400">✦</span><span>{f}</span></li>)}
+              </ul>
+            </CardContent>
+          </Card>
+          <Card className="glass-card border-rose-400/20">
+            <CardHeader><CardTitle className="text-base text-rose-200">✦ Неблагоприятно</CardTitle></CardHeader>
+            <CardContent className="pt-0">
+              <ul className="space-y-1.5">
+                {advice.unfavorable.map((f, i) => <li key={i} className="text-xs text-amber-100/85 flex gap-2"><span className="text-rose-400">✦</span><span>{f}</span></li>)}
+              </ul>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Все фазы */}
+        <Card className="glass-card border-amber-400/20">
+          <CardHeader><CardTitle className="text-base text-amber-100">Лунный цикл (8 фаз)</CardTitle></CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-4 gap-3">
+              {moonPhases.map((p, i) => (
+                <div key={i} className={`text-center p-2 rounded-lg transition-all ${i === moonData.phaseIndex ? "glass-mystic border border-amber-400/40" : "opacity-50"}`}>
+                  <div className="text-3xl">{p.emoji}</div>
+                  <div className="text-xs text-amber-100/80 mt-1">{p.name}</div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  )
+}
+
+// ===================== CATALOG (КАТАЛОГ 78 КАРТ) =====================
+function CatalogSection() {
+  const [filter, setFilter] = useState<"all" | "major" | "wands" | "cups" | "swords" | "pentacles">("all")
+  const [selectedCard, setSelectedCard] = useState<TarotCard | null>(null)
+
+  const filteredCards = filter === "all" ? allTarotCards : allTarotCards.filter(c => c.suit === filter)
+
+  const suitLabels: Record<string, string> = {
+    all: "Все (78)",
+    major: "Старшие (22)",
+    wands: "Жезлы (14)",
+    cups: "Кубки (14)",
+    swords: "Мечи (14)",
+    pentacles: "Пентакли (14)",
+  }
+
+  return (
+    <div className="py-8">
+      <div className="text-center mb-10">
+        <div className="section-divider mb-6"><span>Каталог Таро</span></div>
+        <h2 className="text-4xl sm:text-5xl font-bold mb-3 text-gold-gradient inline-block" style={{ fontFamily: "var(--font-cinzel)", lineHeight: 1.25, paddingTop: "0.2em" }}>78 арканов</h2>
+        <p className="text-amber-200/70 max-w-2xl mx-auto">Полная библиотека всех 78 карт Таро с интерпретациями. Выберите карту для просмотра.</p>
+      </div>
+
+      {/* Фильтр */}
+      <div className="flex flex-wrap gap-2 mb-6 justify-center">
+        {Object.entries(suitLabels).map(([key, label]) => (
+          <Button key={key} variant={filter === key ? "default" : "outline"} size="sm"
+            onClick={() => setFilter(key as typeof filter)}
+            className={filter === key ? "btn-gold" : "border-amber-400/40 text-amber-200 hover:bg-amber-400/10"}>
+            {label}
+          </Button>
+        ))}
+      </div>
+
+      {/* Сетка карт */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+        {filteredCards.map((card) => (
+          <button key={card.id} onClick={() => setSelectedCard(card)}
+            className="glass-card rounded-xl overflow-hidden hover:scale-105 transition-all border-amber-400/20 hover:border-amber-400/50">
+            <CardSVG card={card} width={100} height={160} className="rounded-xl"/>
+            <div className="p-2 text-center">
+              <div className="text-xs font-medium text-amber-100 truncate">{card.name}</div>
+              <div className="text-[10px] text-amber-200/50 truncate">{card.keyword.split(" · ")[0]}</div>
+            </div>
+          </button>
+        ))}
+      </div>
+
+      {/* Модальное окно с деталями карты */}
+      <Dialog open={selectedCard !== null} onOpenChange={() => setSelectedCard(null)}>
+        <DialogContent className="max-w-md max-h-[90vh] overflow-hidden p-0 bg-[#1a0a3a] border-amber-400/30">
+          <ScrollArea className="max-h-[90vh]">
+            {selectedCard && (
+              <div className="p-6">
+                <div className="flex justify-center mb-4">
+                  <CardSVG card={selectedCard} width={180} height={288} className="rounded-xl shadow-2xl"/>
+                </div>
+                <Badge className="border mb-2" style={{ backgroundColor: `${selectedCard.accent}25`, color: selectedCard.accent, borderColor: `${selectedCard.accent}50` }}>
+                  {selectedCard.suit === "major" ? `Старший аркан ${selectedCard.number}` : suitInfo[selectedCard.suit].name}
+                </Badge>
+                <h2 className="text-2xl font-bold text-amber-100 mb-1" style={{ fontFamily: "var(--font-cinzel)" }}>{selectedCard.name}</h2>
+                <p className="text-sm text-amber-200/70 mb-4">{selectedCard.keyword}</p>
+
+                <div className="space-y-3">
+                  <div className="glass-card rounded-lg p-3">
+                    <h4 className="text-xs font-semibold text-emerald-200 mb-1">✦ Прямое значение</h4>
+                    <p className="text-xs text-amber-100/85 leading-relaxed">{selectedCard.upright.summary}</p>
+                    <p className="text-xs text-amber-100/70 mt-1">❤️ {selectedCard.upright.love}</p>
+                    <p className="text-xs text-amber-100/70">💼 {selectedCard.upright.career}</p>
+                  </div>
+                  <div className="glass-card rounded-lg p-3">
+                    <h4 className="text-xs font-semibold text-rose-200 mb-1">✦ Перевёрнутое значение</h4>
+                    <p className="text-xs text-amber-100/85 leading-relaxed">{selectedCard.reversed.summary}</p>
+                  </div>
+                  <div className="glass-card rounded-lg p-3 border-purple-400/20">
+                    <h4 className="text-xs font-semibold text-purple-200 mb-1">🧠 Психология</h4>
+                    <p className="text-xs text-amber-100/75 italic leading-relaxed">{selectedCard.upright.psychology}</p>
+                  </div>
+                  <div className="glass-card rounded-lg p-3 border-amber-400/20">
+                    <h4 className="text-xs font-semibold text-amber-200 mb-1">🎭 Архетип</h4>
+                    <p className="text-xs text-amber-100/75">{selectedCard.archetype}</p>
+                  </div>
+                </div>
+              </div>
+            )}
+          </ScrollArea>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
