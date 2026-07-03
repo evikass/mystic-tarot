@@ -89,6 +89,10 @@ import {
   getMeditationCard,
 } from "@/lib/arcana-data"
 import {
+  drawManaraCards,
+  type ManaraCard,
+} from "@/lib/manara-data"
+import {
   castIChing,
   getHexagram,
   calculateBiorhythm,
@@ -488,7 +492,7 @@ function HomeSection({ onNavigate }: { onNavigate: (s: Section) => void }) {
           <FeatureCard
             icon={<Brain className="w-7 h-7"/>}
             title="Психология"
-            description="Девять инструментов самопознания: архетип Таро, дата рождения, гороскоп, цвет, геометрия, ладонь, натальная карта, нумерология имени и тайна имени с этимологией."
+            description="Десять инструментов самопознания: архетип Таро, дата рождения, гороскоп, цвет, геометрия, ладонь, натальная карта, нумерология имени, тайна имени с этимологией и Таро Манара для диагностики отношений."
             onClick={() => onNavigate("psychology")}
             accent="#7dd3fc"
           />
@@ -2419,7 +2423,7 @@ function CompatibilityBirthDateTab() {
 
 // ===================== PSYCHOLOGY =====================
 function PsychologySection() {
-  const [psychTab, setPsychTab] = useState<"archetype" | "birthdate" | "zodiac" | "color" | "geometry" | "palm" | "natal" | "name" | "etymology">("archetype")
+  const [psychTab, setPsychTab] = useState<"archetype" | "birthdate" | "zodiac" | "color" | "geometry" | "palm" | "natal" | "name" | "etymology" | "manara">("archetype")
 
   return (
     <div className="py-8">
@@ -2434,12 +2438,12 @@ function PsychologySection() {
           Архетипы и Самопознание
         </h2>
         <p className="text-amber-200/70 max-w-2xl mx-auto">
-          Девять инструментов самопознания: архетип Таро, дата рождения, гороскоп, цвет, геометрия, ладонь, натальная карта, нумерология имени и тайна имени (этимология).
+          Десять инструментов самопознания: архетип Таро, дата рождения, гороскоп, цвет, геометрия, ладонь, натальная карта, нумерология имени, тайна имени (этимология) и Таро Манара для диагностики отношений.
         </p>
       </div>
 
       <Tabs value={psychTab} onValueChange={(v) => setPsychTab(v as typeof psychTab)}>
-        <TabsList className="grid grid-cols-3 lg:grid-cols-9 max-w-5xl mx-auto mb-8 bg-purple-950/40 border border-amber-400/20">
+        <TabsList className="grid grid-cols-5 lg:grid-cols-10 max-w-5xl mx-auto mb-8 bg-purple-950/40 border border-amber-400/20">
           <TabsTrigger value="archetype" className="data-[state=active]:bg-amber-400/20 data-[state=active]:text-amber-100 text-xs sm:text-sm">
             <Brain className="w-3.5 h-3.5 mr-1"/>
             <span>Таро</span>
@@ -2476,6 +2480,10 @@ function PsychologySection() {
             <BookOpen className="w-3.5 h-3.5 mr-1"/>
             <span>Тайна</span>
           </TabsTrigger>
+          <TabsTrigger value="manara" className="data-[state=active]:bg-amber-400/20 data-[state=active]:text-amber-100 text-xs sm:text-sm">
+            <Heart className="w-3.5 h-3.5 mr-1"/>
+            <span>Манара</span>
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="archetype">
@@ -2504,6 +2512,9 @@ function PsychologySection() {
         </TabsContent>
         <TabsContent value="etymology">
           <NameSecretTab/>
+        </TabsContent>
+        <TabsContent value="manara">
+          <ManaraTarotTab/>
         </TabsContent>
       </Tabs>
     </div>
@@ -5536,6 +5547,154 @@ function NameSecretTab() {
               <Share2 className="w-4 h-4 mr-2"/>Поделиться
             </Button>
           </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ===================== ТАРО МАНАРА (ДИАГНОСТИКА ОТНОШЕНИЙ) =====================
+function ManaraTarotTab() {
+  const [question, setQuestion] = useState("")
+  const [drawnCards, setDrawnCards] = useState<{ card: ManaraCard; isReversed: boolean; position: string }[]>([])
+  const [revealedIndexes, setRevealedIndexes] = useState<number[]>([])
+  const [isDrawing, setIsDrawing] = useState(false)
+  const [cardCount, setCardCount] = useState<3 | 5 | 7>(5)
+  const { toast } = useToast()
+
+  const draw = useCallback(() => {
+    setIsDrawing(true)
+    setDrawnCards([])
+    setRevealedIndexes([])
+    setTimeout(() => {
+      setDrawnCards(drawManaraCards(cardCount))
+      setIsDrawing(false)
+      toast({ title: "✦ Карты Манара вытянуты", description: "Откройте карты по очереди" })
+    }, 1500)
+  }, [cardCount, toast])
+
+  const revealCard = (i: number) => {
+    if (!revealedIndexes.includes(i)) setRevealedIndexes([...revealedIndexes, i])
+  }
+
+  const allRevealed = drawnCards.length > 0 && revealedIndexes.length === drawnCards.length
+
+  return (
+    <div>
+      <p className="text-center text-amber-200/70 max-w-2xl mx-auto mb-6 text-sm">
+        Колода Мило Манара для диагностики любовных и сексуальных отношений.
+        Показывает скрытые мотивы, подсознательные желания и теневую сторону любви.
+        Расклад откровенный и прямолинейный — для зрелых пользователей.
+      </p>
+
+      <ReadingQuestionInput question={question} setQuestion={setQuestion} placeholder="Опишите вашу ситуацию в отношениях..." />
+
+      {/* Выбор количества карт */}
+      <div className="flex justify-center gap-2 mb-6">
+        {([3, 5, 7] as const).map(n => (
+          <Button
+            key={n}
+            variant={cardCount === n ? "default" : "outline"}
+            size="sm"
+            onClick={() => setCardCount(n)}
+            className={cardCount === n ? "btn-gold" : "border-amber-400/40 text-amber-200 hover:bg-amber-400/10"}
+          >
+            {n} карт
+          </Button>
+        ))}
+      </div>
+
+      {!drawnCards.length && !isDrawing && (
+        <div className="flex flex-col items-center gap-6">
+          <div className="flex gap-2">
+            {Array.from({ length: cardCount }).map((_, i) => (
+              <div key={i} style={{ transform: `rotate(${(i - cardCount / 2) * 4}deg)` }}>
+                <div className="w-20 h-32 rounded-xl glass-mystic border-amber-400/30 flex items-center justify-center">
+                  <Heart className="w-6 h-6 text-rose-400/40"/>
+                </div>
+              </div>
+            ))}
+          </div>
+          <Button onClick={draw} className="btn-gold px-8 py-3">
+            <Heart className="w-5 h-5 mr-2"/>Сделать расклад Манара
+          </Button>
+          <p className="text-xs text-amber-200/60 max-w-md text-center">
+            ⚠ Колода Манара предназначена для анализа любовных отношений и сексуальной сферы.
+            Трактовки прямолинейные, без цензуры. Если вы спрашиваете о бизнесе или работе —
+            лучше используйте классическое Таро.
+          </p>
+        </div>
+      )}
+
+      {isDrawing && (
+        <div className="text-center py-12">
+          <div className="spinner-mystic mx-auto mb-4"/>
+          <p className="text-amber-200/80 animate-pulse" style={{ fontFamily: "var(--font-cormorant)" }}>
+            Карты Манара раскрывают ваши отношения...
+          </p>
+        </div>
+      )}
+
+      {drawnCards.length > 0 && !isDrawing && (
+        <div>
+          {/* Карты */}
+          <div className="flex flex-wrap justify-center gap-4 mb-8">
+            {drawnCards.map((d, i) => {
+              const revealed = revealedIndexes.includes(i)
+              return (
+                <div key={i} className="flex flex-col items-center">
+                  <div className="text-xs uppercase tracking-wider text-amber-200/60 mb-2 text-center max-w-[120px]">{d.position}</div>
+                  <button
+                    onClick={() => revealCard(i)}
+                    className={`w-24 h-36 rounded-xl flex flex-col items-center justify-center transition-all hover:scale-105 ${revealed ? "glass-mystic border-amber-400/40" : "glass-mystic border-rose-400/40"}`}
+                  >
+                    {revealed ? (
+                      <div className="text-center p-1">
+                        <div className="text-2xl mb-1">{d.card.isMajor ? "👑" : "❤"}</div>
+                        <div className="text-[10px] font-bold text-amber-100 leading-tight">{d.card.name}</div>
+                        {d.isReversed && <div className="text-[9px] text-rose-300 mt-1">↺ перевёрнута</div>}
+                      </div>
+                    ) : (
+                      <Heart className="w-8 h-8 text-rose-400/30"/>
+                    )}
+                  </button>
+                </div>
+              )
+            })}
+          </div>
+
+          {/* Интерпретации */}
+          {allRevealed && (
+            <div className="max-w-3xl mx-auto animate-fade-in space-y-3">
+              {drawnCards.map((d, i) => (
+                <Card key={i} className="glass-mystic border-amber-400/20">
+                  <CardContent className="p-5">
+                    <div className="flex items-center gap-3 mb-2 flex-wrap">
+                      <Badge variant="outline" className="border-rose-400/40 text-rose-200 text-xs">{d.position}</Badge>
+                      <h4 className="text-lg font-bold text-amber-100">
+                        {d.card.name}
+                        {d.isReversed && <span className="ml-2 text-xs text-rose-300">(перевёрнута)</span>}
+                      </h4>
+                    </div>
+                    <p className="text-sm text-amber-100/85 leading-relaxed mb-2">
+                      {d.isReversed ? d.card.reversed : d.card.upright}
+                    </p>
+                    <div className="glass-card rounded-lg p-3 border-purple-400/20 mb-2">
+                      <div className="text-xs text-purple-300 mb-1">🧠 Психология</div>
+                      <p className="text-xs text-amber-100/80 italic">{d.card.psychology}</p>
+                    </div>
+                    <div className="glass-card rounded-lg p-3 border-amber-400/20">
+                      <div className="text-xs text-amber-300/70 mb-1">💡 Совет</div>
+                      <p className="text-xs text-amber-100/85">{d.card.advice}</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+              <Button onClick={draw} variant="outline" className="border-amber-400/40 text-amber-200 hover:bg-amber-400/10 w-full">
+                <Sparkles className="w-4 h-4 mr-2"/>Новый расклад Манара
+              </Button>
+            </div>
+          )}
         </div>
       )}
     </div>
