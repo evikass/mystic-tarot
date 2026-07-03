@@ -50,8 +50,14 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // Inline script: applies the saved theme class BEFORE React hydrates to prevent flash of wrong theme
+  const themeScript = `(function(){try{var t=localStorage.getItem('mystic-tarot-theme');if(t==='light'){document.documentElement.classList.add('light');}else{document.documentElement.classList.remove('light');}}catch(e){}})();`;
+
   return (
     <html lang="ru" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+      </head>
       <body
         className={`${cormorant.variable} ${cinzel.variable} ${inter.variable} antialiased`}
         style={{ fontFamily: "var(--font-inter), sans-serif" }}

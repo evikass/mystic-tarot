@@ -122,9 +122,100 @@
 }
 
 /* === Mystical Tarot Theme === */
+
+/* Theme-aware variables — Dark theme (default) */
+:root {
+  --mt-bg: #0a0420;
+  --mt-bg-mid: #1a0a3a;
+  --mt-bg-bottom: #0a0420;
+  --mt-fg: #fef3c7;
+  --mt-glass-bg: rgba(26, 15, 46, 0.6);
+  --mt-glass-card-bg: linear-gradient(135deg, rgba(45, 27, 78, 0.7) 0%, rgba(26, 15, 46, 0.7) 100%);
+  --mt-glass-border: rgba(251, 191, 36, 0.2);
+  --mt-card-border: rgba(251, 191, 36, 0.15);
+  --mt-card-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+  --mt-glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(251, 191, 36, 0.1);
+  --mt-scrollbar-track: rgba(26, 15, 46, 0.5);
+  --mt-divider-bg: #0a0420;
+  --mt-btn-outline-bg: rgba(45, 27, 78, 0.6);
+  --mt-btn-outline-hover-bg: rgba(251, 191, 36, 0.15);
+  --mt-btn-outline-color: rgba(254, 243, 199, 0.9);
+  --mt-btn-default-bg: rgba(251, 191, 36, 0.25);
+  --mt-btn-default-color: rgba(254, 243, 199, 0.95);
+  --mt-tab-inactive-bg: rgba(45, 27, 78, 0.4);
+  --mt-tab-inactive-color: rgba(254, 243, 199, 0.7);
+  --mt-gold-grad-1: #fef3c7;
+  --mt-gold-grad-2: #fbbf24;
+  --mt-gold-grad-3: #f59e0b;
+  --mt-mystic-grad-1: #fbbf24;
+  --mt-mystic-grad-2: #f9a8d4;
+  --mt-mystic-grad-3: #a78bfa;
+  --mt-input-bg: rgba(76, 29, 149, 0.25);
+  --mt-input-border: rgba(251, 191, 36, 0.3);
+  --mt-input-color: #fef3c7;
+  --mt-input-placeholder: rgba(254, 243, 199, 0.4);
+}
+
+/* Light theme overrides */
+:root.light {
+  --mt-bg: #faf3e0;
+  --mt-bg-mid: #f5ebd0;
+  --mt-bg-bottom: #faf3e0;
+  --mt-fg: #3a2818;
+  --mt-glass-bg: rgba(255, 250, 235, 0.88);
+  --mt-glass-card-bg: linear-gradient(135deg, rgba(255, 248, 220, 0.95) 0%, rgba(245, 235, 200, 0.95) 100%);
+  --mt-glass-border: rgba(146, 64, 14, 0.35);
+  --mt-card-border: rgba(146, 64, 14, 0.3);
+  --mt-card-shadow: 0 4px 18px rgba(146, 64, 14, 0.15);
+  --mt-glass-shadow: 0 8px 32px rgba(146, 64, 14, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  --mt-scrollbar-track: rgba(218, 196, 156, 0.5);
+  --mt-divider-bg: #faf3e0;
+  --mt-btn-outline-bg: rgba(255, 250, 230, 0.85);
+  --mt-btn-outline-hover-bg: rgba(146, 64, 14, 0.12);
+  --mt-btn-outline-color: rgba(58, 40, 24, 0.9);
+  --mt-btn-default-bg: rgba(146, 64, 14, 0.18);
+  --mt-btn-default-color: rgba(58, 40, 24, 0.95);
+  --mt-tab-inactive-bg: rgba(245, 235, 200, 0.7);
+  --mt-tab-inactive-color: rgba(58, 40, 24, 0.7);
+  --mt-gold-grad-1: #92640a;
+  --mt-gold-grad-2: #b8862a;
+  --mt-gold-grad-3: #92640a;
+  --mt-mystic-grad-1: #b8862a;
+  --mt-mystic-grad-2: #b04580;
+  --mt-mystic-grad-3: #6b3aa0;
+  --mt-input-bg: rgba(255, 250, 230, 0.85);
+  --mt-input-border: rgba(146, 64, 14, 0.35);
+  --mt-input-color: #3a2818;
+  --mt-input-placeholder: rgba(58, 40, 24, 0.45);
+
+  /* Override Tailwind color variables so utility classes adapt to light theme */
+  --color-amber-100: #3a2818;
+  --color-amber-200: #5a3a1a;
+  --color-amber-300: #6b4423;
+  --color-amber-400: #92640a;
+  --color-amber-500: #b8862a;
+  --color-purple-100: #4a2a5a;
+  --color-purple-200: #5a3a6a;
+  --color-purple-300: #6b4477;
+  --color-purple-400: #7c5a8a;
+  --color-purple-950: #faf3e0;
+  --color-purple-900: #f5ebd0;
+  --color-purple-950: #faf3e0;
+  --color-rose-200: #8b3a3a;
+  --color-rose-300: #a04545;
+  --color-emerald-200: #2d6e3e;
+  --color-emerald-300: #3a8550;
+  --color-emerald-400: #2d8a4a;
+  --color-blue-200: #3a5a8b;
+  --color-blue-300: #4575a0;
+  --color-cyan-400: #2d6e8b;
+  --color-red-400: #b54848;
+  --color-red-300: #a04545;
+}
+
 html, body {
-  background: #0a0420;
-  color: #fef3c7;
+  background: var(--mt-bg);
+  color: var(--mt-fg);
   min-height: 100vh;
 }
 
@@ -132,7 +223,15 @@ body {
   background:
     radial-gradient(ellipse at top, rgba(76, 29, 149, 0.4) 0%, transparent 50%),
     radial-gradient(ellipse at bottom, rgba(120, 53, 15, 0.25) 0%, transparent 50%),
-    linear-gradient(180deg, #0a0420 0%, #1a0a3a 50%, #0a0420 100%);
+    linear-gradient(180deg, var(--mt-bg) 0%, var(--mt-bg-mid) 50%, var(--mt-bg-bottom) 100%);
+  background-attachment: fixed;
+}
+
+:root.light body {
+  background:
+    radial-gradient(ellipse at top, rgba(180, 130, 60, 0.18) 0%, transparent 50%),
+    radial-gradient(ellipse at bottom, rgba(120, 80, 40, 0.12) 0%, transparent 50%),
+    linear-gradient(180deg, var(--mt-bg) 0%, var(--mt-bg-mid) 50%, var(--mt-bg-bottom) 100%);
   background-attachment: fixed;
 }
 
@@ -142,7 +241,7 @@ body {
   height: 10px;
 }
 ::-webkit-scrollbar-track {
-  background: rgba(26, 15, 46, 0.5);
+  background: var(--mt-scrollbar-track);
 }
 ::-webkit-scrollbar-thumb {
   background: linear-gradient(180deg, rgba(251, 191, 36, 0.4), rgba(167, 139, 250, 0.4));
@@ -207,7 +306,7 @@ body {
 
 /* Mystical gradient text */
 .text-mystic-gradient {
-  background: linear-gradient(135deg, #fbbf24 0%, #f9a8d4 50%, #a78bfa 100%);
+  background: linear-gradient(135deg, var(--mt-mystic-grad-1) 0%, var(--mt-mystic-grad-2) 50%, var(--mt-mystic-grad-3) 100%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -215,7 +314,7 @@ body {
 }
 
 .text-gold-gradient {
-  background: linear-gradient(135deg, #fef3c7 0%, #fbbf24 50%, #f59e0b 100%);
+  background: linear-gradient(135deg, var(--mt-gold-grad-1) 0%, var(--mt-gold-grad-2) 50%, var(--mt-gold-grad-3) 100%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -224,19 +323,19 @@ body {
 
 /* Glass card */
 .glass-mystic {
-  background: rgba(26, 15, 46, 0.6);
+  background: var(--mt-glass-bg);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(251, 191, 36, 0.2);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(251, 191, 36, 0.1);
+  border: 1px solid var(--mt-glass-border);
+  box-shadow: var(--mt-glass-shadow);
 }
 
 .glass-card {
-  background: linear-gradient(135deg, rgba(45, 27, 78, 0.7) 0%, rgba(26, 15, 46, 0.7) 100%);
+  background: var(--mt-glass-card-bg);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-  border: 1px solid rgba(251, 191, 36, 0.15);
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--mt-card-border);
+  box-shadow: var(--mt-card-shadow);
 }
 
 /* Decorative divider */
@@ -252,7 +351,7 @@ body {
   left: 50%;
   transform: translateX(-50%);
   color: rgba(251, 191, 36, 0.8);
-  background: #0a0420;
+  background: var(--mt-divider-bg);
   padding: 0 12px;
   font-size: 12px;
 }
@@ -263,6 +362,9 @@ body {
   border: 1px solid rgba(251, 191, 36, 0.4);
   color: #fef3c7;
   transition: all 0.3s ease;
+}
+:root.light .btn-mystic {
+  color: #3a2818;
 }
 .btn-mystic:hover {
   background: linear-gradient(135deg, rgba(251, 191, 36, 0.35) 0%, rgba(167, 139, 250, 0.35) 100%);
@@ -281,6 +383,9 @@ body {
   transition: all 0.3s ease;
   border: none;
 }
+:root.light .btn-gold {
+  color: #ffffff;
+}
 .btn-gold:hover {
   box-shadow: 0 0 30px rgba(251, 191, 36, 0.5);
   transform: translateY(-2px);
@@ -288,45 +393,55 @@ body {
 
 /* Outline-кнопки на мистик-дарк теме — читабельные */
 [data-slot="button"][data-variant="outline"] {
-  background-color: rgba(45, 27, 78, 0.6) !important;
-  color: rgba(254, 243, 199, 0.9) !important;
-  border-color: rgba(251, 191, 36, 0.35) !important;
+  background-color: var(--mt-btn-outline-bg) !important;
+  color: var(--mt-btn-outline-color) !important;
+  border-color: var(--mt-glass-border) !important;
 }
 [data-slot="button"][data-variant="outline"]:hover {
-  background-color: rgba(251, 191, 36, 0.15) !important;
-  color: rgba(254, 243, 199, 1) !important;
+  background-color: var(--mt-btn-outline-hover-bg) !important;
+  color: var(--mt-fg) !important;
   border-color: rgba(251, 191, 36, 0.6) !important;
 }
 
 /* Default-кнопки тоже приводим к мистик-теме */
 [data-slot="button"][data-variant="default"]:not(.btn-gold):not(.btn-mystic) {
-  background-color: rgba(251, 191, 36, 0.25) !important;
-  color: rgba(254, 243, 199, 0.95) !important;
-  border: 1px solid rgba(251, 191, 36, 0.5) !important;
+  background-color: var(--mt-btn-default-bg) !important;
+  color: var(--mt-btn-default-color) !important;
+  border: 1px solid var(--mt-glass-border) !important;
 }
 [data-slot="button"][data-variant="default"]:not(.btn-gold):not(.btn-mystic):hover {
-  background-color: rgba(251, 191, 36, 0.4) !important;
-  color: rgba(255, 255, 255, 1) !important;
+  background-color: var(--mt-btn-outline-hover-bg) !important;
+  color: var(--mt-fg) !important;
 }
 
 /* Ghost-кнопки */
 [data-slot="button"][data-variant="ghost"] {
-  color: rgba(254, 243, 199, 0.85) !important;
+  color: var(--mt-btn-outline-color) !important;
 }
 [data-slot="button"][data-variant="ghost"]:hover {
-  background-color: rgba(251, 191, 36, 0.1) !important;
-  color: rgba(254, 243, 199, 1) !important;
+  background-color: var(--mt-btn-outline-hover-bg) !important;
+  color: var(--mt-fg) !important;
 }
 
 /* TabsTrigger в неактивном состоянии — тоже читабельные */
 [data-slot="tabs-trigger"]:not([data-state="active"]) {
-  background-color: rgba(45, 27, 78, 0.4) !important;
-  color: rgba(254, 243, 199, 0.7) !important;
-  border: 1px solid rgba(251, 191, 36, 0.25);
+  background-color: var(--mt-tab-inactive-bg) !important;
+  color: var(--mt-tab-inactive-color) !important;
+  border: 1px solid var(--mt-card-border);
 }
 [data-slot="tabs-trigger"]:not([data-state="active"]):hover {
-  background-color: rgba(251, 191, 36, 0.1) !important;
-  color: rgba(254, 243, 199, 0.95) !important;
+  background-color: var(--mt-btn-outline-hover-bg) !important;
+  color: var(--mt-fg) !important;
+}
+
+/* Inputs — theme-aware */
+[data-slot="input"] {
+  background-color: var(--mt-input-bg) !important;
+  border-color: var(--mt-input-border) !important;
+  color: var(--mt-input-color) !important;
+}
+[data-slot="input"]::placeholder {
+  color: var(--mt-input-placeholder) !important;
 }
 
 /* Section divider with decorative element */
@@ -355,4 +470,12 @@ body {
   border-top-color: rgba(251, 191, 36, 0.8);
   border-radius: 50%;
   animation: rotate-slow 1s linear infinite;
+}
+
+/* Light-theme tweak: dialog/popover content should match theme */
+:root.light [data-slot="dialog-content"],
+:root.light [data-slot="popover-content"] {
+  background: var(--mt-glass-bg) !important;
+  color: var(--mt-fg) !important;
+  border-color: var(--mt-glass-border) !important;
 }

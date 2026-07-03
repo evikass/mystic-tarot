@@ -1,12 +1,13 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback, useRef } from "react"
 import { StarryBackground } from "@/components/starry-bg"
 import { TarotCardView } from "@/components/tarot-card"
 import { CardSVG, CardBack } from "@/lib/tarot-svg"
 import { ColorQuiz } from "@/components/color-quiz"
 import { GeometryQuiz } from "@/components/geometry-quiz"
 import { PalmInteractive } from "@/components/palm-interactive"
+import { ShareImageButton } from "@/components/share-image-button"
 import {
   allTarotCards,
   drawCards,
@@ -56,6 +57,13 @@ import {
   type RuneDraw,
 } from "@/lib/runes-moon-data"
 import {
+  calculateMonthFavorability,
+  getDayAdvice,
+  getWeekdayShort,
+  getWeekdayName,
+  type DayFavorability,
+} from "@/lib/favorable-days"
+import {
   castIChing,
   getHexagram,
   calculateBiorhythm,
@@ -89,6 +97,7 @@ import {
   type ReadingRecord,
 } from "@/lib/tarot-storage"
 import { initVKBridge, isVKEnvironment, vkShare } from "@/lib/vk-bridge"
+import { useTheme } from "@/lib/use-theme"
 import { successSteps, stepCategories, type SuccessStep } from "@/lib/success-steps-data"
 import {
   getAllProgress,
@@ -175,7 +184,7 @@ import {
   Dices,
 } from "lucide-react"
 
-type Section = "home" | "daily" | "readings" | "compatibility" | "psychology" | "history" | "success" | "moon" | "catalog" | "theme"
+type Section = "home" | "daily" | "readings" | "compatibility" | "psychology" | "history" | "success" | "moon" | "favorable" | "catalog" | "theme"
 
 interface DrawnCard {
   card: TarotCard
@@ -199,6 +208,7 @@ export default function Home() {
     { id: "compatibility", label: "Совместимость", icon: <Heart className="w-4 h-4"/> },
     { id: "psychology", label: "Психология", icon: <Brain className="w-4 h-4"/> },
     { id: "moon", label: "Луна", icon: <Moon className="w-4 h-4"/> },
+    { id: "favorable", label: "Дни", icon: <Calendar className="w-4 h-4"/> },
     { id: "success", label: "14 Шагов", icon: <Target className="w-4 h-4"/> },
     { id: "history", label: "История", icon: <History className="w-4 h-4"/> },
   ]
@@ -215,6 +225,7 @@ export default function Home() {
           {section === "compatibility" && <CompatibilitySection/>}
           {section === "psychology" && <PsychologySection/>}
           {section === "moon" && <MoonSection/>}
+          {section === "favorable" && <FavorableDaysSection/>}
           {section === "catalog" && <CatalogSection/>}
           {section === "success" && <SuccessStepsSection/>}
           {section === "history" && <HistorySection/>}
@@ -236,6 +247,7 @@ function Header({
   setSection: (s: Section) => void
 }) {
   const [mobileOpen, setMobileOpen] = useState(false)
+  const { theme, toggleTheme, mounted } = useTheme()
   return (
     <header className="sticky top-0 z-30 glass-mystic border-b border-amber-400/20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
@@ -290,16 +302,35 @@ function Header({
               <span>{item.label}</span>
             </button>
           ))}
+          {/* Theme toggle */}
+          <button
+            onClick={toggleTheme}
+            aria-label={theme === "dark" ? "Включить светлую тему" : "Включить тёмную тему"}
+            title={theme === "dark" ? "Светлая тема" : "Тёмная тема"}
+            className="ml-1 flex items-center justify-center w-9 h-9 rounded-lg text-amber-200 hover:bg-amber-400/10 hover:text-amber-100 transition-all border border-amber-400/20"
+          >
+            {mounted && theme === "light" ? <Moon className="w-4 h-4"/> : <Sun className="w-4 h-4"/>}
+          </button>
         </nav>
 
-        {/* Mobile menu button */}
-        <button
-          className="md:hidden p-2 text-amber-200"
-          onClick={() => setMobileOpen(!mobileOpen)}
-          aria-label="Меню"
-        >
-          {mobileOpen ? <EyeOff className="w-5 h-5"/> : <Eye className="w-5 h-5"/>}
-        </button>
+        {/* Mobile: theme toggle + menu button */}
+        <div className="md:hidden flex items-center gap-1">
+          <button
+            onClick={toggleTheme}
+            aria-label={theme === "dark" ? "Включить светлую тему" : "Включить тёмную тему"}
+            title={theme === "dark" ? "Светлая тема" : "Тёмная тема"}
+            className="flex items-center justify-center w-9 h-9 rounded-lg text-amber-200 hover:bg-amber-400/10 hover:text-amber-100 transition-all border border-amber-400/20"
+          >
+            {mounted && theme === "light" ? <Moon className="w-5 h-5"/> : <Sun className="w-5 h-5"/>}
+          </button>
+          <button
+            className="p-2 text-amber-200"
+            onClick={() => setMobileOpen(!mobileOpen)}
+            aria-label="Меню"
+          >
+            {mobileOpen ? <EyeOff className="w-5 h-5"/> : <Eye className="w-5 h-5"/>}
+          </button>
+        </div>
       </div>
 
       {/* Mobile nav */}
@@ -432,11 +463,18 @@ function HomeSection({ onNavigate }: { onNavigate: (s: Section) => void }) {
             accent="#7dd3fc"
           />
           <FeatureCard
+            icon={<Calendar className="w-7 h-7"/>}
+            title="Благоприятные дни"
+            description="Календарь по знаку зодиака: день управителя, лунная фаза, нумерология даты и стихия — оценка каждого дня и топ благоприятных дат месяца."
+            onClick={() => onNavigate("favorable")}
+            accent="#86efac"
+          />
+          <FeatureCard
             icon={<History className="w-7 h-7"/>}
             title="История"
             description="Все ваши расклады сохраняются локально на устройстве. Возвращайтесь к ним, чтобы отследить динамику пути."
             onClick={() => onNavigate("history")}
-            accent="#86efac"
+            accent="#c4b5fd"
           />
           <FeatureCard
             icon={<Target className="w-7 h-7"/>}
@@ -535,6 +573,7 @@ function DailyCardSection() {
   const [isDrawing, setIsDrawing] = useState(false)
   const [revealed, setRevealed] = useState(false)
   const { toast } = useToast()
+  const resultRef = useRef<HTMLDivElement>(null)
   const today = new Date().toLocaleDateString("ru-RU", {
     weekday: "long", day: "numeric", month: "long", year: "numeric",
   })
@@ -635,7 +674,7 @@ function DailyCardSection() {
 
           {revealed && (
             <div className="max-w-2xl w-full animate-fade-in">
-              <Card className="glass-mystic border-amber-400/30">
+              <Card ref={resultRef as React.RefObject<HTMLDivElement>} className="glass-mystic border-amber-400/30">
                 <CardHeader>
                   <div className="flex items-center gap-3">
                     <Badge
@@ -713,7 +752,13 @@ function DailyCardSection() {
                     </p>
                   </div>
 
-                  <div className="flex gap-3 pt-2">
+                  <div className="flex gap-3 pt-2 flex-wrap">
+                    <ShareImageButton
+                      targetRef={resultRef}
+                      filename={`map-dnya-${drawnCard.card.id}`}
+                      textFallback={`Моя карта дня — ${drawnCard.card.name}${drawnCard.isReversed ? " (перевёрнута)" : ""}: ${drawnCard.isReversed ? drawnCard.card.reversed.summary : drawnCard.card.upright.summary}`}
+                      label="📲 Поделиться картинкой"
+                    />
                     <Button
                       variant="outline"
                       size="sm"
@@ -723,7 +768,7 @@ function DailyCardSection() {
                       className="border-amber-400/40 text-amber-200 hover:bg-amber-400/10"
                     >
                       <Send className="w-3.5 h-3.5 mr-1"/>
-                      Поделиться
+                      Текстом
                     </Button>
                     <Button
                       variant="outline"
@@ -3674,6 +3719,232 @@ function MoonSection() {
   )
 }
 
+// ===================== БЛАГОПРИЯТНЫЕ ДНИ =====================
+function FavorableDaysSection() {
+  const today = new Date()
+  const [viewYear, setViewYear] = useState(today.getFullYear())
+  const [viewMonth, setViewMonth] = useState(today.getMonth())
+  const [day, setDay] = useState("")
+  const [month, setMonth] = useState("")
+  const [year, setYear] = useState("")
+  const [selectedDay, setSelectedDay] = useState<DayFavorability | null>(null)
+  const [zodiacName, setZodiacName] = useState<string>("")
+  const [zodiacElement, setZodiacElement] = useState<string>("")
+  const [error, setError] = useState("")
+
+  // По умолчанию показываем расчёт для текущего знака (на основе сегодняшней даты)
+  useEffect(() => {
+    if (!zodiacName) {
+      const sign = getZodiacSign(today.getDate(), today.getMonth() + 1)
+      if (sign) {
+        setZodiacName(sign.name)
+        setZodiacElement(sign.element)
+      }
+    }
+  }, [zodiacName])
+
+  const handleCalculate = () => {
+    const d = parseInt(day), m = parseInt(month), y = parseInt(year)
+    if (!d || !m || !y) { setError("Заполните дату"); return }
+    const sign = getZodiacSign(d, m)
+    if (!sign) { setError("Не удалось определить знак"); return }
+    setZodiacName(sign.name)
+    setZodiacElement(sign.element)
+    setError("")
+  }
+
+  const monthNames = ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"]
+
+  const favorability = zodiacName && zodiacElement
+    ? calculateMonthFavorability(viewYear, viewMonth, zodiacName, zodiacElement)
+    : []
+
+  // Группируем по дням недели для календарной сетки
+  const firstWeekday = new Date(viewYear, viewMonth, 1).getDay()
+  const calendarCells: (DayFavorability | null)[] = []
+  for (let i = 0; i < firstWeekday; i++) calendarCells.push(null)
+  favorability.forEach(d => calendarCells.push(d))
+
+  const favorableCount = favorability.filter(d => d.level === "favorable").length
+  const unfavorableCount = favorability.filter(d => d.level === "unfavorable").length
+
+  const goPrevMonth = () => {
+    if (viewMonth === 0) { setViewMonth(11); setViewYear(viewYear - 1) }
+    else setViewMonth(viewMonth - 1)
+  }
+  const goNextMonth = () => {
+    if (viewMonth === 11) { setViewMonth(0); setViewYear(viewYear + 1) }
+    else setViewMonth(viewMonth + 1)
+  }
+
+  const advice = selectedDay ? getDayAdvice(selectedDay) : null
+
+  return (
+    <div className="py-8">
+      <div className="text-center mb-10">
+        <div className="section-divider mb-6"><span>Календарь благоприятных дней</span></div>
+        <h2 className="text-4xl sm:text-5xl font-bold mb-3 text-mystic-gradient inline-block" style={{ fontFamily: "var(--font-cinzel)", lineHeight: 1.25, paddingTop: "0.2em" }}>Благоприятные дни</h2>
+        <p className="text-amber-200/70 max-w-2xl mx-auto">
+          Календарь рассчитывает благоприятность каждого дня по вашему знаку зодиака:
+          учитываются день управителя знака, лунная фаза, нумерология даты и стихия.
+        </p>
+      </div>
+
+      {/* Ввод даты рождения для определения знака */}
+      <div className="max-w-2xl mx-auto mb-8">
+        <Card className="glass-mystic border-amber-400/30">
+          <CardContent className="pt-5">
+            <div className="text-xs uppercase tracking-wider text-amber-300 mb-3">Ваш знак зодиака</div>
+            <div className="max-w-sm mx-auto grid grid-cols-3 gap-3 mb-4">
+              <div><label className="text-xs text-amber-200/70 mb-1 block">День</label><Input type="number" min="1" max="31" value={day} onChange={(e) => setDay(e.target.value)} placeholder="15" className="bg-purple-950/40 border-amber-400/30 text-amber-100 placeholder:text-amber-200/40 text-center"/></div>
+              <div><label className="text-xs text-amber-200/70 mb-1 block">Месяц</label><Input type="number" min="1" max="12" value={month} onChange={(e) => setMonth(e.target.value)} placeholder="08" className="bg-purple-950/40 border-amber-400/30 text-amber-100 placeholder:text-amber-200/40 text-center"/></div>
+              <div><label className="text-xs text-amber-200/70 mb-1 block">Год</label><Input type="number" min="1900" max="2100" value={year} onChange={(e) => setYear(e.target.value)} placeholder="1990" className="bg-purple-950/40 border-amber-400/30 text-amber-100 placeholder:text-amber-200/40 text-center"/></div>
+            </div>
+            <div className="text-center"><Button onClick={handleCalculate} className="btn-gold px-6 py-2"><Calendar className="w-4 h-4 mr-2"/>Определить знак</Button></div>
+            {error && <p className="text-rose-300 text-sm text-center mt-3">{error}</p>}
+            {zodiacName && !error && (
+              <div className="text-center mt-4">
+                <Badge variant="outline" className="border-amber-400/40 text-amber-200 text-sm">
+                  {zodiacName} · стихия {zodiacElement}
+                </Badge>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Календарная сетка */}
+      {favorability.length > 0 && (
+        <div className="max-w-3xl mx-auto">
+          {/* Навигация по месяцам */}
+          <div className="flex items-center justify-between mb-4">
+            <Button variant="outline" size="sm" onClick={goPrevMonth} className="border-amber-400/40 text-amber-200 hover:bg-amber-400/10">
+              <ArrowLeft className="w-4 h-4 mr-1"/>Назад
+            </Button>
+            <div className="text-lg font-bold text-gold-gradient" style={{ fontFamily: "var(--font-cinzel)" }}>
+              {monthNames[viewMonth]} {viewYear}
+            </div>
+            <Button variant="outline" size="sm" onClick={goNextMonth} className="border-amber-400/40 text-amber-200 hover:bg-amber-400/10">
+              Вперёд<ArrowRight className="w-4 h-4 ml-1"/>
+            </Button>
+          </div>
+
+          {/* Легенда */}
+          <div className="flex justify-center gap-4 mb-4 text-xs flex-wrap">
+            <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-full bg-emerald-500/70"/>Благоприятный ({favorableCount})</span>
+            <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-full bg-amber-500/50"/>Нейтральный</span>
+            <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-full bg-rose-500/60"/>Неблагоприятный ({unfavorableCount})</span>
+          </div>
+
+          {/* Сетка дней недели */}
+          <div className="grid grid-cols-7 gap-1.5 mb-2">
+            {["Вс", "Пн", "Вт", "Ср", "Чт", "Пт", "Сб"].map((w, i) => (
+              <div key={i} className="text-center text-xs font-semibold text-amber-200/60 py-1">{w}</div>
+            ))}
+          </div>
+
+          {/* Сам календарь */}
+          <div className="grid grid-cols-7 gap-1.5">
+            {calendarCells.map((cell, i) => {
+              if (!cell) return <div key={`empty-${i}`} className="aspect-square"/>
+              const isToday = cell.date.toDateString() === today.toDateString()
+              const isSelected = selectedDay?.day === cell.day && selectedDay?.date.getMonth() === cell.date.getMonth()
+              const bgColor = cell.level === "favorable"
+                ? "rgba(16,185,129,0.25)"
+                : cell.level === "unfavorable"
+                ? "rgba(244,63,94,0.2)"
+                : "rgba(251,191,36,0.15)"
+              const borderColor = cell.level === "favorable"
+                ? "rgba(16,185,129,0.5)"
+                : cell.level === "unfavorable"
+                ? "rgba(244,63,94,0.5)"
+                : "rgba(251,191,36,0.3)"
+              return (
+                <button
+                  key={cell.day}
+                  onClick={() => setSelectedDay(cell)}
+                  className={`aspect-square rounded-lg flex flex-col items-center justify-center p-1 transition-all hover:scale-105 relative ${isToday ? "ring-2 ring-amber-400" : ""} ${isSelected ? "ring-2 ring-purple-400" : ""}`}
+                  style={{ background: bgColor, border: `1px solid ${borderColor}` }}
+                >
+                  <div className={`text-sm font-bold ${cell.level === "favorable" ? "text-emerald-200" : cell.level === "unfavorable" ? "text-rose-200" : "text-amber-100/80"}`}>
+                    {cell.day}
+                  </div>
+                  <div className="text-[10px] leading-none mt-0.5 opacity-70">{cell.moonEmoji}</div>
+                </button>
+              )
+            })}
+          </div>
+
+          {/* Детали выбранного дня */}
+          {selectedDay && advice && (
+            <Card className="glass-mystic border-amber-400/40 mt-6 animate-fade-in">
+              <CardContent className="pt-5">
+                <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
+                  <div>
+                    <div className="text-xs text-amber-200/60">{getWeekdayName(selectedDay.weekday)}</div>
+                    <h3 className="text-xl font-bold text-amber-100" style={{ fontFamily: "var(--font-cinzel)" }}>
+                      {selectedDay.day} {monthNames[selectedDay.date.getMonth()].toLowerCase()} {selectedDay.date.getFullYear()}
+                    </h3>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Badge variant="outline" className="border-amber-400/40 text-amber-200">
+                      {selectedDay.moonEmoji} {selectedDay.moonName}
+                    </Badge>
+                    <Badge className={
+                      selectedDay.level === "favorable"
+                        ? "bg-emerald-500/30 text-emerald-100 border border-emerald-400/40"
+                        : selectedDay.level === "unfavorable"
+                        ? "bg-rose-500/30 text-rose-100 border border-rose-400/40"
+                        : "bg-amber-500/30 text-amber-100 border border-amber-400/40"
+                    }>
+                      {selectedDay.score}/100
+                    </Badge>
+                  </div>
+                </div>
+                <div className="text-sm font-semibold text-amber-200 mb-1">{advice.title}</div>
+                <p className="text-sm text-amber-100/85 mb-3">{advice.advice}</p>
+                <div className="text-xs uppercase tracking-wider text-amber-300/70 mb-2">Почему так</div>
+                <ul className="space-y-1">
+                  {selectedDay.reasons.map((r, i) => (
+                    <li key={i} className="text-xs text-amber-100/80 flex gap-2">
+                      <span className="text-amber-400">✦</span><span>{r}</span>
+                    </li>
+                  ))}
+                </ul>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Сводка по лучшим дням месяца */}
+          <Card className="glass-card border-amber-400/20 mt-4">
+            <CardContent className="pt-5">
+              <div className="text-xs uppercase tracking-wider text-amber-300 mb-2">Топ-5 благоприятных дней месяца</div>
+              <div className="flex flex-wrap gap-2">
+                {[...favorability]
+                  .filter(d => d.level === "favorable")
+                  .sort((a, b) => b.score - a.score)
+                  .slice(0, 5)
+                  .map((d, i) => (
+                    <button
+                      key={d.day}
+                      onClick={() => setSelectedDay(d)}
+                      className="px-3 py-1.5 rounded-lg text-xs bg-emerald-500/15 border border-emerald-400/30 text-emerald-200 hover:bg-emerald-500/25 transition-all"
+                    >
+                      {d.day} {monthNames[d.date.getMonth()].slice(0, 3).toLowerCase()} · {d.score}
+                    </button>
+                  ))}
+                {favorability.filter(d => d.level === "favorable").length === 0 && (
+                  <p className="text-xs text-amber-200/60 italic">В этом месяце особо благоприятных дней нет.</p>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+    </div>
+  )
+}
+
 // ===================== CATALOG (КАТАЛОГ 78 КАРТ) =====================
 function CatalogSection() {
   const [filter, setFilter] = useState<"all" | "major" | "wands" | "cups" | "swords" | "pentacles">("all")
@@ -3772,6 +4043,7 @@ function IChingSection() {
   const [hexagram, setHexagram] = useState<Hexagram | null>(null)
   const [isCasting, setIsCasting] = useState(false)
   const [question, setQuestion] = useState("")
+  const resultRef = useRef<HTMLDivElement>(null)
 
   const cast = useCallback(() => {
     setIsCasting(true)
@@ -3821,7 +4093,7 @@ function IChingSection() {
       {isCasting && <div className="text-center py-8"><div className="spinner-mystic mx-auto mb-4"/><p className="text-amber-200/80 animate-pulse" style={{ fontFamily: "var(--font-cormorant)" }}>Монеты падают...</p></div>}
 
       {hexagram && !isCasting && (
-        <div className="max-w-2xl mx-auto animate-fade-in space-y-4">
+        <div ref={resultRef} className="max-w-2xl mx-auto animate-fade-in space-y-4">
           <Card className="glass-mystic border-amber-400/40 text-center">
             <CardContent className="pt-8 pb-6">
               {renderHexagram(hexagram)}
@@ -3859,11 +4131,17 @@ function IChingSection() {
               <p className="text-sm text-amber-100/85 italic">{hexagram.psychology}</p>
             </CardContent>
           </Card>
-
-          <div className="flex gap-3 justify-center">
-            <Button onClick={cast} variant="outline" className="border-amber-400/40 text-amber-200 hover:bg-amber-400/10"><Dices className="w-4 h-4 mr-2"/>Новый вопрос</Button>
-            <Button onClick={() => shareResult("И-Цзин", `Гексаграмма №${hexagram.number} — ${hexagram.name}: ${hexagram.meaning}`)} variant="outline" className="border-amber-400/40 text-amber-200 hover:bg-amber-400/10"><Share2 className="w-4 h-4 mr-2"/>Поделиться</Button>
-          </div>
+        </div>
+      )}
+      {hexagram && !isCasting && (
+        <div className="max-w-2xl mx-auto mt-4 flex gap-3 justify-center flex-wrap">
+          <ShareImageButton
+            targetRef={resultRef}
+            filename={`i-tszin-${hexagram.number}`}
+            textFallback={`Гексаграмма №${hexagram.number} — ${hexagram.name}: ${hexagram.meaning}`}
+            label="📲 Поделиться картинкой"
+          />
+          <Button onClick={cast} variant="outline" className="border-amber-400/40 text-amber-200 hover:bg-amber-400/10"><Dices className="w-4 h-4 mr-2"/>Новый вопрос</Button>
         </div>
       )}
     </div>
@@ -3979,6 +4257,7 @@ function PsychomatrixSection() {
   const [year, setYear] = useState("")
   const [result, setResult] = useState<Psychomatrix | null>(null)
   const [error, setError] = useState("")
+  const resultRef = useRef<HTMLDivElement>(null)
 
   const handleCalculate = () => {
     const d = parseInt(day), m = parseInt(month), y = parseInt(year)
@@ -4005,7 +4284,8 @@ function PsychomatrixSection() {
       <div className="text-center mb-8"><Button onClick={handleCalculate} className="btn-gold px-8 py-3"><Grid3x3 className="w-5 h-5 mr-2"/>Рассчитать матрицу</Button>{error && <p className="text-rose-300 text-sm mt-3">{error}</p>}</div>
 
       {result && (
-        <div className="max-w-xl mx-auto animate-fade-in space-y-4">
+        <>
+        <div ref={resultRef} className="max-w-xl mx-auto animate-fade-in space-y-4">
           {/* Квадрат 3×3 */}
           <Card className="glass-mystic border-amber-400/40">
             <CardContent className="pt-6">
@@ -4054,6 +4334,15 @@ function PsychomatrixSection() {
             ))}
           </div>
         </div>
+        <div className="max-w-xl mx-auto mt-4 flex gap-3 justify-center flex-wrap">
+          <ShareImageButton
+            targetRef={resultRef}
+            filename={`matritsa-${day}-${month}-${year}`}
+            textFallback={`Психоматрица по дате ${day}.${month}.${year}: ${result.summary}`}
+            label="📲 Поделиться картинкой"
+          />
+        </div>
+        </>
       )}
     </div>
   )
@@ -4064,6 +4353,7 @@ function NameNumerologySection() {
   const [name, setName] = useState("")
   const [result, setResult] = useState<NameNumerology | null>(null)
   const [error, setError] = useState("")
+  const resultRef = useRef<HTMLDivElement>(null)
 
   const handleCalculate = () => {
     if (!name.trim() || name.trim().length < 2) { setError("Введите имя (минимум 2 буквы)"); setResult(null); return }
@@ -4085,7 +4375,7 @@ function NameNumerologySection() {
       <div className="text-center mb-8"><Button onClick={handleCalculate} className="btn-gold px-8 py-3"><Type className="w-5 h-5 mr-2"/>Рассчитать</Button>{error && <p className="text-rose-300 text-sm mt-3">{error}</p>}</div>
 
       {result && (
-        <div className="max-w-2xl mx-auto animate-fade-in space-y-4">
+        <div ref={resultRef} className="max-w-2xl mx-auto animate-fade-in space-y-4">
           <Card className="glass-mystic border-amber-400/40 text-center">
             <CardContent className="pt-8 pb-6">
               <h3 className="text-2xl font-bold text-gold-gradient mb-6" style={{ fontFamily: "var(--font-cinzel)" }}>{result.name}</h3>
@@ -4121,10 +4411,16 @@ function NameNumerologySection() {
               </CardContent>
             </Card>
           ))}
-
-          <div className="flex gap-3 justify-center">
-            <Button onClick={() => shareResult("Нумерология имени", `${result.name}: Душа=${result.soulNumber}, Личность=${result.personalityNumber}, Судьба=${result.destinyNumber}`)} variant="outline" className="border-amber-400/40 text-amber-200 hover:bg-amber-400/10"><Share2 className="w-4 h-4 mr-2"/>Поделиться</Button>
-          </div>
+        </div>
+      )}
+      {result && (
+        <div className="max-w-2xl mx-auto mt-4 flex gap-3 justify-center flex-wrap">
+          <ShareImageButton
+            targetRef={resultRef}
+            filename={`numerologiya-${result.name.toLowerCase().replace(/\s+/g, "-")}`}
+            textFallback={`${result.name}: Душа=${result.soulNumber}, Личность=${result.personalityNumber}, Судьба=${result.destinyNumber}`}
+            label="📲 Поделиться картинкой"
+          />
         </div>
       )}
     </div>
