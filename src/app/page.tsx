@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useCallback, useRef } from "react"
+import { useState, useEffect, useCallback, useRef, useMemo } from "react"
 import { StarryBackground } from "@/components/starry-bg"
 import { TarotCardView } from "@/components/tarot-card"
 import { CardSVG, CardBack } from "@/lib/tarot-svg"
@@ -73,6 +73,16 @@ import {
   type HoroscopeCategory,
   type HoroscopePeriod,
 } from "@/lib/horoscope-data"
+import {
+  getYearHoroscope,
+  type YearHoroscope,
+} from "@/lib/horoscope-year-data"
+import {
+  findNameSecret,
+  searchNames,
+  getNameOfTheDay,
+  type NameSecret,
+} from "@/lib/name-secret-data"
 import {
   castIChing,
   getHexagram,
@@ -465,7 +475,7 @@ function HomeSection({ onNavigate }: { onNavigate: (s: Section) => void }) {
           <FeatureCard
             icon={<Star className="w-7 h-7"/>}
             title="Гороскоп"
-            description="Прогноз на сегодня, завтра и неделю для каждого знака. 5 сфер: общий, любовь, карьера, финансы и здоровье. Автоопределение знака по дате рождения."
+            description="Прогноз на сегодня, завтра, неделю и год для каждого знака. 5 сфер: общий, любовь, карьера, финансы и здоровье. Годовой прогноз с 12 месяцами."
             onClick={() => onNavigate("horoscope")}
             accent="#f9a8d4"
           />
@@ -486,7 +496,7 @@ function HomeSection({ onNavigate }: { onNavigate: (s: Section) => void }) {
           <FeatureCard
             icon={<Brain className="w-7 h-7"/>}
             title="Психология"
-            description="Восемь инструментов самопознания: архетип Таро, дата рождения, гороскоп, цвет, геометрия, ладонь, натальная карта и нумерология имени."
+            description="Девять инструментов самопознания: архетип Таро, дата рождения, гороскоп, цвет, геометрия, ладонь, натальная карта, нумерология имени и тайна имени с этимологией."
             onClick={() => onNavigate("psychology")}
             accent="#7dd3fc"
           />
@@ -2159,7 +2169,7 @@ function CompatibilityBirthDateTab() {
 
 // ===================== PSYCHOLOGY =====================
 function PsychologySection() {
-  const [psychTab, setPsychTab] = useState<"archetype" | "birthdate" | "zodiac" | "color" | "geometry" | "palm" | "natal" | "name">("archetype")
+  const [psychTab, setPsychTab] = useState<"archetype" | "birthdate" | "zodiac" | "color" | "geometry" | "palm" | "natal" | "name" | "etymology">("archetype")
 
   return (
     <div className="py-8">
@@ -2174,53 +2184,47 @@ function PsychologySection() {
           Архетипы и Самопознание
         </h2>
         <p className="text-amber-200/70 max-w-2xl mx-auto">
-          Восемь инструментов самопознания: архетипический портрет через Таро, психология
-          по дате рождения, гороскоп, цветовой и геометрический архетипы, линии на ладони,
-          натальная карта и нумерология имени.
+          Девять инструментов самопознания: архетип Таро, дата рождения, гороскоп, цвет, геометрия, ладонь, натальная карта, нумерология имени и тайна имени (этимология).
         </p>
       </div>
 
       <Tabs value={psychTab} onValueChange={(v) => setPsychTab(v as typeof psychTab)}>
-        <TabsList className="grid grid-cols-4 lg:grid-cols-8 max-w-5xl mx-auto mb-8 bg-purple-950/40 border border-amber-400/20">
+        <TabsList className="grid grid-cols-3 lg:grid-cols-9 max-w-5xl mx-auto mb-8 bg-purple-950/40 border border-amber-400/20">
           <TabsTrigger value="archetype" className="data-[state=active]:bg-amber-400/20 data-[state=active]:text-amber-100 text-xs sm:text-sm">
             <Brain className="w-3.5 h-3.5 mr-1"/>
-            <span className="hidden sm:inline">Таро</span>
-            <span className="sm:hidden">Таро</span>
+            <span>Таро</span>
           </TabsTrigger>
           <TabsTrigger value="birthdate" className="data-[state=active]:bg-amber-400/20 data-[state=active]:text-amber-100 text-xs sm:text-sm">
             <Calendar className="w-3.5 h-3.5 mr-1"/>
-            <span className="hidden sm:inline">Дата</span>
-            <span className="sm:hidden">Дата</span>
+            <span>Дата</span>
           </TabsTrigger>
           <TabsTrigger value="zodiac" className="data-[state=active]:bg-amber-400/20 data-[state=active]:text-amber-100 text-xs sm:text-sm">
             <Star className="w-3.5 h-3.5 mr-1"/>
-            <span className="hidden sm:inline">Знак</span>
-            <span className="sm:hidden">Знак</span>
+            <span>Знак</span>
           </TabsTrigger>
           <TabsTrigger value="color" className="data-[state=active]:bg-amber-400/20 data-[state=active]:text-amber-100 text-xs sm:text-sm">
             <Palette className="w-3.5 h-3.5 mr-1"/>
-            <span className="hidden sm:inline">Цвет</span>
-            <span className="sm:hidden">Цвет</span>
+            <span>Цвет</span>
           </TabsTrigger>
           <TabsTrigger value="geometry" className="data-[state=active]:bg-amber-400/20 data-[state=active]:text-amber-100 text-xs sm:text-sm">
             <Hexagon className="w-3.5 h-3.5 mr-1"/>
-            <span className="hidden sm:inline">Форма</span>
-            <span className="sm:hidden">Форма</span>
+            <span>Форма</span>
           </TabsTrigger>
           <TabsTrigger value="palm" className="data-[state=active]:bg-amber-400/20 data-[state=active]:text-amber-100 text-xs sm:text-sm">
             <Hand className="w-3.5 h-3.5 mr-1"/>
-            <span className="hidden sm:inline">Ладонь</span>
-            <span className="sm:hidden">Ладонь</span>
+            <span>Ладонь</span>
           </TabsTrigger>
           <TabsTrigger value="natal" className="data-[state=active]:bg-amber-400/20 data-[state=active]:text-amber-100 text-xs sm:text-sm">
             <Globe className="w-3.5 h-3.5 mr-1"/>
-            <span className="hidden sm:inline">Натал</span>
-            <span className="sm:hidden">Натал</span>
+            <span>Натал</span>
           </TabsTrigger>
           <TabsTrigger value="name" className="data-[state=active]:bg-amber-400/20 data-[state=active]:text-amber-100 text-xs sm:text-sm">
             <Type className="w-3.5 h-3.5 mr-1"/>
-            <span className="hidden sm:inline">Имя</span>
-            <span className="sm:hidden">Имя</span>
+            <span>Имя</span>
+          </TabsTrigger>
+          <TabsTrigger value="etymology" className="data-[state=active]:bg-amber-400/20 data-[state=active]:text-amber-100 text-xs sm:text-sm">
+            <BookOpen className="w-3.5 h-3.5 mr-1"/>
+            <span>Тайна</span>
           </TabsTrigger>
         </TabsList>
 
@@ -2247,6 +2251,9 @@ function PsychologySection() {
         </TabsContent>
         <TabsContent value="name">
           <NameNumerologySection/>
+        </TabsContent>
+        <TabsContent value="etymology">
+          <NameSecretTab/>
         </TabsContent>
       </Tabs>
     </div>
@@ -4029,6 +4036,9 @@ function HoroscopeSection() {
 
   const horoscope = getDailyHoroscope(signId, forecastDate, period)
   const weekly = period === "week" ? getWeeklyHoroscope(signId, today) : null
+  const yearly = period === "year" ? getYearHoroscope(signId, today.getFullYear()) : null
+
+  const monthNames = ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"]
 
   const handleDetect = () => {
     const d = parseInt(day), m = parseInt(month), y = parseInt(year)
@@ -4050,6 +4060,7 @@ function HoroscopeSection() {
     { id: "today", label: "Сегодня" },
     { id: "tomorrow", label: "Завтра" },
     { id: "week", label: "Неделя" },
+    { id: "year", label: "Год" },
   ]
 
   const dateLabel = forecastDate.toLocaleDateString("ru-RU", {
@@ -4243,6 +4254,103 @@ function HoroscopeSection() {
                     </div>
                   </div>
                 )}
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
+        {/* Годовой прогноз */}
+        {period === "year" && yearly && (
+          <div className="space-y-4 animate-fade-in">
+            {/* Общая характеристика года */}
+            <Card className="glass-mystic border-amber-400/40" style={{ background: `linear-gradient(135deg, ${sign.color}15, rgba(26,10,58,0.7))` }}>
+              <CardContent className="pt-5">
+                <div className="flex items-center gap-3 mb-3 flex-wrap">
+                  <h4 className="text-xl font-bold text-gold-gradient" style={{ fontFamily: "var(--font-cinzel)" }}>
+                    {yearly.sign} · {yearly.year}
+                  </h4>
+                  <Badge className="border" style={{
+                    backgroundColor: yearly.overallRating >= 7 ? "rgba(16,185,129,0.2)" : yearly.overallRating >= 4 ? "rgba(251,191,36,0.2)" : "rgba(244,63,94,0.2)",
+                    color: yearly.overallRating >= 7 ? "#10b981" : yearly.overallRating >= 4 ? "#fbbf24" : "#f43f5e",
+                    borderColor: yearly.overallRating >= 7 ? "rgba(16,185,129,0.4)" : yearly.overallRating >= 4 ? "rgba(251,191,36,0.4)" : "rgba(244,63,94,0.4)",
+                  }}>
+                    Общий рейтинг года: {yearly.overallRating}/10
+                  </Badge>
+                </div>
+                <div className="text-xs uppercase tracking-wider text-amber-300 mb-2">{yearly.personalYearTitle}</div>
+                <p className="text-sm text-amber-100/85 leading-relaxed mb-3">{yearly.overallText}</p>
+                {yearly.chineseAnimal && (
+                  <div className="glass-card rounded-lg p-3 border-amber-400/20">
+                    <div className="text-xs text-amber-300/70 mb-1">🐉 Год {yearly.chineseAnimal}</div>
+                    <p className="text-sm text-amber-100/85">{yearly.chineseAdvice}</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Сферы года */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <Card className="glass-card border-rose-400/20">
+                <CardContent className="pt-4">
+                  <div className="text-xs text-rose-300 mb-1">❤ Любовь в {yearly.year}</div>
+                  <p className="text-sm text-amber-100/85">{yearly.love}</p>
+                </CardContent>
+              </Card>
+              <Card className="glass-card border-blue-400/20">
+                <CardContent className="pt-4">
+                  <div className="text-xs text-blue-300 mb-1">💼 Карьера в {yearly.year}</div>
+                  <p className="text-sm text-amber-100/85">{yearly.career}</p>
+                </CardContent>
+              </Card>
+              <Card className="glass-card border-emerald-400/20">
+                <CardContent className="pt-4">
+                  <div className="text-xs text-emerald-300 mb-1">💰 Финансы в {yearly.year}</div>
+                  <p className="text-sm text-amber-100/85">{yearly.finance}</p>
+                </CardContent>
+              </Card>
+              <Card className="glass-card border-purple-400/20">
+                <CardContent className="pt-4">
+                  <div className="text-xs text-purple-300 mb-1">🌿 Здоровье в {yearly.year}</div>
+                  <p className="text-sm text-amber-100/85">{yearly.health}</p>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Лучшие и худшие месяцы */}
+            <Card className="glass-mystic border-amber-400/30">
+              <CardContent className="pt-5">
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="glass-card rounded-lg p-3 border-emerald-400/20">
+                    <div className="text-xs text-emerald-300 mb-1">✦ Лучшие месяцы</div>
+                    <div className="text-sm text-amber-100">{yearly.bestMonths.map(m => monthNames[m - 1]).join(", ")}</div>
+                  </div>
+                  <div className="glass-card rounded-lg p-3 border-rose-400/20">
+                    <div className="text-xs text-rose-300 mb-1">⚠ Сложные месяцы</div>
+                    <div className="text-sm text-amber-100">{yearly.worstMonths.map(m => monthNames[m - 1]).join(", ")}</div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Сетка по 12 месяцам */}
+            <Card className="glass-mystic border-amber-400/30">
+              <CardContent className="pt-5">
+                <div className="text-xs uppercase tracking-wider text-amber-300 mb-3">Прогноз по месяцам</div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {yearly.months.map((m, i) => (
+                    <div key={i} className="rounded-lg p-3" style={{
+                      background: m.rating >= 7 ? "rgba(16,185,129,0.15)" : m.rating >= 4 ? "rgba(251,191,36,0.12)" : "rgba(244,63,94,0.12)",
+                      border: `1px solid ${m.rating >= 7 ? "rgba(16,185,129,0.3)" : m.rating >= 4 ? "rgba(251,191,36,0.25)" : "rgba(244,63,94,0.3)"}`,
+                    }}>
+                      <div className="flex items-center justify-between mb-1">
+                        <div className="text-sm font-bold text-amber-100">{m.name}</div>
+                        <Badge variant="outline" className="border-amber-400/40 text-amber-200 text-xs">{m.rating}/10</Badge>
+                      </div>
+                      <div className="text-xs text-amber-200/70 mb-1">{m.theme}</div>
+                      <p className="text-xs text-amber-100/80 leading-relaxed">{m.advice}</p>
+                    </div>
+                  ))}
+                </div>
               </CardContent>
             </Card>
           </div>
@@ -4836,6 +4944,204 @@ function NameNumerologySection() {
             textFallback={`${result.name}: Душа=${result.soulNumber}, Личность=${result.personalityNumber}, Судьба=${result.destinyNumber}`}
             label="📲 Поделиться картинкой"
           />
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ===================== ТАЙНА ИМЕНИ (ЭТИМОЛОГИЯ) =====================
+function NameSecretTab() {
+  const [query, setQuery] = useState("")
+  const [result, setResult] = useState<NameSecret | null>(null)
+  const [error, setError] = useState("")
+  const [suggestions, setSuggestions] = useState<NameSecret[]>([])
+  const nameOfDay = useMemo(() => getNameOfTheDay(), [])
+
+  const handleSearch = (name: string) => {
+    if (!name.trim() || name.trim().length < 2) {
+      setError("Введите имя (минимум 2 буквы)")
+      setResult(null)
+      setSuggestions([])
+      return
+    }
+    const found = findNameSecret(name)
+    if (found) {
+      setResult(found)
+      setError("")
+      setSuggestions([])
+    } else {
+      setError("")
+      setResult(null)
+      const sg = searchNames(name, 6)
+      setSuggestions(sg)
+      if (sg.length === 0) {
+        setError(`Имя «${name}» не найдено в базе. Попробуйте полное имя (например: Анна, Александр).`)
+      }
+    }
+  }
+
+  const handleSuggestionClick = (s: NameSecret) => {
+    setQuery(s.name)
+    setResult(s)
+    setError("")
+    setSuggestions([])
+  }
+
+  return (
+    <div>
+      <p className="text-center text-amber-200/70 max-w-2xl mx-auto mb-6 text-sm">
+        Происхождение и первоначальное значение имени, черты характера, судьба, профессиональные склонности, камни-талисманы и известные носители. База: 90+ русских и международных имён.
+      </p>
+
+      {/* Поиск */}
+      <div className="max-w-md mx-auto mb-3 relative">
+        <Input
+          value={query}
+          onChange={(e) => {
+            setQuery(e.target.value)
+            const sg = searchNames(e.target.value, 6)
+            setSuggestions(sg)
+            if (e.target.value.trim().length === 0) {
+              setError("")
+              setResult(null)
+            }
+          }}
+          onKeyDown={(e) => e.key === "Enter" && handleSearch(query)}
+          placeholder="Введите имя (например: Анна, Александр)..."
+          className="bg-purple-950/40 border-amber-400/30 text-amber-100 placeholder:text-amber-200/40 text-center text-lg"
+        />
+        {suggestions.length > 0 && (
+          <div className="absolute top-full left-0 right-0 mt-1 z-20 glass-mystic border border-amber-400/30 rounded-lg overflow-hidden">
+            {suggestions.map((s, i) => (
+              <button
+                key={i}
+                onClick={() => handleSuggestionClick(s)}
+                className="w-full text-left px-4 py-2 hover:bg-amber-400/10 transition-colors flex items-center justify-between"
+              >
+                <span className="text-sm text-amber-100">{s.name}</span>
+                <span className="text-[10px] text-amber-200/50 uppercase">{s.gender === "male" ? "муж." : "жен."}</span>
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+      <div className="text-center mb-8">
+        <Button onClick={() => handleSearch(query)} className="btn-gold px-8 py-3">
+          <BookOpen className="w-5 h-5 mr-2"/>Узнать тайну имени
+        </Button>
+        {error && <p className="text-rose-300 text-sm mt-3">{error}</p>}
+      </div>
+
+      {/* Имя дня */}
+      {!result && !error && (
+        <div className="max-w-2xl mx-auto mb-6">
+          <Card className="glass-card border-amber-400/20">
+            <CardContent className="pt-5">
+              <div className="text-xs uppercase tracking-wider text-amber-300 mb-3">✦ Имя дня</div>
+              <button
+                onClick={() => handleSuggestionClick(nameOfDay)}
+                className="flex items-center gap-3 hover:bg-amber-400/5 rounded-lg p-2 transition-colors w-full text-left"
+              >
+                <div className="text-3xl">{nameOfDay.gender === "male" ? "♂" : "♀"}</div>
+                <div>
+                  <div className="text-lg font-bold text-gold-gradient" style={{ fontFamily: "var(--font-cinzel)" }}>{nameOfDay.name}</div>
+                  <div className="text-xs text-amber-200/60">{nameOfDay.origin} · {nameOfDay.meaning}</div>
+                </div>
+              </button>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {/* Результат */}
+      {result && (
+        <div className="max-w-2xl mx-auto animate-fade-in space-y-4">
+          {/* Шапка */}
+          <Card className="glass-mystic border-amber-400/40 text-center">
+            <CardContent className="pt-8 pb-6">
+              <div className="text-4xl mb-2">{result.gender === "male" ? "♂" : "♀"}</div>
+              <h3 className="text-3xl font-bold text-gold-gradient mb-2" style={{ fontFamily: "var(--font-cinzel)" }}>{result.name}</h3>
+              <div className="flex justify-center gap-2 flex-wrap">
+                <Badge variant="outline" className="border-amber-400/40 text-amber-200">{result.origin}</Badge>
+                <Badge variant="outline" className="border-purple-400/40 text-purple-200">{result.meaning}</Badge>
+              </div>
+              <p className="text-xs text-amber-200/60 mt-3 italic">{result.translation}</p>
+              {result.shortForms.length > 0 && (
+                <div className="mt-3 text-xs text-amber-200/60">
+                  <span className="text-amber-300/70">Уменьшительные: </span>
+                  {result.shortForms.join(", ")}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Характер */}
+          <Card className="glass-mystic border-amber-400/30">
+            <CardContent className="pt-5">
+              <div className="text-xs uppercase tracking-wider text-amber-300 mb-2">🧠 Характер</div>
+              <p className="text-sm text-amber-100/85 leading-relaxed">{result.character}</p>
+            </CardContent>
+          </Card>
+
+          {/* Судьба */}
+          <Card className="glass-mystic border-amber-400/30">
+            <CardContent className="pt-5">
+              <div className="text-xs uppercase tracking-wider text-amber-300 mb-2">✦ Судьба</div>
+              <p className="text-sm text-amber-100/85 leading-relaxed">{result.fate}</p>
+            </CardContent>
+          </Card>
+
+          {/* Сферы */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <Card className="glass-card border-blue-400/20">
+              <CardContent className="pt-4">
+                <div className="text-xs text-blue-300 mb-1">💼 Карьера</div>
+                <p className="text-sm text-amber-100/85">{result.career}</p>
+              </CardContent>
+            </Card>
+            <Card className="glass-card border-rose-400/20">
+              <CardContent className="pt-4">
+                <div className="text-xs text-rose-300 mb-1">❤ В любви</div>
+                <p className="text-sm text-amber-100/85">{result.love}</p>
+              </CardContent>
+            </Card>
+            <Card className="glass-card border-emerald-400/20">
+              <CardContent className="pt-4">
+                <div className="text-xs text-emerald-300 mb-1">🌿 Здоровье</div>
+                <p className="text-sm text-amber-100/85">{result.health}</p>
+              </CardContent>
+            </Card>
+            <Card className="glass-card border-purple-400/20">
+              <CardContent className="pt-4">
+                <div className="text-xs text-purple-300 mb-1">💎 Талисманы</div>
+                <div className="space-y-1 text-xs text-amber-100/85">
+                  <div><span className="text-amber-200/60">Камни:</span> {result.stones.join(", ")}</div>
+                  <div><span className="text-amber-200/60">Цвета:</span> {result.colors.join(", ")}</div>
+                  <div><span className="text-amber-200/60">Числа:</span> {result.numbers.join(", ")}</div>
+                  <div><span className="text-amber-200/60">Дни:</span> {result.days.join(", ")}</div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Известные носители */}
+          <Card className="glass-card border-amber-400/20">
+            <CardContent className="pt-5">
+              <div className="text-xs uppercase tracking-wider text-amber-300 mb-2">📜 Известные носители</div>
+              <div className="flex flex-wrap gap-2">
+                {result.famous.map((f, i) => (
+                  <Badge key={i} variant="outline" className="border-amber-400/30 text-amber-200 text-xs">{f}</Badge>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          <div className="flex gap-3 justify-center">
+            <Button onClick={() => shareResult("Тайна имени", `${result.name}: ${result.origin}, ${result.meaning}. ${result.character}`)} variant="outline" className="border-amber-400/40 text-amber-200 hover:bg-amber-400/10">
+              <Share2 className="w-4 h-4 mr-2"/>Поделиться
+            </Button>
+          </div>
         </div>
       )}
     </div>

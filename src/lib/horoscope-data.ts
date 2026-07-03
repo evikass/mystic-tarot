@@ -17,7 +17,7 @@
 import { getMoonPhase, getLunarDay } from "./runes-moon-data"
 
 export type HoroscopeCategory = "general" | "love" | "career" | "finance" | "health"
-export type HoroscopePeriod = "today" | "tomorrow" | "week"
+export type HoroscopePeriod = "today" | "tomorrow" | "week" | "year"
 
 export interface HoroscopeText {
   title: string
