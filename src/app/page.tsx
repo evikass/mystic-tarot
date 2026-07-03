@@ -84,6 +84,11 @@ import {
   type NameSecret,
 } from "@/lib/name-secret-data"
 import {
+  getBirthArcana,
+  getYearArcana,
+  getMeditationCard,
+} from "@/lib/arcana-data"
+import {
   castIChing,
   getHexagram,
   calculateBiorhythm,
@@ -204,7 +209,7 @@ import {
   Dices,
 } from "lucide-react"
 
-type Section = "home" | "daily" | "readings" | "tarot-forecast" | "horoscope" | "compatibility" | "psychology" | "history" | "success" | "moon" | "favorable" | "catalog" | "theme"
+type Section = "home" | "daily" | "readings" | "tarot-forecast" | "horoscope" | "arcana" | "compatibility" | "psychology" | "history" | "success" | "moon" | "favorable" | "catalog" | "theme"
 
 interface DrawnCard {
   card: TarotCard
@@ -225,6 +230,7 @@ export default function Home() {
     { id: "daily", label: "Карта дня", icon: <Sun className="w-4 h-4"/> },
     { id: "tarot-forecast", label: "Таро дня", icon: <Sparkles className="w-4 h-4"/> },
     { id: "horoscope", label: "Гороскоп", icon: <Star className="w-4 h-4"/> },
+    { id: "arcana", label: "Арканы", icon: <Crown className="w-4 h-4"/> },
     { id: "readings", label: "Расклады", icon: <Layers className="w-4 h-4"/> },
     { id: "catalog", label: "Каталог", icon: <BookOpen className="w-4 h-4"/> },
     { id: "compatibility", label: "Совместимость", icon: <Heart className="w-4 h-4"/> },
@@ -245,6 +251,7 @@ export default function Home() {
           {section === "daily" && <DailyCardSection/>}
           {section === "tarot-forecast" && <TarotForecastSection/>}
           {section === "horoscope" && <HoroscopeSection/>}
+          {section === "arcana" && <ArcanaSection/>}
           {section === "readings" && <ReadingsSection/>}
           {section === "compatibility" && <CompatibilitySection/>}
           {section === "psychology" && <PsychologySection/>}
@@ -480,9 +487,16 @@ function HomeSection({ onNavigate }: { onNavigate: (s: Section) => void }) {
             accent="#f9a8d4"
           />
           <FeatureCard
+            icon={<Crown className="w-7 h-7"/>}
+            title="Арканы"
+            description="Личный аркан по дате рождения (характер и задача души), аркан года (тема текущего года) и карта-медитация дня с аффирмацией."
+            onClick={() => onNavigate("arcana")}
+            accent="#fde68a"
+          />
+          <FeatureCard
             icon={<Layers className="w-7 h-7"/>}
             title="Расклады"
-            description="Таро (3 карты, Кельтский крест, Да/Нет), руны Старшего Футарка, И-Цзин (64 гексаграммы), биоритмы и психоматрица Александрова — все расклады и гадания в одном разделе."
+            description="Таро (3 карты, Кельтский крест, Да/Нет, Два пути), руны Старшего Футарка, И-Цзин (64 гексаграммы), биоритмы и психоматрица Александрова — все расклады и гадания в одном разделе."
             onClick={() => onNavigate("readings")}
             accent="#a78bfa"
           />
@@ -831,7 +845,7 @@ function DailyCardSection() {
 // ===================== READINGS =====================
 function ReadingsSection() {
   const [readingType, setReadingType] = useState<
-    "three-card" | "celtic-cross" | "yes-no" | "runes" | "iching" | "biorhythms" | "psychomatrix"
+    "three-card" | "celtic-cross" | "yes-no" | "two-paths" | "runes" | "iching" | "biorhythms" | "psychomatrix"
   >("three-card")
 
   return (
@@ -853,7 +867,7 @@ function ReadingsSection() {
       </div>
 
       <Tabs value={readingType} onValueChange={(v) => setReadingType(v as typeof readingType)}>
-        <TabsList className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 max-w-5xl mx-auto mb-8 bg-purple-950/40 border border-amber-400/20">
+        <TabsList className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 max-w-5xl mx-auto mb-8 bg-purple-950/40 border border-amber-400/20">
           <TabsTrigger value="three-card" className="data-[state=active]:bg-amber-400/20 data-[state=active]:text-amber-100 text-xs sm:text-sm">
             <Layers className="w-3.5 h-3.5 mr-1"/>
             3 карты
@@ -865,6 +879,10 @@ function ReadingsSection() {
           <TabsTrigger value="yes-no" className="data-[state=active]:bg-amber-400/20 data-[state=active]:text-amber-100 text-xs sm:text-sm">
             <Sparkles className="w-3.5 h-3.5 mr-1"/>
             Да / Нет
+          </TabsTrigger>
+          <TabsTrigger value="two-paths" className="data-[state=active]:bg-amber-400/20 data-[state=active]:text-amber-100 text-xs sm:text-sm">
+            <ArrowRight className="w-3.5 h-3.5 mr-1"/>
+            Два пути
           </TabsTrigger>
           <TabsTrigger value="runes" className="data-[state=active]:bg-amber-400/20 data-[state=active]:text-amber-100 text-xs sm:text-sm">
             <Flame className="w-3.5 h-3.5 mr-1"/>
@@ -892,6 +910,9 @@ function ReadingsSection() {
         </TabsContent>
         <TabsContent value="yes-no">
           <YesNoReading/>
+        </TabsContent>
+        <TabsContent value="two-paths">
+          <TwoPathsReading/>
         </TabsContent>
         <TabsContent value="runes">
           <RunesSection/>
@@ -1356,6 +1377,236 @@ function YesNoReading() {
               >
                 <Sparkles className="w-4 h-4 mr-2"/>
                 Новый вопрос
+              </Button>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ===================== РАСКЛАД ДВА ПУТИ =====================
+function TwoPathsReading() {
+  const [optionA, setOptionA] = useState("")
+  const [optionB, setOptionB] = useState("")
+  const [drawnCards, setDrawnCards] = useState<DrawnCard[]>([])
+  const [revealedIndexes, setRevealedIndexes] = useState<number[]>([])
+  const [isDrawing, setIsDrawing] = useState(false)
+  const { toast } = useToast()
+
+  // 5 позиций: Текущая ситуация, Путь А (энергия + итог), Путь Б (энергия + итог)
+  const positions = [
+    "Текущая ситуация",
+    "Путь А — энергия",
+    "Путь А — итог",
+    "Путь Б — энергия",
+    "Путь Б — итог",
+  ]
+
+  const draw = useCallback(() => {
+    if (!optionA.trim() || !optionB.trim()) {
+      toast({ title: "Опишите оба варианта", description: "Для расклада «Два пути» нужно два варианта выбора", variant: "destructive" })
+      return
+    }
+    setIsDrawing(true)
+    setDrawnCards([])
+    setRevealedIndexes([])
+    setTimeout(() => {
+      const drawn = drawCards(5)
+      setDrawnCards(drawn.map((d, i) => ({
+        card: d.card,
+        isReversed: d.isReversed,
+        position: positions[i],
+      })))
+      setIsDrawing(false)
+      saveReading({
+        type: "three-card",
+        typeLabel: "Расклад «Два пути»",
+        question: `${optionA} ИЛИ ${optionB}`,
+        cards: drawn.map((d, i) => ({
+          card: d.card,
+          isReversed: d.isReversed,
+          position: positions[i],
+        })),
+      })
+      toast({ title: "✦ Карты вытянуты", description: "Откройте карты по очереди" })
+    }, 1800)
+  }, [optionA, optionB, toast])
+
+  const revealCard = (i: number) => {
+    if (!revealedIndexes.includes(i)) setRevealedIndexes([...revealedIndexes, i])
+  }
+
+  const allRevealed = drawnCards.length === 5 && revealedIndexes.length === 5
+
+  return (
+    <div>
+      <p className="text-center text-amber-200/70 max-w-2xl mx-auto mb-6 text-sm">
+        Расклад для выбора между двумя вариантами. 5 карт: текущая ситуация + энергия и итог каждого пути.
+      </p>
+
+      {/* Ввод двух вариантов */}
+      <div className="max-w-2xl mx-auto mb-6 grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div>
+          <label className="block text-xs text-amber-300 mb-1 text-center">Вариант А</label>
+          <Textarea
+            value={optionA}
+            onChange={(e) => setOptionA(e.target.value)}
+            placeholder="Например: сменить работу"
+            className="bg-purple-950/40 border-amber-400/30 text-amber-100 placeholder:text-amber-200/40 min-h-[60px] text-center"
+          />
+        </div>
+        <div>
+          <label className="block text-xs text-amber-300 mb-1 text-center">Вариант Б</label>
+          <Textarea
+            value={optionB}
+            onChange={(e) => setOptionB(e.target.value)}
+            placeholder="Например: остаться на текущей"
+            className="bg-purple-950/40 border-amber-400/30 text-amber-100 placeholder:text-amber-200/40 min-h-[60px] text-center"
+          />
+        </div>
+      </div>
+
+      {!drawnCards.length && !isDrawing && (
+        <div className="flex flex-col items-center gap-6">
+          <div className="flex gap-2">
+            {[0,1,2,3,4].map((i) => (
+              <div key={i} style={{ transform: `rotate(${(i-2)*3}deg)` }}>
+                <CardBack width={100} height={160} className="rounded-xl shadow-2xl"/>
+              </div>
+            ))}
+          </div>
+          <Button onClick={draw} className="btn-gold px-8 py-3" disabled={!optionA.trim() || !optionB.trim()}>
+            <ArrowRight className="w-5 h-5 mr-2"/>
+            Разложить два пути
+          </Button>
+        </div>
+      )}
+
+      {isDrawing && (
+        <div className="text-center py-12">
+          <div className="spinner-mystic mx-auto mb-4"/>
+          <p className="text-amber-200/80 animate-pulse" style={{ fontFamily: "var(--font-cormorant)" }}>
+            Тасую колоду для вашего выбора...
+          </p>
+        </div>
+      )}
+
+      {drawnCards.length > 0 && !isDrawing && (
+        <div>
+          {/* Карта текущей ситуации — центр */}
+          <div className="flex flex-col items-center mb-6">
+            <div className="text-xs uppercase tracking-wider text-amber-200/70 mb-2">{drawnCards[0].position}</div>
+            <TarotCardView
+              card={drawnCards[0].card}
+              isReversed={drawnCards[0].isReversed}
+              revealed={revealedIndexes.includes(0)}
+              onReveal={() => revealCard(0)}
+              width={140}
+              height={224}
+            />
+          </div>
+
+          {/* Две колонки — Путь А и Путь Б */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
+            {/* Путь А */}
+            <div className="flex flex-col items-center gap-3 p-3 rounded-xl" style={{ border: "1px solid rgba(167,139,250,0.3)", background: "rgba(76,29,149,0.15)" }}>
+              <Badge className="bg-purple-500/30 text-purple-100 border border-purple-400/40 text-xs mb-1">
+                ПУТЬ А
+              </Badge>
+              <div className="text-xs text-amber-100 text-center max-w-[200px] truncate" title={optionA}>{optionA}</div>
+              <div className="flex gap-3">
+                {[1, 2].map((idx) => (
+                  <div key={idx} className="flex flex-col items-center">
+                    <div className="text-[10px] uppercase tracking-wider text-amber-200/60 mb-1 text-center">
+                      {idx === 1 ? "Энергия" : "Итог"}
+                    </div>
+                    <TarotCardView
+                      card={drawnCards[idx].card}
+                      isReversed={drawnCards[idx].isReversed}
+                      revealed={revealedIndexes.includes(idx)}
+                      onReveal={() => revealCard(idx)}
+                      width={110}
+                      height={176}
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Путь Б */}
+            <div className="flex flex-col items-center gap-3 p-3 rounded-xl" style={{ border: "1px solid rgba(249,168,212,0.3)", background: "rgba(190,24,93,0.1)" }}>
+              <Badge className="bg-pink-500/30 text-pink-100 border border-pink-400/40 text-xs mb-1">
+                ПУТЬ Б
+              </Badge>
+              <div className="text-xs text-amber-100 text-center max-w-[200px] truncate" title={optionB}>{optionB}</div>
+              <div className="flex gap-3">
+                {[3, 4].map((idx) => (
+                  <div key={idx} className="flex flex-col items-center">
+                    <div className="text-[10px] uppercase tracking-wider text-amber-200/60 mb-1 text-center">
+                      {idx === 3 ? "Энергия" : "Итог"}
+                    </div>
+                    <TarotCardView
+                      card={drawnCards[idx].card}
+                      isReversed={drawnCards[idx].isReversed}
+                      revealed={revealedIndexes.includes(idx)}
+                      onReveal={() => revealCard(idx)}
+                      width={110}
+                      height={176}
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Интерпретации */}
+          {allRevealed && (
+            <div className="max-w-3xl mx-auto animate-fade-in space-y-3">
+              <Card className="glass-mystic border-amber-400/30">
+                <CardContent className="p-5">
+                  <Badge variant="outline" className="border-amber-400/40 text-amber-200 text-xs mb-2">Текущая ситуация</Badge>
+                  <h4 className="text-lg font-bold text-amber-100 mb-1">
+                    {drawnCards[0].card.name}
+                    {drawnCards[0].isReversed && <span className="ml-2 text-xs text-rose-300">(перевёрнута)</span>}
+                  </h4>
+                  <p className="text-sm text-amber-100/80 leading-relaxed">
+                    {drawnCards[0].isReversed ? drawnCards[0].card.reversed.summary : drawnCards[0].card.upright.summary}
+                  </p>
+                </CardContent>
+              </Card>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {[1, 3].map((startIdx, i) => (
+                  <Card key={i} className="glass-mystic" style={{ borderColor: i === 0 ? "rgba(167,139,250,0.3)" : "rgba(249,168,212,0.3)" }}>
+                    <CardContent className="p-5">
+                      <Badge className={`text-xs mb-2 border ${i === 0 ? "bg-purple-500/30 text-purple-100 border-purple-400/40" : "bg-pink-500/30 text-pink-100 border-pink-400/40"}`}>
+                        {i === 0 ? "ПУТЬ А" : "ПУТЬ Б"}: {i === 0 ? optionA : optionB}
+                      </Badge>
+                      <div className="space-y-3">
+                        {[startIdx, startIdx + 1].map((cardIdx, j) => (
+                          <div key={j}>
+                            <div className="text-xs text-amber-200/60 mb-1">{j === 0 ? "Энергия пути" : "Возможный итог"}</div>
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className="text-base font-bold text-amber-100">
+                                {drawnCards[cardIdx].card.name}
+                              </span>
+                              {drawnCards[cardIdx].isReversed && <span className="text-xs text-rose-300">↺</span>}
+                            </div>
+                            <p className="text-xs text-amber-100/75 leading-relaxed">
+                              {drawnCards[cardIdx].isReversed ? drawnCards[cardIdx].card.reversed.summary : drawnCards[cardIdx].card.upright.summary}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+
+              <Button onClick={draw} variant="outline" className="border-amber-400/40 text-amber-200 hover:bg-amber-400/10 w-full">
+                <Sparkles className="w-4 h-4 mr-2"/>Новый расклад
               </Button>
             </div>
           )}
@@ -4356,6 +4607,164 @@ function HoroscopeSection() {
           </div>
         )}
       </div>
+    </div>
+  )
+}
+
+// ===================== АРКАНЫ (личный аркан + аркан года + медитация дня) =====================
+function ArcanaSection() {
+  const today = new Date()
+  const [day, setDay] = useState("")
+  const [month, setMonth] = useState("")
+  const [year, setYear] = useState("")
+  const [targetYear, setTargetYear] = useState<string>(String(today.getFullYear()))
+  const [error, setError] = useState("")
+
+  const hasInput = day && month && year
+  const birthResult = hasInput ? getBirthArcana(parseInt(day), parseInt(month), parseInt(year)) : null
+  const yearResult = hasInput && targetYear ? getYearArcana(parseInt(day), parseInt(month), parseInt(targetYear)) : null
+  const meditation = getMeditationCard(today)
+
+  const dateLabel = today.toLocaleDateString("ru-RU", { weekday: "long", day: "numeric", month: "long", year: "numeric" })
+
+  return (
+    <div className="py-8">
+      <div className="text-center mb-10">
+        <div className="section-divider mb-6"><span>Личные арканы Таро</span></div>
+        <h2 className="text-4xl sm:text-5xl font-bold mb-3 text-mystic-gradient inline-block" style={{ fontFamily: "var(--font-cinzel)", lineHeight: 1.25, paddingTop: "0.2em" }}>Арканы</h2>
+        <p className="text-amber-200/70 max-w-2xl mx-auto">
+          Личный аркан по дате рождения (характер и задача души), аркан года (тема текущего года)
+          и карта-медитация дня с аффирмацией.
+        </p>
+      </div>
+
+      {/* Ввод даты рождения */}
+      <div className="max-w-2xl mx-auto mb-8">
+        <Card className="glass-mystic border-amber-400/30">
+          <CardContent className="pt-5">
+            <div className="text-xs uppercase tracking-wider text-amber-300 mb-3">Ваша дата рождения</div>
+            <div className="max-w-sm mx-auto grid grid-cols-3 gap-3 mb-4">
+              <div><label className="text-xs text-amber-200/70 mb-1 block">День</label><Input type="number" min="1" max="31" value={day} onChange={(e) => setDay(e.target.value)} placeholder="15" className="bg-purple-950/40 border-amber-400/30 text-amber-100 placeholder:text-amber-200/40 text-center"/></div>
+              <div><label className="text-xs text-amber-200/70 mb-1 block">Месяц</label><Input type="number" min="1" max="12" value={month} onChange={(e) => setMonth(e.target.value)} placeholder="08" className="bg-purple-950/40 border-amber-400/30 text-amber-100 placeholder:text-amber-200/40 text-center"/></div>
+              <div><label className="text-xs text-amber-200/70 mb-1 block">Год</label><Input type="number" min="1900" max="2100" value={year} onChange={(e) => setYear(e.target.value)} placeholder="1990" className="bg-purple-950/40 border-amber-400/30 text-amber-100 placeholder:text-amber-200/40 text-center"/></div>
+            </div>
+            {error && <p className="text-rose-300 text-sm text-center mt-2">{error}</p>}
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Личный аркан */}
+      {birthResult && (
+        <div className="max-w-3xl mx-auto mb-6 animate-fade-in">
+          <Card className="glass-mystic border-amber-400/40">
+            <CardContent className="pt-5">
+              <div className="flex flex-col sm:flex-row gap-5 items-center">
+                <div className="shrink-0">
+                  <CardSVG card={birthResult.card} width={140} height={224} className="rounded-xl shadow-2xl"/>
+                </div>
+                <div className="flex-1 text-center sm:text-left">
+                  <div className="text-xs uppercase tracking-wider text-amber-300 mb-1">Личный аркан по дате рождения</div>
+                  <h3 className="text-2xl font-bold text-gold-gradient mb-2" style={{ fontFamily: "var(--font-cinzel)" }}>
+                    {birthResult.card.name}
+                  </h3>
+                  <div className="text-xs text-amber-200/60 mb-3">
+                    Аркан №{birthResult.arcanaNumber === 22 ? 22 : birthResult.arcanaNumber} (сумма цифр даты: {birthResult.rawSum})
+                  </div>
+                  <p className="text-sm text-amber-100/85 leading-relaxed mb-2">
+                    {birthResult.card.upright.summary}
+                  </p>
+                  <p className="text-xs text-amber-200/60 italic">{birthResult.card.archetype}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {/* Аркан года */}
+      {yearResult && (
+        <div className="max-w-3xl mx-auto mb-6 animate-fade-in">
+          <Card className="glass-mystic border-amber-400/40">
+            <CardContent className="pt-5">
+              <div className="flex flex-col sm:flex-row gap-5 items-center">
+                <div className="shrink-0">
+                  <CardSVG card={yearResult.card} width={140} height={224} className="rounded-xl shadow-2xl"/>
+                </div>
+                <div className="flex-1 text-center sm:text-left">
+                  <div className="flex items-center gap-2 mb-1 flex-wrap justify-center sm:justify-start">
+                    <div className="text-xs uppercase tracking-wider text-amber-300">Аркан года</div>
+                    <select
+                      value={targetYear}
+                      onChange={(e) => setTargetYear(e.target.value)}
+                      className="bg-purple-950/60 border border-amber-400/30 text-amber-100 text-xs rounded px-2 py-1"
+                    >
+                      {[today.getFullYear() - 1, today.getFullYear(), today.getFullYear() + 1].map(y => (
+                        <option key={y} value={String(y)}>{y}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <h3 className="text-2xl font-bold text-gold-gradient mb-2" style={{ fontFamily: "var(--font-cinzel)" }}>
+                    {yearResult.card.name}
+                  </h3>
+                  <div className="text-xs text-amber-200/60 mb-3">
+                    Аркан №{yearResult.arcanaNumber === 22 ? 22 : yearResult.arcanaNumber} (сумма: {yearResult.rawSum})
+                  </div>
+                  <p className="text-sm text-amber-100/85 leading-relaxed mb-2">
+                    {yearResult.card.upright.summary}
+                  </p>
+                  <p className="text-xs text-amber-200/60 italic">
+                    {yearResult.card.upright.psychology}
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {/* Карта-медитация дня — показывается всегда */}
+      <div className="max-w-3xl mx-auto mt-10">
+        <div className="text-center text-xs uppercase tracking-wider text-amber-300 mb-3">✦ Карта-медитация дня</div>
+        <div className="text-center text-sm text-amber-200/60 capitalize mb-5">{dateLabel}</div>
+
+        <Card className="glass-mystic border-amber-400/40" style={{ background: `linear-gradient(135deg, ${meditation.card.accent}15, rgba(26,10,58,0.7))` }}>
+          <CardContent className="pt-6">
+            <div className="flex flex-col sm:flex-row gap-5 items-center mb-5">
+              <div className="shrink-0">
+                <CardSVG card={meditation.card} width={140} height={224} className="rounded-xl shadow-2xl"/>
+              </div>
+              <div className="flex-1 text-center sm:text-left">
+                <h3 className="text-2xl font-bold text-gold-gradient mb-2" style={{ fontFamily: "var(--font-cinzel)" }}>
+                  {meditation.card.name}
+                </h3>
+                <div className="text-xs text-amber-200/60 mb-3">{meditation.card.keyword}</div>
+                <div className="glass-card rounded-lg p-3 border-amber-400/20 mb-3">
+                  <div className="text-xs text-amber-300/70 mb-1">✨ Аффирмация дня</div>
+                  <p className="text-sm text-amber-100 italic">{meditation.affirmation}</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="glass-card rounded-lg p-3 border-purple-400/20">
+                <div className="text-xs text-purple-300 mb-1">🧘 Медитация</div>
+                <p className="text-xs text-amber-100/80 leading-relaxed">{meditation.meditation}</p>
+              </div>
+              <div className="glass-card rounded-lg p-3 border-amber-400/20">
+                <div className="text-xs text-amber-300/70 mb-1">💡 Совет дня</div>
+                <p className="text-xs text-amber-100/80 leading-relaxed italic">{meditation.advice}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {!hasInput && (
+        <div className="max-w-2xl mx-auto mt-6 text-center text-sm text-amber-200/60">
+          ✦ Введите дату рождения выше, чтобы рассчитать личный аркан и аркан года.
+          Карта-медитация дня обновляется каждые сутки.
+        </div>
+      )}
     </div>
   )
 }
