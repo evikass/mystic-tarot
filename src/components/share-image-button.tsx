@@ -120,6 +120,7 @@ export function ShareImageButton({
 }: ShareImageButtonProps) {
   const [isGenerating, setIsGenerating] = useState(false)
   const [showDialog, setShowDialog] = useState(false)
+  const [shareFile, setShareFile] = useState<File | null>(null)
   const { toast } = useToast()
 
   const capturePng = async (): Promise<Blob | null> => {
@@ -146,28 +147,14 @@ export function ShareImageButton({
       const blob = await capturePng()
       if (!blob) throw new Error("capture failed")
 
+      // Always download the PNG first, then open our custom dialog with all 6 social networks.
+      // The native Web Share API is offered as an additional button inside the dialog
+      // (it previously bypassed the dialog on mobile, showing only installed apps).
       const file = new File([blob], `${filename}.png`, { type: "image/png" })
 
-      // On mobile with Web Share API support — share the file natively (best UX)
-      if (navigator.canShare && navigator.canShare({ files: [file] })) {
-        try {
-          await navigator.share({
-            files: [file],
-            title: filename,
-            text: textFallback,
-          })
-          setIsGenerating(false)
-          return
-        } catch (err) {
-          if (err instanceof Error && err.name === "AbortError") {
-            setIsGenerating(false)
-            return
-          }
-          // fall through to dialog
-        }
-      }
+      // Store the file in state so the native-share button in the dialog can use it
+      setShareFile(file)
 
-      // Desktop / no Web Share API: download the PNG, then open share dialog
       const url = URL.createObjectURL(blob)
       const a = document.createElement("a")
       a.href = url
@@ -184,6 +171,24 @@ export function ShareImageButton({
       toast({ title: "Не удалось сгенерировать картинку", description: "Попробуйте ещё раз.", variant: "destructive" })
     } finally {
       setIsGenerating(false)
+    }
+  }
+
+  const handleNativeShare = async () => {
+    if (!shareFile) return
+    if (navigator.canShare && navigator.canShare({ files: [shareFile] })) {
+      try {
+        await navigator.share({
+          files: [shareFile],
+          title: filename,
+          text: textFallback,
+        })
+      } catch (err) {
+        if (err instanceof Error && err.name === "AbortError") return
+        toast({ title: "Системный шаринг не удался", variant: "destructive" })
+      }
+    } else {
+      toast({ title: "Системный шаринг недоступен", description: "Используйте кнопки соцсетей выше." })
     }
   }
 
@@ -275,6 +280,9 @@ export function ShareImageButton({
           </div>
 
           <div className="flex gap-2 mt-4 flex-wrap">
+            <Button onClick={handleNativeShare} variant="outline" size="sm" className="border-amber-400/40 text-amber-200 hover:bg-amber-400/10">
+              <Share2 className="w-3.5 h-3.5 mr-1"/>Системный диалог
+            </Button>
             <Button onClick={handleDownloadAgain} variant="outline" size="sm" className="border-amber-400/40 text-amber-200 hover:bg-amber-400/10">
               <Download className="w-3.5 h-3.5 mr-1"/>Скачать PNG
             </Button>
@@ -284,8 +292,8 @@ export function ShareImageButton({
           </div>
 
           <p className="text-[11px] text-amber-200/50 mt-3 leading-relaxed">
-            💡 На мобильном картинка передаётся в соцсеть автоматически через системный диалог.
-            На десктопе — скачайте PNG и приложите его к посту вручную.
+            💡 Кнопки соцсетей открывают их сайт с готовым текстом — приложите скачанную картинку вручную.
+            Кнопка «Системный диалог» открывает нативное меню телефона (передаёт картинку автоматически).
           </p>
         </DialogContent>
       </Dialog>
