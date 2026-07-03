@@ -53,6 +53,8 @@ import {
   drawRunes,
   getMoonPhase,
   getMoonAdvice,
+  getMoonInfluence,
+  getLunarDay,
   moonPhases,
   type RuneDraw,
 } from "@/lib/runes-moon-data"
@@ -63,6 +65,14 @@ import {
   getWeekdayName,
   type DayFavorability,
 } from "@/lib/favorable-days"
+import {
+  getDailyHoroscope,
+  getWeeklyHoroscope,
+  getSignByBirthDate,
+  horoscopeSigns,
+  type HoroscopeCategory,
+  type HoroscopePeriod,
+} from "@/lib/horoscope-data"
 import {
   castIChing,
   getHexagram,
@@ -184,7 +194,7 @@ import {
   Dices,
 } from "lucide-react"
 
-type Section = "home" | "daily" | "readings" | "compatibility" | "psychology" | "history" | "success" | "moon" | "favorable" | "catalog" | "theme"
+type Section = "home" | "daily" | "readings" | "tarot-forecast" | "horoscope" | "compatibility" | "psychology" | "history" | "success" | "moon" | "favorable" | "catalog" | "theme"
 
 interface DrawnCard {
   card: TarotCard
@@ -203,6 +213,8 @@ export default function Home() {
   const navItems: { id: Section; label: string; icon: React.ReactNode }[] = [
     { id: "home", label: "Главная", icon: <Sparkles className="w-4 h-4"/> },
     { id: "daily", label: "Карта дня", icon: <Sun className="w-4 h-4"/> },
+    { id: "tarot-forecast", label: "Таро дня", icon: <Sparkles className="w-4 h-4"/> },
+    { id: "horoscope", label: "Гороскоп", icon: <Star className="w-4 h-4"/> },
     { id: "readings", label: "Расклады", icon: <Layers className="w-4 h-4"/> },
     { id: "catalog", label: "Каталог", icon: <BookOpen className="w-4 h-4"/> },
     { id: "compatibility", label: "Совместимость", icon: <Heart className="w-4 h-4"/> },
@@ -221,6 +233,8 @@ export default function Home() {
         <main className="flex-1 px-4 sm:px-6 pb-20 max-w-7xl mx-auto w-full">
           {section === "home" && <HomeSection onNavigate={setSection}/>}
           {section === "daily" && <DailyCardSection/>}
+          {section === "tarot-forecast" && <TarotForecastSection/>}
+          {section === "horoscope" && <HoroscopeSection/>}
           {section === "readings" && <ReadingsSection/>}
           {section === "compatibility" && <CompatibilitySection/>}
           {section === "psychology" && <PsychologySection/>}
@@ -440,6 +454,20 @@ function HomeSection({ onNavigate }: { onNavigate: (s: Section) => void }) {
             description="Ежедневная карта для фокуса, совета и настройки намерения. Получите энергию нового дня через мудрость арканов."
             onClick={() => onNavigate("daily")}
             accent="#fbbf24"
+          />
+          <FeatureCard
+            icon={<Sparkles className="w-7 h-7"/>}
+            title="Таро дня"
+            description="Три карты дня: Энергия, Совет и Предупреждение. Прогноз стабильный на сутки — можно вернуться в течение дня и перечитать."
+            onClick={() => onNavigate("tarot-forecast")}
+            accent="#a78bfa"
+          />
+          <FeatureCard
+            icon={<Star className="w-7 h-7"/>}
+            title="Гороскоп"
+            description="Прогноз на сегодня, завтра и неделю для каждого знака. 5 сфер: общий, любовь, карьера, финансы и здоровье. Автоопределение знака по дате рождения."
+            onClick={() => onNavigate("horoscope")}
+            accent="#f9a8d4"
           />
           <FeatureCard
             icon={<Layers className="w-7 h-7"/>}
@@ -3630,24 +3658,35 @@ function RunesSection() {
 function MoonSection() {
   const [moonData, setMoonData] = useState(() => getMoonPhase(new Date()))
   const advice = getMoonAdvice(moonData.phaseIndex)
+  const influence = getMoonInfluence(moonData.phaseIndex, moonData.zodiacSign)
+  const lunarDay = getLunarDay(new Date())
+
+  const influenceCards: { label: string; icon: string; text: string; color: string }[] = [
+    { label: "Настроение", icon: "🙂", text: influence.mood, color: "#fbbf24" },
+    { label: "Отношения", icon: "❤", text: influence.relationships, color: "#f9a8d4" },
+    { label: "Финансы", icon: "💰", text: influence.finance, color: "#86efac" },
+    { label: "Дела", icon: "📋", text: influence.affairs, color: "#7dd3fc" },
+    { label: "Здоровье", icon: "🌿", text: influence.health, color: "#c4b5fd" },
+  ]
 
   return (
     <div className="py-8">
       <div className="text-center mb-10">
         <div className="section-divider mb-6"><span>Лунный календарь</span></div>
         <h2 className="text-4xl sm:text-5xl font-bold mb-3 text-mystic-gradient inline-block" style={{ fontFamily: "var(--font-cinzel)", lineHeight: 1.25, paddingTop: "0.2em" }}>Фаза Луны</h2>
-        <p className="text-amber-200/70 max-w-2xl mx-auto">Текущая фаза Луны, знак зодиака Луны и рекомендации.</p>
+        <p className="text-amber-200/70 max-w-2xl mx-auto">Текущая фаза Луны, лунный день, знак зодиака Луны, влияние на 5 сфер жизни и рекомендации.</p>
       </div>
 
       <div className="max-w-2xl mx-auto space-y-4">
-        {/* Текущая фаза */}
+        {/* Текущая фаза + лунный день */}
         <Card className="glass-mystic border-amber-400/30 text-center" style={{ background: `linear-gradient(135deg, ${moonData.phase.color}20, rgba(26,10,58,0.6))` }}>
           <CardContent className="pt-8 pb-6">
             <div className="text-8xl mb-4">{moonData.phase.emoji}</div>
             <h3 className="text-3xl font-bold text-gold-gradient mb-2" style={{ fontFamily: "var(--font-cinzel)" }}>{moonData.phase.name}</h3>
-            <div className="flex justify-center gap-4 mt-3">
+            <div className="flex justify-center gap-2 mt-3 flex-wrap">
               <Badge variant="outline" className="border-amber-400/40 text-amber-200">Освещённость: {moonData.illumination}%</Badge>
               <Badge variant="outline" className="border-purple-400/40 text-purple-200">Луна в {moonData.zodiacSign}</Badge>
+              <Badge variant="outline" className="border-amber-400/40 text-amber-200">Лунный день: {lunarDay}</Badge>
             </div>
             {/* Прогресс-бар освещённости */}
             <div className="mt-4 max-w-xs mx-auto">
@@ -3659,10 +3698,38 @@ function MoonSection() {
         {/* Описание */}
         <Card className="glass-mystic border-amber-400/30">
           <CardContent className="pt-5">
-            <div className="text-xs uppercase tracking-wider text-amber-300 mb-2">Описание</div>
+            <div className="text-xs uppercase tracking-wider text-amber-300 mb-2">Описание фазы</div>
             <p className="text-amber-100/85 text-sm leading-relaxed">{moonData.phase.description}</p>
           </CardContent>
         </Card>
+
+        {/* Влияние на 5 сфер жизни (как на horo.mail.ru) */}
+        <div>
+          <div className="text-center text-xs uppercase tracking-wider text-amber-300 mb-3">Влияние Луны на 5 сфер жизни</div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {influenceCards.map((c, i) => (
+              <Card key={i} className="glass-mystic" style={{ borderColor: `${c.color}40` }}>
+                <CardContent className="pt-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-2xl">{c.icon}</span>
+                    <h4 className="text-sm font-bold" style={{ color: c.color }}>{c.label}</h4>
+                  </div>
+                  <p className="text-xs text-amber-100/80 leading-relaxed">{c.text}</p>
+                </CardContent>
+              </Card>
+            ))}
+            {/* Настроение занимает всю ширину на мобильных */}
+            <Card className="glass-mystic sm:col-span-2" style={{ borderColor: `${influenceCards[0].color}40` }}>
+              <CardContent className="pt-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-2xl">{influenceCards[0].icon}</span>
+                  <h4 className="text-sm font-bold" style={{ color: influenceCards[0].color }}>{influenceCards[0].label}</h4>
+                </div>
+                <p className="text-xs text-amber-100/80 leading-relaxed">{influenceCards[0].text}</p>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
 
         {/* Энергия */}
         <Card className="glass-card border-purple-400/20">
@@ -3943,6 +4010,354 @@ function FavorableDaysSection() {
       )}
     </div>
   )
+}
+
+// ===================== ГОРОСКОП =====================
+function HoroscopeSection() {
+  const today = new Date()
+  const [signId, setSignId] = useState<string>("aries")
+  const [period, setPeriod] = useState<HoroscopePeriod>("today")
+  const [category, setCategory] = useState<HoroscopeCategory>("general")
+  const [day, setDay] = useState("")
+  const [month, setMonth] = useState("")
+  const [year, setYear] = useState("")
+  const [autoDetected, setAutoDetected] = useState(false)
+
+  // Дата прогноза
+  const forecastDate = new Date(today)
+  if (period === "tomorrow") forecastDate.setDate(forecastDate.getDate() + 1)
+
+  const horoscope = getDailyHoroscope(signId, forecastDate, period)
+  const weekly = period === "week" ? getWeeklyHoroscope(signId, today) : null
+
+  const handleDetect = () => {
+    const d = parseInt(day), m = parseInt(month), y = parseInt(year)
+    if (!d || !m || !y) return
+    const id = getSignByBirthDate(d, m)
+    setSignId(id)
+    setAutoDetected(true)
+  }
+
+  const categoryLabels: { id: HoroscopeCategory; label: string; icon: string }[] = [
+    { id: "general", label: "Общий", icon: "✦" },
+    { id: "love", label: "Любовь", icon: "❤" },
+    { id: "career", label: "Карьера", icon: "💼" },
+    { id: "finance", label: "Финансы", icon: "💰" },
+    { id: "health", label: "Здоровье", icon: "🌿" },
+  ]
+
+  const periodLabels: { id: HoroscopePeriod; label: string }[] = [
+    { id: "today", label: "Сегодня" },
+    { id: "tomorrow", label: "Завтра" },
+    { id: "week", label: "Неделя" },
+  ]
+
+  const dateLabel = forecastDate.toLocaleDateString("ru-RU", {
+    weekday: "long", day: "numeric", month: "long", year: "numeric",
+  })
+
+  const sign = horoscopeSigns.find(s => s.id === signId)!
+  const currentText = horoscope.texts[category]
+
+  return (
+    <div className="py-8">
+      <div className="text-center mb-10">
+        <div className="section-divider mb-6"><span>Ежедневный гороскоп</span></div>
+        <h2 className="text-4xl sm:text-5xl font-bold mb-3 text-mystic-gradient inline-block" style={{ fontFamily: "var(--font-cinzel)", lineHeight: 1.25, paddingTop: "0.2em" }}>Гороскоп</h2>
+        <p className="text-amber-200/70 max-w-2xl mx-auto">
+          Прогноз на сегодня, завтра и неделю для каждого знака зодиака. 5 сфер: общий, любовь, карьера, финансы и здоровье.
+          Учитывается фаза Луны, знак Луны, нумерология даты и стихия знака.
+        </p>
+      </div>
+
+      {/* Авто-определение знака по дате рождения */}
+      <div className="max-w-2xl mx-auto mb-6">
+        <Card className="glass-mystic border-amber-400/30">
+          <CardContent className="pt-5">
+            <div className="text-xs uppercase tracking-wider text-amber-300 mb-3">Определить мой знак по дате рождения</div>
+            <div className="max-w-sm mx-auto grid grid-cols-3 gap-3 mb-3">
+              <div><label className="text-xs text-amber-200/70 mb-1 block">День</label><Input type="number" min="1" max="31" value={day} onChange={(e) => setDay(e.target.value)} placeholder="15" className="bg-purple-950/40 border-amber-400/30 text-amber-100 placeholder:text-amber-200/40 text-center"/></div>
+              <div><label className="text-xs text-amber-200/70 mb-1 block">Месяц</label><Input type="number" min="1" max="12" value={month} onChange={(e) => setMonth(e.target.value)} placeholder="08" className="bg-purple-950/40 border-amber-400/30 text-amber-100 placeholder:text-amber-200/40 text-center"/></div>
+              <div><label className="text-xs text-amber-200/70 mb-1 block">Год</label><Input type="number" min="1900" max="2100" value={year} onChange={(e) => setYear(e.target.value)} placeholder="1990" className="bg-purple-950/40 border-amber-400/30 text-amber-100 placeholder:text-amber-200/40 text-center"/></div>
+            </div>
+            <div className="text-center">
+              <Button onClick={handleDetect} className="btn-gold px-6 py-2">
+                <Star className="w-4 h-4 mr-2"/>Определить знак
+              </Button>
+            </div>
+            {autoDetected && (
+              <div className="text-center mt-3 text-sm text-emerald-300">✦ Ваш знак определён: <strong>{sign.name}</strong></div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Сетка выбора знака */}
+      <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-2 mb-6 max-w-4xl mx-auto">
+        {horoscopeSigns.map(s => (
+          <button
+            key={s.id}
+            onClick={() => { setSignId(s.id); setAutoDetected(false) }}
+            className={`flex flex-col items-center justify-center p-3 rounded-lg transition-all border ${
+              signId === s.id ? "scale-105" : "hover:scale-105 opacity-80 hover:opacity-100"
+            }`}
+            style={{
+              background: signId === s.id ? `${s.color}30` : "rgba(45, 27, 78, 0.4)",
+              borderColor: signId === s.id ? `${s.color}80` : "rgba(251, 191, 36, 0.2)",
+            }}
+          >
+            <div className="text-3xl mb-1" style={{ color: s.color }}>{s.symbol}</div>
+            <div className={`text-xs font-medium ${signId === s.id ? "text-amber-100" : "text-amber-200/70"}`}>{s.name}</div>
+          </button>
+        ))}
+      </div>
+
+      {/* Периоды */}
+      <div className="flex justify-center gap-2 mb-6">
+        {periodLabels.map(p => (
+          <Button
+            key={p.id}
+            variant={period === p.id ? "default" : "outline"}
+            size="sm"
+            onClick={() => setPeriod(p.id)}
+            className={period === p.id ? "btn-gold" : "border-amber-400/40 text-amber-200 hover:bg-amber-400/10"}
+          >
+            {p.label}
+          </Button>
+        ))}
+      </div>
+
+      {/* Прогноз */}
+      <div className="max-w-3xl mx-auto">
+        {/* Шапка прогноза */}
+        <Card className="glass-mystic border-amber-400/40 mb-4" style={{ background: `linear-gradient(135deg, ${sign.color}15, rgba(26,10,58,0.7))` }}>
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between flex-wrap gap-3">
+              <div className="flex items-center gap-3">
+                <div className="text-5xl" style={{ color: sign.color }}>{sign.symbol}</div>
+                <div>
+                  <h3 className="text-2xl font-bold text-gold-gradient" style={{ fontFamily: "var(--font-cinzel)" }}>{sign.name}</h3>
+                  <div className="text-xs text-amber-200/60">{sign.dateRange} · стихия {sign.element}</div>
+                </div>
+              </div>
+              <div className="text-right">
+                <div className="text-xs text-amber-200/60 capitalize">{dateLabel}</div>
+                {period !== "week" && (
+                  <Badge className="mt-1 border" style={{
+                    backgroundColor: currentText.rating >= 7 ? "rgba(16,185,129,0.2)" : currentText.rating >= 4 ? "rgba(251,191,36,0.2)" : "rgba(244,63,94,0.2)",
+                    color: currentText.rating >= 7 ? "#10b981" : currentText.rating >= 4 ? "#fbbf24" : "#f43f5e",
+                    borderColor: currentText.rating >= 7 ? "rgba(16,185,129,0.4)" : currentText.rating >= 4 ? "rgba(251,191,36,0.4)" : "rgba(244,63,94,0.4)",
+                  }}>
+                    Рейтинг дня: {currentText.rating}/10
+                  </Badge>
+                )}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Категории (только для дневных прогнозов) */}
+        {period !== "week" && (
+          <>
+            <Tabs value={category} onValueChange={(v) => setCategory(v as HoroscopeCategory)}>
+              <TabsList className="grid grid-cols-5 max-w-2xl mx-auto mb-4 bg-purple-950/40 border border-amber-400/20">
+                {categoryLabels.map(c => (
+                  <TabsTrigger key={c.id} value={c.id} className="data-[state=active]:bg-amber-400/20 data-[state=active]:text-amber-100 text-xs sm:text-sm">
+                    <span className="mr-1">{c.icon}</span>
+                    <span className="hidden sm:inline">{c.label}</span>
+                  </TabsTrigger>
+                ))}
+              </TabsList>
+
+              {categoryLabels.map(c => {
+                const t = horoscope.texts[c.id]
+                return (
+                  <TabsContent key={c.id} value={c.id}>
+                    <Card className="glass-mystic border-amber-400/30 animate-fade-in">
+                      <CardContent className="pt-5 space-y-4">
+                        <div className="flex items-center gap-3 flex-wrap">
+                          <h4 className="text-lg font-bold text-amber-100" style={{ fontFamily: "var(--font-cinzel)" }}>
+                            {c.icon} {t.title}
+                          </h4>
+                          <Badge variant="outline" className="border-amber-400/40 text-amber-200">{t.rating}/10</Badge>
+                        </div>
+                        <p className="text-sm sm:text-base text-amber-100/85 leading-relaxed">{t.text}</p>
+                        {t.luckyItem && (
+                          <div className="glass-card rounded-lg p-3 border-amber-400/20">
+                            <div className="text-xs text-amber-300/70 mb-1">✦ Счастливый предмет дня</div>
+                            <div className="text-sm text-amber-100">{t.luckyItem}</div>
+                          </div>
+                        )}
+                        <div className="glass-card rounded-lg p-3 border-purple-400/20">
+                          <div className="text-xs text-purple-300 mb-1">💡 Совет дня</div>
+                          <p className="text-sm text-amber-100/85 italic">{t.advice}</p>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
+                )
+              })}
+            </Tabs>
+          </>
+        )}
+
+        {/* Недельный прогноз */}
+        {period === "week" && weekly && (
+          <div className="space-y-4 animate-fade-in">
+            <Card className="glass-mystic border-amber-400/30">
+              <CardContent className="pt-5">
+                <h4 className="text-lg font-bold text-amber-100 mb-3" style={{ fontFamily: "var(--font-cinzel)" }}>
+                  {weekly.title}
+                </h4>
+                <p className="text-sm text-amber-100/85 leading-relaxed mb-3">{weekly.summary}</p>
+                <p className="text-sm text-amber-100/85 leading-relaxed">{weekly.text}</p>
+              </CardContent>
+            </Card>
+
+            <Card className="glass-mystic border-amber-400/30">
+              <CardContent className="pt-5">
+                <div className="text-xs uppercase tracking-wider text-amber-300 mb-3">Рейтинги дней недели</div>
+                <div className="grid grid-cols-7 gap-2">
+                  {weekly.ratings.map((r, i) => (
+                    <div key={i} className="text-center p-2 rounded-lg" style={{
+                      background: r.rating >= 7 ? "rgba(16,185,129,0.2)" : r.rating >= 4 ? "rgba(251,191,36,0.15)" : "rgba(244,63,94,0.15)",
+                      border: `1px solid ${r.rating >= 7 ? "rgba(16,185,129,0.4)" : r.rating >= 4 ? "rgba(251,191,36,0.3)" : "rgba(244,63,94,0.3)"}`,
+                    }}>
+                      <div className="text-[10px] text-amber-200/60">{r.weekday.slice(0, 2)}</div>
+                      <div className="text-xs font-bold text-amber-100">{r.day.getDate()}</div>
+                      <div className="text-xs mt-1" style={{ color: r.rating >= 7 ? "#10b981" : r.rating >= 4 ? "#fbbf24" : "#f43f5e" }}>{r.rating}</div>
+                    </div>
+                  ))}
+                </div>
+                {weekly.bestDay && weekly.worstDay && (
+                  <div className="grid grid-cols-2 gap-3 mt-4">
+                    <div className="glass-card rounded-lg p-3 border-emerald-400/20">
+                      <div className="text-xs text-emerald-300 mb-1">✦ Лучший день</div>
+                      <div className="text-sm font-bold text-amber-100">{weekly.bestDay.weekday}, {weekly.bestDay.day.getDate()}</div>
+                      <div className="text-xs text-emerald-200">Рейтинг {weekly.bestDay.rating}/10</div>
+                    </div>
+                    <div className="glass-card rounded-lg p-3 border-rose-400/20">
+                      <div className="text-xs text-rose-300 mb-1">⚠ Сложный день</div>
+                      <div className="text-sm font-bold text-amber-100">{weekly.worstDay.weekday}, {weekly.worstDay.day.getDate()}</div>
+                      <div className="text-xs text-rose-200">Рейтинг {weekly.worstDay.rating}/10</div>
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
+// ===================== ТАРО-ПРОГНОЗ ДНЯ (3 карты) =====================
+function TarotForecastSection() {
+  const today = new Date()
+  const [forecast, setForecast] = useState(() => drawTarotForecast(today))
+  const [revealedIndexes, setRevealedIndexes] = useState<number[]>([])
+
+  const redraw = () => {
+    setForecast(drawTarotForecast(today))
+    setRevealedIndexes([])
+  }
+
+  const revealCard = (i: number) => {
+    if (!revealedIndexes.includes(i)) setRevealedIndexes([...revealedIndexes, i])
+  }
+
+  const allRevealed = revealedIndexes.length === 3
+  const dateLabel = today.toLocaleDateString("ru-RU", { weekday: "long", day: "numeric", month: "long", year: "numeric" })
+
+  return (
+    <div className="py-8">
+      <div className="text-center mb-10">
+        <div className="section-divider mb-6"><span>Таро-прогноз дня</span></div>
+        <h2 className="text-4xl sm:text-5xl font-bold mb-3 text-mystic-gradient inline-block" style={{ fontFamily: "var(--font-cinzel)", lineHeight: 1.25, paddingTop: "0.2em" }}>Таро дня</h2>
+        <p className="text-amber-200/70 max-w-2xl mx-auto">
+          Три карты дня: <strong>Энергия</strong> (что наполняет день), <strong>Совет</strong> (как действовать) и <strong>Предупреждение</strong> (чего избегать).
+        </p>
+      </div>
+
+      <div className="text-center text-sm text-amber-200/60 capitalize mb-6">{dateLabel}</div>
+
+      <div className="flex flex-wrap justify-center gap-6 mb-8">
+        {forecast.map((f, i) => {
+          const revealed = revealedIndexes.includes(i)
+          return (
+            <div key={i} className="flex flex-col items-center">
+              <div className="text-xs uppercase tracking-wider text-amber-200/70 mb-2">{f.position}</div>
+              <TarotCardView
+                card={f.card}
+                isReversed={f.isReversed}
+                revealed={revealed}
+                onReveal={() => revealCard(i)}
+                width={160}
+                height={256}
+              />
+            </div>
+          )
+        })}
+      </div>
+
+      {allRevealed && (
+        <div className="max-w-3xl mx-auto animate-fade-in space-y-3">
+          {forecast.map((f, i) => (
+            <Card key={i} className="glass-mystic border-amber-400/20">
+              <CardContent className="p-5">
+                <div className="flex items-center gap-3 mb-2 flex-wrap">
+                  <Badge variant="outline" className="border-amber-400/40 text-amber-200 text-xs">{f.position}</Badge>
+                  <h4 className="text-lg font-bold text-amber-100">
+                    {f.card.name}
+                    {f.isReversed && <span className="ml-2 text-xs text-rose-300">(перевёрнута)</span>}
+                  </h4>
+                </div>
+                <p className="text-sm text-amber-100/80 leading-relaxed">
+                  {f.isReversed ? f.card.reversed.summary : f.card.upright.summary}
+                </p>
+                <p className="text-xs text-amber-200/60 italic mt-2">{f.hint}</p>
+              </CardContent>
+            </Card>
+          ))}
+          <div className="text-center">
+            <Button onClick={redraw} variant="outline" className="border-amber-400/40 text-amber-200 hover:bg-amber-400/10">
+              <Sparkles className="w-4 h-4 mr-2"/>Новый прогноз
+            </Button>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+// Детерминированный 3-карточный прогноз Таро на день
+function drawTarotForecast(date: Date) {
+  // Простая детерминированная выборка 3 карт по дате
+  const dateStr = date.toISOString().slice(0, 10)
+  let seed = 0
+  for (let i = 0; i < dateStr.length; i++) seed = ((seed << 5) - seed) + dateStr.charCodeAt(i)
+  seed = Math.abs(seed)
+
+  const positions = ["Энергия дня", "Совет дня", "Предупреждение"]
+  const hints = [
+    "Эта карта показывает, какая энергия будет наполнять ваш день.",
+    "Эта карта подсказывает, как лучше действовать сегодня.",
+    "Эта карта указывает, на что обратить внимание и чего избегать.",
+  ]
+
+  // 3 разные карты без повторов
+  const used = new Set<number>()
+  const cards: { card: typeof allTarotCards[0]; isReversed: boolean; position: string; hint: string }[] = []
+  for (let i = 0; i < 3; i++) {
+    let idx = (seed + i * 17) % allTarotCards.length
+    while (used.has(idx)) idx = (idx + 1) % allTarotCards.length
+    used.add(idx)
+    const card = allTarotCards[idx]
+    const isReversed = ((seed >> (i + 1)) & 1) === 1
+    cards.push({ card, isReversed, position: positions[i], hint: hints[i] })
+  }
+  return cards
 }
 
 // ===================== CATALOG (КАТАЛОГ 78 КАРТ) =====================
