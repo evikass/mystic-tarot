@@ -209,7 +209,7 @@ import {
   Dices,
 } from "lucide-react"
 
-type Section = "home" | "daily" | "readings" | "tarot-forecast" | "horoscope" | "arcana" | "compatibility" | "psychology" | "history" | "success" | "moon" | "favorable" | "catalog" | "theme"
+type Section = "home" | "daily" | "readings" | "tarot-forecast" | "compatibility" | "psychology" | "history" | "success" | "catalog" | "theme"
 
 interface DrawnCard {
   card: TarotCard
@@ -229,14 +229,10 @@ export default function Home() {
     { id: "home", label: "Главная", icon: <Sparkles className="w-4 h-4"/> },
     { id: "daily", label: "Карта дня", icon: <Sun className="w-4 h-4"/> },
     { id: "tarot-forecast", label: "Таро дня", icon: <Sparkles className="w-4 h-4"/> },
-    { id: "horoscope", label: "Гороскоп", icon: <Star className="w-4 h-4"/> },
-    { id: "arcana", label: "Арканы", icon: <Crown className="w-4 h-4"/> },
     { id: "readings", label: "Расклады", icon: <Layers className="w-4 h-4"/> },
     { id: "catalog", label: "Каталог", icon: <BookOpen className="w-4 h-4"/> },
     { id: "compatibility", label: "Совместимость", icon: <Heart className="w-4 h-4"/> },
     { id: "psychology", label: "Психология", icon: <Brain className="w-4 h-4"/> },
-    { id: "moon", label: "Луна", icon: <Moon className="w-4 h-4"/> },
-    { id: "favorable", label: "Дни", icon: <Calendar className="w-4 h-4"/> },
     { id: "success", label: "14 Шагов", icon: <Target className="w-4 h-4"/> },
     { id: "history", label: "История", icon: <History className="w-4 h-4"/> },
   ]
@@ -250,13 +246,9 @@ export default function Home() {
           {section === "home" && <HomeSection onNavigate={setSection}/>}
           {section === "daily" && <DailyCardSection/>}
           {section === "tarot-forecast" && <TarotForecastSection/>}
-          {section === "horoscope" && <HoroscopeSection/>}
-          {section === "arcana" && <ArcanaSection/>}
           {section === "readings" && <ReadingsSection/>}
           {section === "compatibility" && <CompatibilitySection/>}
           {section === "psychology" && <PsychologySection/>}
-          {section === "moon" && <MoonSection/>}
-          {section === "favorable" && <FavorableDaysSection/>}
           {section === "catalog" && <CatalogSection/>}
           {section === "success" && <SuccessStepsSection/>}
           {section === "history" && <HistorySection/>}
@@ -480,23 +472,9 @@ function HomeSection({ onNavigate }: { onNavigate: (s: Section) => void }) {
             accent="#a78bfa"
           />
           <FeatureCard
-            icon={<Star className="w-7 h-7"/>}
-            title="Гороскоп"
-            description="Прогноз на сегодня, завтра, неделю и год для каждого знака. 5 сфер: общий, любовь, карьера, финансы и здоровье. Годовой прогноз с 12 месяцами."
-            onClick={() => onNavigate("horoscope")}
-            accent="#f9a8d4"
-          />
-          <FeatureCard
-            icon={<Crown className="w-7 h-7"/>}
-            title="Арканы"
-            description="Личный аркан по дате рождения (характер и задача души), аркан года (тема текущего года) и карта-медитация дня с аффирмацией."
-            onClick={() => onNavigate("arcana")}
-            accent="#fde68a"
-          />
-          <FeatureCard
             icon={<Layers className="w-7 h-7"/>}
             title="Расклады"
-            description="Таро (3 карты, Кельтский крест, Да/Нет, Два пути), руны Старшего Футарка, И-Цзин (64 гексаграммы), биоритмы и психоматрица Александрова — все расклады и гадания в одном разделе."
+            description="Все инструменты в одном месте: Таро (3 карты, Кельтский крест, Да/Нет, Два пути), руны, И-Цзин, гороскоп на день/неделю/год, личные арканы по дате рождения, лунный календарь с 5 сферами влияния, календарь благоприятных дней, биоритмы и психоматрица Александрова."
             onClick={() => onNavigate("readings")}
             accent="#a78bfa"
           />
@@ -515,18 +493,11 @@ function HomeSection({ onNavigate }: { onNavigate: (s: Section) => void }) {
             accent="#7dd3fc"
           />
           <FeatureCard
-            icon={<Calendar className="w-7 h-7"/>}
-            title="Благоприятные дни"
-            description="Календарь по знаку зодиака: день управителя, лунная фаза, нумерология даты и стихия — оценка каждого дня и топ благоприятных дат месяца."
-            onClick={() => onNavigate("favorable")}
-            accent="#86efac"
-          />
-          <FeatureCard
             icon={<History className="w-7 h-7"/>}
             title="История"
             description="Все ваши расклады сохраняются локально на устройстве. Возвращайтесь к ним, чтобы отследить динамику пути."
             onClick={() => onNavigate("history")}
-            accent="#c4b5fd"
+            accent="#86efac"
           />
           <FeatureCard
             icon={<Target className="w-7 h-7"/>}
@@ -845,7 +816,7 @@ function DailyCardSection() {
 // ===================== READINGS =====================
 function ReadingsSection() {
   const [readingType, setReadingType] = useState<
-    "three-card" | "celtic-cross" | "yes-no" | "two-paths" | "runes" | "iching" | "biorhythms" | "psychomatrix"
+    "three-card" | "celtic-cross" | "yes-no" | "two-paths" | "horoscope" | "arcana" | "moon" | "favorable" | "runes" | "iching" | "biorhythms" | "psychomatrix"
   >("three-card")
 
   return (
@@ -861,13 +832,13 @@ function ReadingsSection() {
           Расклады
         </h2>
         <p className="text-amber-200/70 max-w-2xl mx-auto">
-          Таро, руны, И-Цзин и нумерологические расчёты в одном месте. Выберите инструмент —
-          от быстрого ответа «Да/Нет» до глубокого анализа через Кельтский крест или психоматрицу.
+          Все инструменты в одном месте: Таро, руны, И-Цзин, гороскоп, арканы,
+          лунный календарь, биоритмы и нумерологические расчёты.
         </p>
       </div>
 
       <Tabs value={readingType} onValueChange={(v) => setReadingType(v as typeof readingType)}>
-        <TabsList className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 max-w-5xl mx-auto mb-8 bg-purple-950/40 border border-amber-400/20">
+        <TabsList className="grid grid-cols-3 sm:grid-cols-6 lg:grid-cols-12 max-w-6xl mx-auto mb-8 bg-purple-950/40 border border-amber-400/20">
           <TabsTrigger value="three-card" className="data-[state=active]:bg-amber-400/20 data-[state=active]:text-amber-100 text-xs sm:text-sm">
             <Layers className="w-3.5 h-3.5 mr-1"/>
             3 карты
@@ -883,6 +854,22 @@ function ReadingsSection() {
           <TabsTrigger value="two-paths" className="data-[state=active]:bg-amber-400/20 data-[state=active]:text-amber-100 text-xs sm:text-sm">
             <ArrowRight className="w-3.5 h-3.5 mr-1"/>
             Два пути
+          </TabsTrigger>
+          <TabsTrigger value="horoscope" className="data-[state=active]:bg-amber-400/20 data-[state=active]:text-amber-100 text-xs sm:text-sm">
+            <Star className="w-3.5 h-3.5 mr-1"/>
+            Гороскоп
+          </TabsTrigger>
+          <TabsTrigger value="arcana" className="data-[state=active]:bg-amber-400/20 data-[state=active]:text-amber-100 text-xs sm:text-sm">
+            <Crown className="w-3.5 h-3.5 mr-1"/>
+            Арканы
+          </TabsTrigger>
+          <TabsTrigger value="moon" className="data-[state=active]:bg-amber-400/20 data-[state=active]:text-amber-100 text-xs sm:text-sm">
+            <Moon className="w-3.5 h-3.5 mr-1"/>
+            Луна
+          </TabsTrigger>
+          <TabsTrigger value="favorable" className="data-[state=active]:bg-amber-400/20 data-[state=active]:text-amber-100 text-xs sm:text-sm">
+            <Calendar className="w-3.5 h-3.5 mr-1"/>
+            Дни
           </TabsTrigger>
           <TabsTrigger value="runes" className="data-[state=active]:bg-amber-400/20 data-[state=active]:text-amber-100 text-xs sm:text-sm">
             <Flame className="w-3.5 h-3.5 mr-1"/>
@@ -913,6 +900,18 @@ function ReadingsSection() {
         </TabsContent>
         <TabsContent value="two-paths">
           <TwoPathsReading/>
+        </TabsContent>
+        <TabsContent value="horoscope">
+          <HoroscopeSection/>
+        </TabsContent>
+        <TabsContent value="arcana">
+          <ArcanaSection/>
+        </TabsContent>
+        <TabsContent value="moon">
+          <MoonSection/>
+        </TabsContent>
+        <TabsContent value="favorable">
+          <FavorableDaysSection/>
         </TabsContent>
         <TabsContent value="runes">
           <RunesSection/>
@@ -3928,12 +3927,10 @@ function MoonSection() {
   ]
 
   return (
-    <div className="py-8">
-      <div className="text-center mb-10">
-        <div className="section-divider mb-6"><span>Лунный календарь</span></div>
-        <h2 className="text-4xl sm:text-5xl font-bold mb-3 text-mystic-gradient inline-block" style={{ fontFamily: "var(--font-cinzel)", lineHeight: 1.25, paddingTop: "0.2em" }}>Фаза Луны</h2>
-        <p className="text-amber-200/70 max-w-2xl mx-auto">Текущая фаза Луны, лунный день, знак зодиака Луны, влияние на 5 сфер жизни и рекомендации.</p>
-      </div>
+    <div>
+      <p className="text-center text-amber-200/70 max-w-2xl mx-auto mb-6 text-sm">
+        Текущая фаза Луны, лунный день, знак зодиака Луны, влияние на 5 сфер жизни и рекомендации.
+      </p>
 
       <div className="max-w-2xl mx-auto space-y-4">
         {/* Текущая фаза + лунный день */}
@@ -4105,15 +4102,11 @@ function FavorableDaysSection() {
   const advice = selectedDay ? getDayAdvice(selectedDay) : null
 
   return (
-    <div className="py-8">
-      <div className="text-center mb-10">
-        <div className="section-divider mb-6"><span>Календарь благоприятных дней</span></div>
-        <h2 className="text-4xl sm:text-5xl font-bold mb-3 text-mystic-gradient inline-block" style={{ fontFamily: "var(--font-cinzel)", lineHeight: 1.25, paddingTop: "0.2em" }}>Благоприятные дни</h2>
-        <p className="text-amber-200/70 max-w-2xl mx-auto">
-          Календарь рассчитывает благоприятность каждого дня по вашему знаку зодиака:
-          учитываются день управителя знака, лунная фаза, нумерология даты и стихия.
-        </p>
-      </div>
+    <div>
+      <p className="text-center text-amber-200/70 max-w-2xl mx-auto mb-6 text-sm">
+        Календарь рассчитывает благоприятность каждого дня по вашему знаку зодиака:
+        учитываются день управителя знака, лунная фаза, нумерология даты и стихия.
+      </p>
 
       {/* Ввод даты рождения для определения знака */}
       <div className="max-w-2xl mx-auto mb-8">
@@ -4322,15 +4315,11 @@ function HoroscopeSection() {
   const currentText = horoscope.texts[category]
 
   return (
-    <div className="py-8">
-      <div className="text-center mb-10">
-        <div className="section-divider mb-6"><span>Ежедневный гороскоп</span></div>
-        <h2 className="text-4xl sm:text-5xl font-bold mb-3 text-mystic-gradient inline-block" style={{ fontFamily: "var(--font-cinzel)", lineHeight: 1.25, paddingTop: "0.2em" }}>Гороскоп</h2>
-        <p className="text-amber-200/70 max-w-2xl mx-auto">
-          Прогноз на сегодня, завтра и неделю для каждого знака зодиака. 5 сфер: общий, любовь, карьера, финансы и здоровье.
-          Учитывается фаза Луны, знак Луны, нумерология даты и стихия знака.
-        </p>
-      </div>
+    <div>
+      <p className="text-center text-amber-200/70 max-w-2xl mx-auto mb-6 text-sm">
+        Прогноз на сегодня, завтра и неделю для каждого знака зодиака. 5 сфер: общий, любовь, карьера, финансы и здоровье.
+        Учитывается фаза Луны, знак Луны, нумерология даты и стихия знака.
+      </p>
 
       {/* Авто-определение знака по дате рождения */}
       <div className="max-w-2xl mx-auto mb-6">
@@ -4628,15 +4617,11 @@ function ArcanaSection() {
   const dateLabel = today.toLocaleDateString("ru-RU", { weekday: "long", day: "numeric", month: "long", year: "numeric" })
 
   return (
-    <div className="py-8">
-      <div className="text-center mb-10">
-        <div className="section-divider mb-6"><span>Личные арканы Таро</span></div>
-        <h2 className="text-4xl sm:text-5xl font-bold mb-3 text-mystic-gradient inline-block" style={{ fontFamily: "var(--font-cinzel)", lineHeight: 1.25, paddingTop: "0.2em" }}>Арканы</h2>
-        <p className="text-amber-200/70 max-w-2xl mx-auto">
-          Личный аркан по дате рождения (характер и задача души), аркан года (тема текущего года)
-          и карта-медитация дня с аффирмацией.
-        </p>
-      </div>
+    <div>
+      <p className="text-center text-amber-200/70 max-w-2xl mx-auto mb-6 text-sm">
+        Личный аркан по дате рождения (характер и задача души), аркан года (тема текущего года)
+        и карта-медитация дня с аффирмацией.
+      </p>
 
       {/* Ввод даты рождения */}
       <div className="max-w-2xl mx-auto mb-8">
