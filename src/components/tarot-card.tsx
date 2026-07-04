@@ -19,28 +19,18 @@ interface TarotCardViewProps {
   premium?: boolean
 }
 
-// Stable sparkle positions per card (avoids re-randomizing on every render)
-const SPARKLE_SLOTS = [
-  { x: 10, y: 20, delay: 0, symbol: "✦" },
-  { x: 85, y: 15, delay: 0.5, symbol: "✧" },
-  { x: 50, y: 8, delay: 1.0, symbol: "✦" },
-  { x: 15, y: 75, delay: 1.5, symbol: "✧" },
-  { x: 90, y: 80, delay: 2.0, symbol: "✦" },
-  { x: 75, y: 50, delay: 0.8, symbol: "✧" },
-  { x: 25, y: 50, delay: 1.3, symbol: "✦" },
-]
-
 /**
- * Premium animated tarot card with:
- *  - 3D flip on reveal (rotateY)
- *  - 3D tilt-on-hover (card follows mouse / touch)
- *  - Holographic shimmer sweep (continuous)
- *  - Animated glow ring border (on hover)
- *  - Rotating conic-gradient aura (behind card)
- *  - Floating sparkle particles (when revealed)
- *  - Reveal burst flash (one-shot when flipping)
- *  - Foil/rainbow overlay on face
- *  - Card-deal entrance animation
+ * Premium animated tarot card — Hearthstone / Marvel Snap style.
+ *
+ * Key design principles (vs the previous jittery version):
+ *  - Smooth lerp-based tilt via requestAnimationFrame (no abrupt jumps)
+ *  - Subtle idle float (gentle breathing, ±2px)
+ *  - Reduced tilt range (±8° instead of ±12°) — feels premium, not gimmicky
+ *  - Specular highlight follows the tilt direction (fake light source)
+ *  - Glow ring + aura only on revealed cards (less visual noise)
+ *  - Fewer sparkles (3 instead of 7), longer life
+ *  - Slower shimmer sweep (4s instead of 2.5s)
+ *  - Inner content parallax (face moves slightly with tilt for depth)
  */
 export function TarotCardView({
   card,
@@ -55,12 +45,16 @@ export function TarotCardView({
   premium = true,
 }: TarotCardViewProps) {
   const containerRef = useRef<HTMLDivElement>(null)
-  const [tilt, setTilt] = useState({ x: 0, y: 0 })
+  // Target tilt (where the mouse is)
+  const targetTilt = useRef({ x: 0, y: 0 })
+  // Current tilt (smoothly interpolated)
+  const [currentTilt, setCurrentTilt] = useState({ x: 0, y: 0 })
   const [isHovering, setIsHovering] = useState(false)
   const [showBurst, setShowBurst] = useState(false)
   const [wasRevealed, setWasRevealed] = useState(false)
+  const rafRef = useRef<number | null>(null)
 
-  // Trigger reveal burst once when card flips to revealed
+  // Reveal burst trigger
   useEffect(() => {
     if (revealed && !wasRevealed) {
       setWasRevealed(true)
@@ -73,13 +67,35 @@ export function TarotCardView({
     }
   }, [revealed, wasRevealed])
 
+  // Smooth lerp animation loop
+  useEffect(() => {
+    if (!premium) return
+    const animate = () => {
+      setCurrentTilt(prev => {
+        // Lerp factor 0.12 = smooth but responsive
+        const lerp = 0.12
+        const nx = prev.x + (targetTilt.current.x - prev.x) * lerp
+        const ny = prev.y + (targetTilt.current.y - prev.y) * lerp
+        // Snap to zero when very close (avoids endless micro-updates)
+        if (Math.abs(nx) < 0.05 && Math.abs(ny) < 0.05 && Math.abs(targetTilt.current.x) < 0.05 && Math.abs(targetTilt.current.y) < 0.05) {
+          return { x: 0, y: 0 }
+        }
+        return { x: nx, y: ny }
+      })
+      rafRef.current = requestAnimationFrame(animate)
+    }
+    rafRef.current = requestAnimationFrame(animate)
+    return () => {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current)
+    }
+  }, [premium])
+
   const handleClick = () => {
     if (!revealed && onReveal) {
       onReveal()
     }
   }
 
-  // Mouse move → 3D tilt
   const handleMouseMove = (e: React.MouseEvent) => {
     if (!premium || !containerRef.current) return
     const rect = containerRef.current.getBoundingClientRect()
@@ -87,11 +103,11 @@ export function TarotCardView({
     const cy = rect.top + rect.height / 2
     const dx = (e.clientX - cx) / (rect.width / 2)
     const dy = (e.clientY - cy) / (rect.height / 2)
-    // Clamp and scale
-    setTilt({
-      x: Math.max(-1, Math.min(1, dy)) * -12,  // rotateX: -12 to 12 deg
-      y: Math.max(-1, Math.min(1, dx)) * 12,   // rotateY: -12 to 12 deg
-    })
+    // Reduced range for premium feel (±8°)
+    targetTilt.current = {
+      x: Math.max(-1, Math.min(1, dy)) * -8,
+      y: Math.max(-1, Math.min(1, dx)) * 8,
+    }
   }
 
   const handleMouseEnter = () => {
@@ -101,13 +117,17 @@ export function TarotCardView({
   const handleMouseLeave = () => {
     if (premium) {
       setIsHovering(false)
-      setTilt({ x: 0, y: 0 })
+      targetTilt.current = { x: 0, y: 0 }
     }
   }
 
-  // Combined transform: tilt + flip
+  // Combined transform: idle float + tilt + flip
   const flipRotation = revealed ? 180 : 0
-  const innerTransform = `rotateX(${tilt.x}deg) rotateY(${flipRotation + tilt.y}deg)`
+  const innerTransform = `rotateX(${currentTilt.x}deg) rotateY(${flipRotation + currentTilt.y}deg)`
+
+  // Specular highlight position (fake light from top-left)
+  const specularX = 50 - currentTilt.y * 2  // moves opposite to tilt
+  const specularY = 50 + currentTilt.x * 2
 
   return (
     <div className={cn("flex flex-col items-center", className)} style={{ width }}>
@@ -119,7 +139,7 @@ export function TarotCardView({
 
       <div
         ref={containerRef}
-        className={cn("relative cursor-pointer group", premium && "premium-card-container")}
+        className={cn("relative cursor-pointer group premium-card-float", premium && "premium-card-container")}
         style={{
           width,
           height,
@@ -129,21 +149,23 @@ export function TarotCardView({
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
       >
-        {/* Glow ring (behind card, visible on hover) */}
-        {premium && <div className="glow-ring" style={{ borderRadius: "0.75rem" }}/>}
+        {/* Glow ring (behind card) — only on hover, subtle */}
+        {premium && isHovering && (
+          <div className="glow-ring" style={{ borderRadius: "0.75rem" }}/>
+        )}
 
-        {/* Rotating aura (behind card, when revealed) */}
-        {premium && (
-          <div className={cn("card-aura", revealed && "active")}/>
+        {/* Rotating aura — only when revealed */}
+        {premium && revealed && (
+          <div className="card-aura active"/>
         )}
 
         {/* The 3D-flipping inner element */}
         <div
-          className="absolute inset-0 transition-transform duration-700 ease-out"
+          className="absolute inset-0"
           style={{
             transformStyle: "preserve-3d",
             transform: innerTransform,
-            transitionDuration: isHovering ? "100ms" : "700ms",
+            transition: "transform 0.4s ease-out",
           }}
         >
           {/* ============ CARD BACK ============ */}
@@ -161,9 +183,18 @@ export function TarotCardView({
             }}
           >
             <CardBack width={width} height={height} className="rounded-xl shadow-2xl shadow-purple-900/50"/>
-            {/* Animated shimmer on back when not revealed */}
+            {/* Slow shimmer on back */}
             {!revealed && premium && (
-              <div className="holo-shimmer active" style={{ borderRadius: "0.75rem" }}/>
+              <div className="holo-shimmer holo-slow" style={{ borderRadius: "0.75rem" }}/>
+            )}
+            {/* Specular highlight on back */}
+            {!revealed && premium && isHovering && (
+              <div
+                className="specular-highlight"
+                style={{
+                  background: `radial-gradient(circle at ${specularX}% ${specularY}%, rgba(255,255,255,0.25) 0%, transparent 40%)`,
+                }}
+              />
             )}
           </div>
 
@@ -191,9 +222,18 @@ export function TarotCardView({
                 />
                 {/* Foil/rainbow overlay on face */}
                 {premium && <div className="foil-overlay"/>}
-                {/* Holographic shimmer sweep on face */}
+                {/* Slow holographic shimmer on face */}
                 {premium && revealed && (
-                  <div className="holo-shimmer active" style={{ borderRadius: "0.75rem" }}/>
+                  <div className="holo-shimmer holo-slow" style={{ borderRadius: "0.75rem" }}/>
+                )}
+                {/* Specular highlight that follows tilt */}
+                {premium && revealed && (
+                  <div
+                    className="specular-highlight"
+                    style={{
+                      background: `radial-gradient(circle at ${specularX}% ${specularY}%, rgba(255,255,255,0.2) 0%, transparent 45%)`,
+                    }}
+                  />
                 )}
                 {/* Reveal burst flash */}
                 {showBurst && <div className="reveal-burst"/>}
@@ -202,18 +242,22 @@ export function TarotCardView({
           </div>
         </div>
 
-        {/* Floating sparkle particles (when revealed) */}
+        {/* Floating sparkle particles — fewer and slower */}
         {premium && revealed && (
           <div className="absolute inset-0 pointer-events-none overflow-visible" style={{ zIndex: 10 }}>
-            {SPARKLE_SLOTS.map((s, i) => (
+            {[
+              { x: 20, y: 30, delay: 0, symbol: "✦" },
+              { x: 80, y: 25, delay: 1.2, symbol: "✧" },
+              { x: 50, y: 15, delay: 2.4, symbol: "✦" },
+            ].map((s, i) => (
               <span
                 key={i}
-                className="sparkle-particle"
+                className="sparkle-particle sparkle-slow"
                 style={{
                   left: `${s.x}%`,
                   top: `${s.y}%`,
                   animationDelay: `${s.delay}s`,
-                  fontSize: "14px",
+                  fontSize: "12px",
                 }}
               >
                 {s.symbol}

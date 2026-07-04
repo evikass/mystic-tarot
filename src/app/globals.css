@@ -484,101 +484,125 @@ body {
    PREMIUM TAROT CARD ANIMATIONS
    ========================================= */
 
+/* Subtle idle float — gentle breathing, ±2px, like a card hovering in a game */
+@keyframes premium-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+.premium-card-float {
+  animation: premium-float 4s ease-in-out infinite;
+}
+
+/* Specular highlight that follows the cursor tilt (fake light source) */
+.specular-highlight {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  border-radius: inherit;
+  transition: background 0.1s ease-out;
+}
+
 /* Holographic shimmer sweep across card surface */
 @keyframes holo-shimmer {
-  0% { transform: translateX(-150%) rotate(25deg); opacity: 0; }
-  20% { opacity: 0.7; }
-  60% { opacity: 0.5; }
-  100% { transform: translateX(150%) rotate(25deg); opacity: 0; }
+  0% { transform: translateX(-150%) rotate(20deg); opacity: 0; }
+  15% { opacity: 0.6; }
+  85% { opacity: 0.4; }
+  100% { transform: translateX(150%) rotate(20deg); opacity: 0; }
 }
 .holo-shimmer {
   position: absolute;
   inset: 0;
   background: linear-gradient(
     115deg,
-    transparent 30%,
-    rgba(255, 255, 255, 0.15) 45%,
-    rgba(251, 191, 36, 0.25) 50%,
-    rgba(167, 139, 250, 0.2) 55%,
-    transparent 70%
+    transparent 35%,
+    rgba(255, 255, 255, 0.12) 45%,
+    rgba(251, 191, 36, 0.2) 50%,
+    rgba(167, 139, 250, 0.16) 55%,
+    transparent 65%
   );
   pointer-events: none;
   mix-blend-mode: screen;
 }
 .holo-shimmer.active {
-  animation: holo-shimmer 2.5s ease-in-out infinite;
+  animation: holo-shimmer 4s ease-in-out infinite;
+}
+.holo-shimmer.holo-slow {
+  animation: holo-shimmer 5s ease-in-out infinite;
 }
 
-/* Glowing animated border pulse */
+/* Glowing animated border pulse — softer */
 @keyframes card-glow-pulse {
   0%, 100% {
     box-shadow:
-      0 0 20px rgba(251, 191, 36, 0.3),
-      0 0 40px rgba(167, 139, 250, 0.2),
-      inset 0 0 20px rgba(251, 191, 36, 0.1);
+      0 0 15px rgba(251, 191, 36, 0.25),
+      0 0 30px rgba(167, 139, 250, 0.15),
+      inset 0 0 15px rgba(251, 191, 36, 0.08);
   }
   50% {
     box-shadow:
-      0 0 35px rgba(251, 191, 36, 0.5),
-      0 0 70px rgba(167, 139, 250, 0.35),
-      inset 0 0 30px rgba(251, 191, 36, 0.2);
+      0 0 25px rgba(251, 191, 36, 0.4),
+      0 0 50px rgba(167, 139, 250, 0.25),
+      inset 0 0 20px rgba(251, 191, 36, 0.15);
   }
 }
 .card-glow {
-  animation: card-glow-pulse 3s ease-in-out infinite;
+  animation: card-glow-pulse 3.5s ease-in-out infinite;
 }
 
-/* Rotating conic-gradient aura around card */
+/* Rotating conic-gradient aura around card — softer */
 @keyframes aura-rotate {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
 .card-aura {
   position: absolute;
-  inset: -20%;
+  inset: -15%;
   background: conic-gradient(
     from 0deg,
     transparent 0%,
-    rgba(251, 191, 36, 0.25) 15%,
+    rgba(251, 191, 36, 0.18) 15%,
     transparent 30%,
-    rgba(167, 139, 250, 0.25) 50%,
+    rgba(167, 139, 250, 0.18) 50%,
     transparent 65%,
-    rgba(249, 168, 212, 0.2) 85%,
+    rgba(249, 168, 212, 0.15) 85%,
     transparent 100%
   );
   border-radius: 50%;
-  filter: blur(20px);
+  filter: blur(25px);
   opacity: 0;
-  transition: opacity 0.5s;
+  transition: opacity 0.6s;
   z-index: -1;
   pointer-events: none;
 }
 .card-aura.active {
   opacity: 1;
-  animation: aura-rotate 8s linear infinite;
+  animation: aura-rotate 12s linear infinite;
 }
 
-/* Floating sparkle particles */
+/* Floating sparkle particles — slower, longer life */
 @keyframes sparkle-float {
   0% {
     transform: translateY(0) scale(0);
     opacity: 0;
   }
-  20% {
-    opacity: 1;
-    transform: translateY(-10px) scale(1);
+  25% {
+    opacity: 0.8;
+    transform: translateY(-15px) scale(1);
   }
   100% {
-    transform: translateY(-60px) scale(0.3);
+    transform: translateY(-80px) scale(0.2);
     opacity: 0;
   }
 }
 .sparkle-particle {
   position: absolute;
   pointer-events: none;
-  animation: sparkle-float 2.5s ease-out infinite;
   color: #fbbf24;
   text-shadow: 0 0 8px rgba(251, 191, 36, 0.8);
+}
+.sparkle-particle.sparkle-slow {
+  animation: sparkle-float 4s ease-out infinite;
 }
 
 /* Card entrance animation — slides up from deck */
@@ -603,19 +627,19 @@ body {
 /* Reveal burst — radial flash when card flips */
 @keyframes reveal-burst {
   0% { transform: scale(0); opacity: 0; }
-  50% { opacity: 0.6; }
-  100% { transform: scale(2); opacity: 0; }
+  50% { opacity: 0.5; }
+  100% { transform: scale(2.2); opacity: 0; }
 }
 .reveal-burst {
   position: absolute;
   inset: 0;
   border-radius: inherit;
-  background: radial-gradient(circle, rgba(251, 191, 36, 0.6) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(251, 191, 36, 0.5) 0%, transparent 70%);
   pointer-events: none;
-  animation: reveal-burst 0.8s ease-out;
+  animation: reveal-burst 0.9s ease-out;
 }
 
-/* Foil/rainbow overlay for face cards */
+/* Foil/rainbow overlay for face cards — softer */
 @keyframes foil-shift {
   0% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }
@@ -626,14 +650,14 @@ body {
   inset: 0;
   background: linear-gradient(
     135deg,
-    rgba(251, 191, 36, 0.1) 0%,
-    rgba(167, 139, 250, 0.1) 25%,
-    rgba(249, 168, 212, 0.1) 50%,
-    rgba(125, 211, 252, 0.1) 75%,
-    rgba(134, 239, 172, 0.1) 100%
+    rgba(251, 191, 36, 0.06) 0%,
+    rgba(167, 139, 250, 0.06) 25%,
+    rgba(249, 168, 212, 0.06) 50%,
+    rgba(125, 211, 252, 0.06) 75%,
+    rgba(134, 239, 172, 0.06) 100%
   );
   background-size: 300% 300%;
-  animation: foil-shift 4s ease-in-out infinite;
+  animation: foil-shift 5s ease-in-out infinite;
   pointer-events: none;
   mix-blend-mode: overlay;
   border-radius: inherit;
@@ -645,25 +669,22 @@ body {
   transform-style: preserve-3d;
 }
 
-/* Glow ring that appears on hover */
+/* Glow ring that appears on hover — softer */
 @keyframes glow-ring-pulse {
-  0%, 100% { opacity: 0.4; transform: scale(1); }
-  50% { opacity: 0.8; transform: scale(1.05); }
+  0%, 100% { opacity: 0.3; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(1.03); }
 }
 .glow-ring {
   position: absolute;
-  inset: -3px;
+  inset: -2px;
   border-radius: inherit;
   background: linear-gradient(135deg, #fbbf24, #a78bfa, #f9a8d4, #fbbf24);
   background-size: 300% 300%;
-  animation: foil-shift 3s linear infinite, glow-ring-pulse 2s ease-in-out infinite;
+  animation: foil-shift 4s linear infinite, glow-ring-pulse 2.5s ease-in-out infinite;
   z-index: -1;
   opacity: 0;
   transition: opacity 0.4s;
-  filter: blur(2px);
-}
-.premium-card-container:hover .glow-ring {
-  opacity: 0.7;
+  filter: blur(3px);
 }
 
 /* Card back animated pattern */
@@ -679,4 +700,46 @@ body {
 @keyframes reversed-wobble {
   0%, 100% { transform: rotate(180deg) translateY(0); }
   50% { transform: rotate(180deg) translateY(-2px); }
+}
+
+/* ===== SVG illustration micro-animations ===== */
+/* Twinkling star */
+@keyframes twinkle {
+  0%, 100% { opacity: 0.3; transform: scale(0.8); }
+  50% { opacity: 1; transform: scale(1.2); }
+}
+.svg-twinkle {
+  transform-origin: center;
+  transform-box: fill-box;
+  animation: twinkle 3s ease-in-out infinite;
+}
+
+/* Gentle breathing scale */
+@keyframes svg-breathe {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.04); }
+}
+.svg-breathe {
+  transform-origin: center;
+  transform-box: fill-box;
+  animation: svg-breathe 4s ease-in-out infinite;
+}
+
+/* Glowing pulse for eyes/suns */
+@keyframes svg-glow-pulse {
+  0%, 100% { filter: drop-shadow(0 0 2px currentColor); opacity: 0.8; }
+  50% { filter: drop-shadow(0 0 6px currentColor); opacity: 1; }
+}
+.svg-glow {
+  animation: svg-glow-pulse 2.5s ease-in-out infinite;
+}
+
+/* Slow drift for clouds/water */
+@keyframes svg-drift {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(3px); }
+}
+.svg-drift {
+  transform-box: fill-box;
+  animation: svg-drift 6s ease-in-out infinite;
 }

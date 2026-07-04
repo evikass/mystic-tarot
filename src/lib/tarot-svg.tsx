@@ -171,40 +171,51 @@ function MajorArcanaArt({ card }: { card: TarotCard }) {
     // 0. ШУТ — путник на краю пропасти с собакой и солнцем
     "major-0": (
       <g>
-        {/* Солнце с лучами */}
-        <circle cx="155" cy="80" r="10" fill="#fbbf24" opacity="0.9"/>
-        {Array.from({ length: 12 }).map((_, i) => {
-          const a = (i / 12) * Math.PI * 2
-          return <line key={i} x1={155 + Math.cos(a) * 10} y1={80 + Math.sin(a) * 10} x2={155 + Math.cos(a) * 14} y2={80 + Math.sin(a) * 14} stroke="#fbbf24" strokeWidth="1" opacity="0.8"/>
-        })}
+        {/* Солнце с лучами — мерцает */}
+        <g className="svg-glow" style={{ color: "#fbbf24" }}>
+          <circle cx="155" cy="80" r="10" fill="#fbbf24" opacity="0.9"/>
+          {Array.from({ length: 12 }).map((_, i) => {
+            const a = (i / 12) * Math.PI * 2
+            return <line key={i} x1={155 + Math.cos(a) * 10} y1={80 + Math.sin(a) * 10} x2={155 + Math.cos(a) * 14} y2={80 + Math.sin(a) * 14} stroke="#fbbf24" strokeWidth="1" opacity="0.8"/>
+          })}
+        </g>
+        {/* Мерцающие звёзды */}
+        <circle cx="40" cy="60" r="1.2" fill="#fef3c7" className="svg-twinkle" style={{ animationDelay: "0s" }}/>
+        <circle cx="170" cy="50" r="1" fill="#fef3c7" className="svg-twinkle" style={{ animationDelay: "1.5s" }}/>
+        <circle cx="60" cy="100" r="0.8" fill="#fef3c7" className="svg-twinkle" style={{ animationDelay: "0.8s" }}/>
         {/* Пейзаж — горы */}
         <path d="M 30 240 L 60 180 L 90 240 Z" fill="rgba(125,211,252,0.2)" stroke="#7dd3fc" strokeWidth="0.6" opacity="0.7"/>
         <path d="M 110 240 L 145 175 L 175 240 Z" fill="rgba(125,211,252,0.25)" stroke="#7dd3fc" strokeWidth="0.6" opacity="0.8"/>
         {/* Утёс под ногами */}
         <path d="M 60 240 L 100 200 L 140 240 Z" fill="rgba(45,27,78,0.6)" stroke="#7dd3fc" strokeWidth="0.8"/>
-        {/* Фигура Шута */}
-        <ellipse cx="100" cy="115" rx="9" ry="10" fill="rgba(255,255,255,0.6)" stroke="#7dd3fc" strokeWidth="1"/>
-        {/* Шапка с красным пером */}
-        <path d="M 92 110 Q 100 95 108 110 L 105 113 L 95 113 Z" fill="rgba(220,38,38,0.5)" stroke="#fbbf24" strokeWidth="0.8"/>
-        <path d="M 108 105 Q 120 100 118 90 Q 115 95 110 95" fill="#dc2626" stroke="#fbbf24" strokeWidth="0.5"/>
-        {/* Тело в пёстром костюме */}
-        <path d="M 88 220 L 92 130 L 108 130 L 112 220 Z" fill="rgba(125,211,252,0.4)" stroke="#7dd3fc" strokeWidth="1"/>
-        {/* Узоры на костюме */}
-        <circle cx="100" cy="155" r="3" fill="#fbbf24" opacity="0.7"/>
-        <circle cx="96" cy="180" r="2" fill="#dc2626" opacity="0.7"/>
-        <circle cx="104" cy="180" r="2" fill="#a78bfa" opacity="0.7"/>
-        <path d="M 95 200 L 105 200" stroke="#fbbf24" strokeWidth="0.6"/>
-        {/* Ноги */}
-        <path d="M 95 220 L 92 245" stroke="#7dd3fc" strokeWidth="2.5" strokeLinecap="round"/>
-        <path d="M 105 220 L 110 240" stroke="#7dd3fc" strokeWidth="2.5" strokeLinecap="round"/>
+        {/* Фигура Шута — лёгкое дыхание */}
+        <g className="svg-breathe" style={{ transformOrigin: "100px 180px" }}>
+          {/* Голова */}
+          <ellipse cx="100" cy="115" rx="9" ry="10" fill="rgba(255,255,255,0.6)" stroke="#7dd3fc" strokeWidth="1"/>
+          {/* Шапка с красным пером */}
+          <path d="M 92 110 Q 100 95 108 110 L 105 113 L 95 113 Z" fill="rgba(220,38,38,0.5)" stroke="#fbbf24" strokeWidth="0.8"/>
+          <path d="M 108 105 Q 120 100 118 90 Q 115 95 110 95" fill="#dc2626" stroke="#fbbf24" strokeWidth="0.5"/>
+          {/* Тело в пёстром костюме */}
+          <path d="M 88 220 L 92 130 L 108 130 L 112 220 Z" fill="rgba(125,211,252,0.4)" stroke="#7dd3fc" strokeWidth="1"/>
+          {/* Узоры на костюме */}
+          <circle cx="100" cy="155" r="3" fill="#fbbf24" opacity="0.7"/>
+          <circle cx="96" cy="180" r="2" fill="#dc2626" opacity="0.7"/>
+          <circle cx="104" cy="180" r="2" fill="#a78bfa" opacity="0.7"/>
+          <path d="M 95 200 L 105 200" stroke="#fbbf24" strokeWidth="0.6"/>
+          {/* Ноги */}
+          <path d="M 95 220 L 92 245" stroke="#7dd3fc" strokeWidth="2.5" strokeLinecap="round"/>
+          <path d="M 105 220 L 110 240" stroke="#7dd3fc" strokeWidth="2.5" strokeLinecap="round"/>
+        </g>
         {/* Посох с узелком на плече */}
         <line x1="78" y1="220" x2="125" y2="115" stroke="#fbbf24" strokeWidth="2" strokeLinecap="round"/>
         <ellipse cx="125" cy="115" rx="8" ry="6" fill="rgba(220,38,38,0.5)" stroke="#fbbf24" strokeWidth="1"/>
         <path d="M 122 113 L 128 117 M 122 117 L 128 113" stroke="#fbbf24" strokeWidth="0.5"/>
-        {/* Маленькая собака у ног */}
-        <ellipse cx="78" cy="238" rx="6" ry="3" fill="rgba(255,255,255,0.5)" stroke="#7dd3fc" strokeWidth="0.8"/>
-        <circle cx="73" cy="236" r="2" fill="rgba(255,255,255,0.7)" stroke="#7dd3fc" strokeWidth="0.5"/>
-        <path d="M 71 234 L 70 231 M 73 233 L 73 230" stroke="#7dd3fc" strokeWidth="0.5"/>
+        {/* Маленькая собака у ног — лёгкое покачивание */}
+        <g className="svg-drift" style={{ transformOrigin: "78px 238px" }}>
+          <ellipse cx="78" cy="238" rx="6" ry="3" fill="rgba(255,255,255,0.5)" stroke="#7dd3fc" strokeWidth="0.8"/>
+          <circle cx="73" cy="236" r="2" fill="rgba(255,255,255,0.7)" stroke="#7dd3fc" strokeWidth="0.5"/>
+          <path d="M 71 234 L 70 231 M 73 233 L 73 230" stroke="#7dd3fc" strokeWidth="0.5"/>
+        </g>
         {/* Розы у ног */}
         <circle cx="130" cy="245" r="3" fill="#dc2626" stroke="#fbbf24" strokeWidth="0.5"/>
         <circle cx="135" cy="248" r="2" fill="#dc2626" stroke="#fbbf24" strokeWidth="0.5"/>
@@ -214,41 +225,57 @@ function MajorArcanaArt({ card }: { card: TarotCard }) {
     // I. МАГ — фигура перед алтарем с 4 стихиями, лемниската над головой
     "major-1": (
       <g>
-        {/* Лемниската (бесконечность) */}
-        <path d="M 90 80 Q 95 73 100 80 Q 105 73 110 80 Q 105 87 100 80 Q 95 87 90 80 Z" fill="#fbbf24" stroke="#fef3c7" strokeWidth="0.5"/>
+        {/* Лемниската (бесконечность) — мерцает */}
+        <g className="svg-glow" style={{ color: "#fbbf24" }}>
+          <path d="M 90 80 Q 95 73 100 80 Q 105 73 110 80 Q 105 87 100 80 Q 95 87 90 80 Z" fill="#fbbf24" stroke="#fef3c7" strokeWidth="0.5"/>
+        </g>
         {/* Сияние над головой */}
         {Array.from({ length: 8 }).map((_, i) => {
           const a = (i / 8) * Math.PI - Math.PI
           return <line key={i} x1={100} y1={70} x2={100 + Math.cos(a) * 10} y2={70 + Math.sin(a) * 10} stroke="#fbbf24" strokeWidth="0.8" opacity="0.7"/>
         })}
-        {/* Голова */}
-        <circle cx="100" cy="100" r="9" fill="rgba(255,255,255,0.6)" stroke="#fbbf24" strokeWidth="1"/>
-        {/* Тело в мантии */}
-        <path d="M 86 220 L 90 115 L 110 115 L 114 220 Z" fill="rgba(251,191,36,0.3)" stroke="#fbbf24" strokeWidth="1.2"/>
-        {/* Узор на мантии — змея */}
-        <path d="M 95 140 Q 100 145 105 140 Q 110 145 105 150 Q 100 155 95 150 Q 90 155 95 160" fill="none" stroke="#fbbf24" strokeWidth="0.8"/>
-        {/* Рука с жезлом вверх */}
-        <line x1="92" y1="135" x2="68" y2="85" stroke="#7dd3fc" strokeWidth="2.5" strokeLinecap="round"/>
-        <line x1="68" y1="85" x2="68" y2="68" stroke="#fbbf24" strokeWidth="2.5" strokeLinecap="round"/>
-        <circle cx="68" cy="63" r="5" fill="#fbbf24" stroke="#fef3c7" strokeWidth="0.8"/>
-        {/* Рука вниз к столу */}
-        <line x1="108" y1="135" x2="130" y2="170" stroke="#7dd3fc" strokeWidth="2.5" strokeLinecap="round"/>
+        {/* Мерцающие звёзды фона */}
+        <circle cx="40" cy="50" r="1" fill="#fef3c7" className="svg-twinkle" style={{ animationDelay: "0s" }}/>
+        <circle cx="160" cy="55" r="0.8" fill="#fef3c7" className="svg-twinkle" style={{ animationDelay: "1s" }}/>
+        {/* Фигура Мага — дыхание */}
+        <g className="svg-breathe" style={{ transformOrigin: "100px 160px" }}>
+          {/* Голова */}
+          <circle cx="100" cy="100" r="9" fill="rgba(255,255,255,0.6)" stroke="#fbbf24" strokeWidth="1"/>
+          {/* Тело в мантии */}
+          <path d="M 86 220 L 90 115 L 110 115 L 114 220 Z" fill="rgba(251,191,36,0.3)" stroke="#fbbf24" strokeWidth="1.2"/>
+          {/* Узор на мантии — змея */}
+          <path d="M 95 140 Q 100 145 105 140 Q 110 145 105 150 Q 100 155 95 150 Q 90 155 95 160" fill="none" stroke="#fbbf24" strokeWidth="0.8"/>
+          {/* Рука с жезлом вверх */}
+          <line x1="92" y1="135" x2="68" y2="85" stroke="#7dd3fc" strokeWidth="2.5" strokeLinecap="round"/>
+          <line x1="68" y1="85" x2="68" y2="68" stroke="#fbbf24" strokeWidth="2.5" strokeLinecap="round"/>
+          {/* Жезл светится */}
+          <g className="svg-glow" style={{ color: "#fbbf24" }}>
+            <circle cx="68" cy="63" r="5" fill="#fbbf24" stroke="#fef3c7" strokeWidth="0.8"/>
+          </g>
+          {/* Рука вниз к столу */}
+          <line x1="108" y1="135" x2="130" y2="170" stroke="#7dd3fc" strokeWidth="2.5" strokeLinecap="round"/>
+        </g>
         {/* Алтарь/стол */}
         <rect x="125" y="180" width="55" height="6" fill="rgba(45,27,78,0.6)" stroke="#fbbf24" strokeWidth="1"/>
         <line x1="130" y1="186" x2="130" y2="215" stroke="#fbbf24" strokeWidth="1.5"/>
         <line x1="175" y1="186" x2="175" y2="215" stroke="#fbbf24" strokeWidth="1.5"/>
-        {/* 4 символа стихий на столе */}
+        {/* 4 символа стихий на столе — каждый слегка мерцает */}
         {/* Чаша (Вода) */}
-        <path d="M 138 170 L 141 180 L 151 180 L 154 170 Z" fill="rgba(96,165,250,0.6)" stroke="#7dd3fc" strokeWidth="1"/>
-        <path d="M 146 168 Q 146 172 144 172 M 146 168 Q 146 172 148 172" fill="none" stroke="#7dd3fc" strokeWidth="0.4"/>
+        <g className="svg-twinkle" style={{ animationDelay: "0s" }}>
+          <path d="M 138 170 L 141 180 L 151 180 L 154 170 Z" fill="rgba(96,165,250,0.6)" stroke="#7dd3fc" strokeWidth="1"/>
+          <path d="M 146 168 Q 146 172 144 172 M 146 168 Q 146 172 148 172" fill="none" stroke="#7dd3fc" strokeWidth="0.4"/>
+        </g>
         {/* Меч (Воздух) */}
-        <line x1="160" y1="160" x2="160" y2="180" stroke="#cbd5e1" strokeWidth="1.8"/>
-        <line x1="156" y1="163" x2="164" y2="163" stroke="#fbbf24" strokeWidth="1.2"/>
-        <circle cx="160" cy="158" r="1.5" fill="#fbbf24"/>
+        <g className="svg-twinkle" style={{ animationDelay: "0.7s" }}>
+          <line x1="160" y1="160" x2="160" y2="180" stroke="#cbd5e1" strokeWidth="1.8"/>
+          <line x1="156" y1="163" x2="164" y2="163" stroke="#fbbf24" strokeWidth="1.2"/>
+          <circle cx="160" cy="158" r="1.5" fill="#fbbf24"/>
+        </g>
         {/* Пентакль (Земля) */}
-        <circle cx="170" cy="175" r="4" fill="rgba(163,230,53,0.4)" stroke="#a3e635" strokeWidth="0.8"/>
-        <path d="M 170 171 L 171.5 174 L 174 174 L 172 176 L 173 179 L 170 177 L 167 179 L 168 176 L 166 174 L 168.5 174 Z" fill="#a3e635"/>
-        {/* Жезл (Огонь) уже в руке */}
+        <g className="svg-twinkle" style={{ animationDelay: "1.4s" }}>
+          <circle cx="170" cy="175" r="4" fill="rgba(163,230,53,0.4)" stroke="#a3e635" strokeWidth="0.8"/>
+          <path d="M 170 171 L 171.5 174 L 174 174 L 172 176 L 173 179 L 170 177 L 167 179 L 168 176 L 166 174 L 168.5 174 Z" fill="#a3e635"/>
+        </g>
         {/* Растения и цветы на полу */}
         <path d="M 30 245 L 35 240 L 32 235 L 38 230 L 35 225" fill="none" stroke="#86efac" strokeWidth="1"/>
         <circle cx="35" cy="240" r="2" fill="#dc2626"/>
