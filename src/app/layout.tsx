@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Cormorant_Garamond, Cinzel, Inter } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
+import { AIOracleWidget } from "@/components/ai-oracle-widget";
 
 const cormorant = Cormorant_Garamond({
   variable: "--font-cormorant",
@@ -64,6 +65,7 @@ export default function RootLayout({
       >
         {children}
         <Toaster />
+        <AIOracleWidget />
       </body>
     </html>
   );
