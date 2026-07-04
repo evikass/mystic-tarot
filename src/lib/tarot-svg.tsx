@@ -1930,12 +1930,6 @@ export function CardSVG({ card, isReversed = false, width = 200, height = 320, c
           <stop offset="50%" stopColor="#2d1b4e" stopOpacity="0.98"/>
           <stop offset="100%" stopColor="#1a0f2e" stopOpacity="0.98"/>
         </linearGradient>
-        {/* Лёгкое радиальное свечение — мягкое, не мешает иллюстрации */}
-        <radialGradient id={`glow-${card.id}`} cx="50%" cy="50%" r="70%">
-          <stop offset="0%" stopColor={accentColor} stopOpacity="0.18"/>
-          <stop offset="60%" stopColor={accentColor} stopOpacity="0.05"/>
-          <stop offset="100%" stopColor={accentColor} stopOpacity="0"/>
-        </radialGradient>
         {/* Звёздный паттерн — только в углах, центр чистый для иллюстрации */}
         <pattern id={`stars-${card.id}`} width="200" height="320" patternUnits="userSpaceOnUse">
           {/* Угловые созвездия */}
@@ -1950,10 +1944,9 @@ export function CardSVG({ card, isReversed = false, width = 200, height = 320, c
         </pattern>
       </defs>
 
-      {/* Слои фона */}
+      {/* Слои фона — без радиального свечения (оно просвечивало сквозь иллюстрацию при 3D-наклоне) */}
       <rect x="0" y="0" width="200" height="320" fill={`url(#bg-${card.id})`} rx="10"/>
       <rect x="0" y="0" width="200" height="320" fill={`url(#stars-${card.id})`} rx="10"/>
-      <rect x="0" y="0" width="200" height="320" fill={`url(#glow-${card.id})`} rx="10"/>
 
       {/* Декоративная рамка с орнаментом */}
       <OrnateBorder accent={accentColor}/>
@@ -2013,10 +2006,6 @@ export function CardBack({ width = 200, height = 320, className }: { width?: num
           <stop offset="50%" stopColor="#1a0f2e"/>
           <stop offset="100%" stopColor="#0f0820"/>
         </linearGradient>
-        <radialGradient id="cardback-glow" cx="50%" cy="50%" r="60%">
-          <stop offset="0%" stopColor="rgba(251,191,36,0.35)"/>
-          <stop offset="100%" stopColor="rgba(251,191,36,0)"/>
-        </radialGradient>
         <pattern id="cardback-pattern" width="30" height="30" patternUnits="userSpaceOnUse">
           <path d="M 15 0 L 30 15 L 15 30 L 0 15 Z" fill="none" stroke="rgba(251,191,36,0.25)" strokeWidth="0.5"/>
           <circle cx="15" cy="15" r="2" fill="rgba(251,191,36,0.45)"/>
@@ -2027,10 +2016,9 @@ export function CardBack({ width = 200, height = 320, className }: { width?: num
         </pattern>
       </defs>
 
-      {/* Фон */}
+      {/* Фон — без радиального свечения (просвечивало при 3D-наклоне) */}
       <rect x="0" y="0" width="200" height="320" fill="url(#cardback-bg)" rx="10"/>
       <rect x="0" y="0" width="200" height="320" fill="url(#cardback-pattern)" rx="10"/>
-      <rect x="0" y="0" width="200" height="320" fill="url(#cardback-glow)" rx="10"/>
 
       {/* Двойная рамка */}
       <rect x="6" y="6" width="188" height="308" fill="none" stroke="rgba(251,191,36,0.7)" strokeWidth="1.5" rx="6"/>
