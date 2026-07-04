@@ -2029,42 +2029,93 @@ export function CardBack({ width = 200, height = 320, className }: { width?: num
         <circle r="44" fill="rgba(251,191,36,0.05)" stroke="rgba(251,191,36,0.4)" strokeWidth="0.8" strokeDasharray="2 1"/>
         <circle r="40" fill="none" stroke="rgba(251,191,36,0.3)" strokeWidth="0.5"/>
 
-        {/* Лучи вокруг — 16 штук */}
-        {Array.from({ length: 16 }).map((_, i) => {
-          const a = (i / 16) * Math.PI * 2
-          const isLong = i % 2 === 0
-          return <line key={i} x1={Math.cos(a) * 48} y1={Math.sin(a) * 48} x2={Math.cos(a) * (isLong ? 58 : 53)} y2={Math.sin(a) * (isLong ? 58 : 53)} stroke="rgba(251,191,36,0.6)" strokeWidth={isLong ? 1.2 : 0.6}/>
-        })}
+        {/* Вращающееся кольцо лучей — анимированная группа */}
+        <g>
+          {/* Лучи вокруг — 16 штук */}
+          {Array.from({ length: 16 }).map((_, i) => {
+            const a = (i / 16) * Math.PI * 2
+            const isLong = i % 2 === 0
+            return <line key={i} x1={Math.cos(a) * 48} y1={Math.sin(a) * 48} x2={Math.cos(a) * (isLong ? 58 : 53)} y2={Math.sin(a) * (isLong ? 58 : 53)} stroke="rgba(251,191,36,0.6)" strokeWidth={isLong ? 1.2 : 0.6}/>
+          })}
 
-        {/* Звёзды на лучах */}
-        {Array.from({ length: 8 }).map((_, i) => {
-          const a = (i / 8) * Math.PI * 2
-          return <text key={i} x={Math.cos(a) * 60} y={Math.sin(a) * 60 + 2} fontSize="4" textAnchor="middle" fill="rgba(251,191,36,0.6)">✦</text>
-        })}
+          {/* Звёзды на лучах */}
+          {Array.from({ length: 8 }).map((_, i) => {
+            const a = (i / 8) * Math.PI * 2
+            return <text key={i} x={Math.cos(a) * 60} y={Math.sin(a) * 60 + 2} fontSize="4" textAnchor="middle" fill="rgba(251,191,36,0.6)">✦</text>
+          })}
+
+          {/* Медленное вращение лучей против часовой */}
+          <animateTransform
+            attributeName="transform"
+            attributeType="XML"
+            type="rotate"
+            from="0 0 0"
+            to="360 0 0"
+            dur="40s"
+            repeatCount="indefinite"
+          />
+        </g>
 
         {/* Внутренний круг с пентаграммой */}
         <circle r="32" fill="rgba(26,15,46,0.4)" stroke="rgba(251,191,36,0.6)" strokeWidth="1"/>
 
-        {/* 8-конечная звезда */}
-        <path d="M 0 -28 L 6 -8 L 28 -10 L 10 4 L 22 22 L 0 10 L -22 22 L -10 4 L -28 -10 L -6 -8 Z" fill="rgba(251,191,36,0.5)" stroke="rgba(251,191,36,0.95)" strokeWidth="1.2"/>
+        {/* 8-конечная звезда — пульсирует */}
+        <g>
+          <path d="M 0 -28 L 6 -8 L 28 -10 L 10 4 L 22 22 L 0 10 L -22 22 L -10 4 L -28 -10 L -6 -8 Z" fill="rgba(251,191,36,0.5)" stroke="rgba(251,191,36,0.95)" strokeWidth="1.2"/>
+          <animateTransform
+            attributeName="transform"
+            attributeType="XML"
+            type="scale"
+            values="1;1.08;1"
+            dur="4s"
+            repeatCount="indefinite"
+          />
+        </g>
 
-        {/* Малая 4-конечная звезда в центре */}
-        <path d="M 0 -16 L 3 -3 L 16 0 L 3 3 L 0 16 L -3 3 L -16 0 L -3 -3 Z" fill="rgba(251,191,36,0.7)" stroke="rgba(251,191,36,0.95)" strokeWidth="0.5"/>
+        {/* Малая 4-конечная звезда в центре — вращается в обратную сторону */}
+        <g>
+          <path d="M 0 -16 L 3 -3 L 16 0 L 3 3 L 0 16 L -3 3 L -16 0 L -3 -3 Z" fill="rgba(251,191,36,0.7)" stroke="rgba(251,191,36,0.95)" strokeWidth="0.5"/>
+          <animateTransform
+            attributeName="transform"
+            attributeType="XML"
+            type="rotate"
+            from="360 0 0"
+            to="0 0 0"
+            dur="20s"
+            repeatCount="indefinite"
+          />
+        </g>
 
         {/* Луна сверху */}
         <path d="M -10 -38 A 10 10 0 1 1 10 -38 A 7 7 0 1 0 -10 -38 Z" fill="rgba(196,181,253,0.8)"/>
 
-        {/* Солнце снизу */}
-        <circle cx="0" cy="38" r="6" fill="rgba(251,191,36,0.85)"/>
-        {Array.from({ length: 8 }).map((_, i) => {
-          const a = (i / 8) * Math.PI * 2
-          return <line key={i} x1={Math.cos(a) * 6} y1={38 + Math.sin(a) * 6} x2={Math.cos(a) * 10} y2={38 + Math.sin(a) * 10} stroke="rgba(251,191,36,0.8)" strokeWidth="1"/>
-        })}
+        {/* Солнце снизу — мерцает */}
+        <g>
+          <circle cx="0" cy="38" r="6" fill="rgba(251,191,36,0.85)"/>
+          {Array.from({ length: 8 }).map((_, i) => {
+            const a = (i / 8) * Math.PI * 2
+            return <line key={i} x1={Math.cos(a) * 6} y1={38 + Math.sin(a) * 6} x2={Math.cos(a) * 10} y2={38 + Math.sin(a) * 10} stroke="rgba(251,191,36,0.8)" strokeWidth="1"/>
+          })}
+          <animate
+            attributeName="opacity"
+            values="0.7;1;0.7"
+            dur="3s"
+            repeatCount="indefinite"
+          />
+        </g>
 
-        {/* Глаз в центре */}
-        <ellipse rx="9" ry="5" fill="rgba(255,255,255,0.25)" stroke="rgba(251,191,36,0.95)" strokeWidth="1"/>
-        <circle r="2.5" fill="rgba(167,139,250,0.8)"/>
-        <circle r="1" fill="rgba(251,191,36,0.95)"/>
+        {/* Глаз в центре — моргает/мерцает */}
+        <g>
+          <ellipse rx="9" ry="5" fill="rgba(255,255,255,0.25)" stroke="rgba(251,191,36,0.95)" strokeWidth="1"/>
+          <circle r="2.5" fill="rgba(167,139,250,0.8)"/>
+          <circle r="1" fill="rgba(251,191,36,0.95)"/>
+          <animate
+            attributeName="opacity"
+            values="0.8;1;0.8"
+            dur="5s"
+            repeatCount="indefinite"
+          />
+        </g>
 
         {/* Малые символы по сторонам */}
         <text x="-44" y="3" fontSize="6" textAnchor="middle" fill="rgba(251,191,36,0.6)">ᚠ</text>
