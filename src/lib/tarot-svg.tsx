@@ -2049,6 +2049,15 @@ export function CardBack({ width = 200, height = 320, className }: { width?: num
         <g id={`${uid}-star`}>
           <path d="M0,-6 L1.5,-1.5 L6,0 L1.5,1.5 L0,6 L-1.5,1.5 L-6,0 L-1.5,-1.5 Z" fill={`url(#${uid}-gold)`} filter={`url(#${uid}-glow)`}/>
         </g>
+        {/* Угловой орнамент */}
+        <g id={`${uid}-corner`}>
+          <circle cx="0" cy="0" r="2" fill={`url(#${uid}-gold)`}/>
+          <line x1="0" y1="0" x2="14" y2="0" stroke={`url(#${uid}-gold)`} strokeWidth="0.8"/>
+          <line x1="0" y1="0" x2="0" y2="14" stroke={`url(#${uid}-gold)`} strokeWidth="0.8"/>
+          <path d="M14,0 Q14,14 0,14" fill="none" stroke={`url(#${uid}-gold)`} strokeWidth="0.8"/>
+          <circle cx="14" cy="0" r="1.5" fill={`url(#${uid}-gold)`}/>
+          <circle cx="0" cy="14" r="1.5" fill={`url(#${uid}-gold)`}/>
+        </g>
       </defs>
 
       {/* Фон */}
@@ -2057,6 +2066,12 @@ export function CardBack({ width = 200, height = 320, className }: { width?: num
       {/* Рамки */}
       <rect x="8" y="8" width="184" height="324" rx="8" fill="none" stroke={`url(#${uid}-gold)`} strokeWidth="1" opacity="0.6"/>
       <rect x="16" y="16" width="168" height="308" rx="6" fill="none" stroke={`url(#${uid}-gold)`} strokeWidth="0.5" strokeDasharray="4 4" opacity="0.4"/>
+
+      {/* Угловые орнаменты (4 угла) */}
+      <use href={`#${uid}-corner`} x="16" y="16"/>
+      <use href={`#${uid}-corner`} transform="translate(184, 16) scale(-1, 1)"/>
+      <use href={`#${uid}-corner`} transform="translate(16, 324) scale(1, -1)"/>
+      <use href={`#${uid}-corner`} transform="translate(184, 324) scale(-1, -1)"/>
 
       {/* === Центральный глаз — пульсирует === */}
       <g transform="translate(100, 160)">
