@@ -874,7 +874,7 @@ function ReadingsSection() {
       </div>
 
       <Tabs value={readingType} onValueChange={(v) => setReadingType(v as typeof readingType)}>
-        <TabsList className="grid grid-cols-3 sm:grid-cols-6 lg:grid-cols-12 max-w-6xl mx-auto mb-8 bg-purple-950/40 border border-amber-400/20">
+        <TabsList className="grid grid-cols-3 sm:grid-cols-6 lg:grid-cols-12 max-w-6xl mx-auto mb-6 sm:mb-8 bg-purple-950/40 border border-amber-400/20">
           <TabsTrigger value="three-card" className="data-[state=active]:bg-amber-400/20 data-[state=active]:text-amber-100 text-xs sm:text-sm">
             <Layers className="w-3.5 h-3.5 mr-1"/>
             3 карты
@@ -976,15 +976,15 @@ function ReadingQuestionInput({
   placeholder: string
 }) {
   return (
-    <div className="max-w-xl mx-auto mb-6">
-      <label className="block text-sm text-amber-200/70 mb-2 text-center">
+    <div className="max-w-xl mx-auto mb-4 sm:mb-6">
+      <label className="block text-xs sm:text-sm text-amber-200/70 mb-2 text-center">
         Сформулируйте вопрос (необязательно)
       </label>
       <Input
         value={question}
         onChange={(e) => setQuestion(e.target.value)}
         placeholder={placeholder}
-        className="bg-purple-950/40 border-amber-400/30 text-amber-100 placeholder:text-amber-200/40 text-center"
+        className="bg-purple-950/40 border-amber-400/30 text-amber-100 placeholder:text-amber-200/40 text-center text-sm"
       />
     </div>
   )
