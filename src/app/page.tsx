@@ -925,40 +925,40 @@ function ReadingsSection() {
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="three-card">
+        <TabsContent value="three-card" className="mt-6">
           <ThreeCardReading/>
         </TabsContent>
-        <TabsContent value="celtic-cross">
+        <TabsContent value="celtic-cross" className="mt-6">
           <CelticCrossReading/>
         </TabsContent>
-        <TabsContent value="yes-no">
+        <TabsContent value="yes-no" className="mt-6">
           <YesNoReading/>
         </TabsContent>
-        <TabsContent value="two-paths">
+        <TabsContent value="two-paths" className="mt-6">
           <TwoPathsReading/>
         </TabsContent>
-        <TabsContent value="horoscope">
+        <TabsContent value="horoscope" className="mt-6">
           <HoroscopeSection/>
         </TabsContent>
-        <TabsContent value="arcana">
+        <TabsContent value="arcana" className="mt-6">
           <ArcanaSection/>
         </TabsContent>
-        <TabsContent value="moon">
+        <TabsContent value="moon" className="mt-6">
           <MoonSection/>
         </TabsContent>
-        <TabsContent value="favorable">
+        <TabsContent value="favorable" className="mt-6">
           <FavorableDaysSection/>
         </TabsContent>
-        <TabsContent value="runes">
+        <TabsContent value="runes" className="mt-6">
           <RunesSection/>
         </TabsContent>
-        <TabsContent value="iching">
+        <TabsContent value="iching" className="mt-6">
           <IChingSection/>
         </TabsContent>
-        <TabsContent value="biorhythms">
+        <TabsContent value="biorhythms" className="mt-6">
           <BiorhythmsSection/>
         </TabsContent>
-        <TabsContent value="psychomatrix">
+        <TabsContent value="psychomatrix" className="mt-6">
           <PsychomatrixSection/>
         </TabsContent>
       </Tabs>
