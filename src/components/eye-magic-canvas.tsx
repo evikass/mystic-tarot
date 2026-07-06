@@ -80,8 +80,10 @@ export function EyeOfMysticCanvas({ width, height, active, mousePosRef, isHovere
   })
 
   useEffect(() => {
+    // Dynamic particle count based on canvas size (fewer on mobile)
+    const maxParticles = width < 160 ? 25 : 50
     const particles: Particle[] = []
-    for (let i = 0; i < 50; i++) {
+    for (let i = 0; i < maxParticles; i++) {
       particles.push({
         angle: Math.random() * Math.PI * 2,
         distance: 35 + Math.random() * 25,
@@ -93,7 +95,7 @@ export function EyeOfMysticCanvas({ width, height, active, mousePosRef, isHovere
       })
     }
     stateRef.current.particles = particles
-  }, [])
+  }, [width])
 
   const triggerFlipBurst = () => {
     const s = stateRef.current
@@ -204,7 +206,7 @@ export function EyeOfMysticCanvas({ width, height, active, mousePosRef, isHovere
         s.wasHovered = isHovered
         if (isHovered) {
           s.targetGlowIntensity = 1.0
-          s.targetOrbitSpeedMultiplier = 2.2
+          s.targetOrbitSpeedMultiplier = 1.7
         } else {
           s.targetGlowIntensity = 0.7
           s.targetOrbitSpeedMultiplier = 1.0
@@ -267,8 +269,10 @@ export function EyeOfMysticCanvas({ width, height, active, mousePosRef, isHovere
       ctx.save()
       ctx.translate(x, y)
       ctx.rotate(s.runeAngle)
-      ctx.strokeStyle = `hsla(${hue + 20}, 90%, 60%, 0.4)`
-      ctx.lineWidth = 1
+      ctx.strokeStyle = `hsla(${hue + 20}, 90%, 60%, 0.6)`
+      ctx.lineWidth = 1.2
+      ctx.shadowColor = `hsla(${hue + 20}, 90%, 60%, 0.5)`
+      ctx.shadowBlur = 4
       for (let i = 0; i < s.runeCount; i++) {
         const angle = (i / s.runeCount) * Math.PI * 2
         ctx.beginPath()

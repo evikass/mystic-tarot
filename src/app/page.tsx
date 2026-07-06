@@ -1088,7 +1088,14 @@ function ThreeCardReading() {
           {allRevealed && (
             <div className="max-w-3xl mx-auto space-y-4 animate-fade-in">
               {drawnCards.map((d, i) => (
-                <Card key={i} className="glass-mystic border-amber-400/20">
+                <Card
+                  key={i}
+                  className="glass-mystic border-amber-400/20"
+                  style={{
+                    opacity: 0,
+                    animation: `cardInterpretReveal 0.5s ease-out ${i * 0.35}s forwards`,
+                  }}
+                >
                   <CardContent className="p-5">
                     <div className="flex items-center gap-3 mb-2">
                       <Badge
@@ -1116,6 +1123,10 @@ function ThreeCardReading() {
                 onClick={draw}
                 variant="outline"
                 className="border-amber-400/40 text-amber-200 hover:bg-amber-400/10"
+                style={{
+                  opacity: 0,
+                  animation: `cardInterpretReveal 0.5s ease-out ${drawnCards.length * 0.35 + 0.2}s forwards`,
+                }}
               >
                 <Sparkles className="w-4 h-4 mr-2"/>
                 Новый расклад
@@ -1596,10 +1607,13 @@ function TwoPathsReading() {
             </div>
           </div>
 
-          {/* Интерпретации */}
+          {/* Интерпретации — построчное проявление */}
           {allRevealed && (
-            <div className="max-w-3xl mx-auto animate-fade-in space-y-3">
-              <Card className="glass-mystic border-amber-400/30">
+            <div className="max-w-3xl mx-auto space-y-3">
+              <Card
+                className="glass-mystic border-amber-400/30"
+                style={{ opacity: 0, animation: "cardInterpretReveal 0.5s ease-out 0.2s forwards" }}
+              >
                 <CardContent className="p-5">
                   <Badge variant="outline" className="border-amber-400/40 text-amber-200 text-xs mb-2">Текущая ситуация</Badge>
                   <h4 className="text-lg font-bold text-amber-100 mb-1">
@@ -1614,7 +1628,15 @@ function TwoPathsReading() {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {[1, 3].map((startIdx, i) => (
-                  <Card key={i} className="glass-mystic" style={{ borderColor: i === 0 ? "rgba(167,139,250,0.3)" : "rgba(249,168,212,0.3)" }}>
+                  <Card
+                    key={i}
+                    className="glass-mystic"
+                    style={{
+                      borderColor: i === 0 ? "rgba(167,139,250,0.3)" : "rgba(249,168,212,0.3)",
+                      opacity: 0,
+                      animation: `cardInterpretReveal 0.5s ease-out ${0.55 + i * 0.35}s forwards`,
+                    }}
+                  >
                     <CardContent className="p-5">
                       <Badge className={`text-xs mb-2 border ${i === 0 ? "bg-purple-500/30 text-purple-100 border-purple-400/40" : "bg-pink-500/30 text-pink-100 border-pink-400/40"}`}>
                         {i === 0 ? "ПУТЬ А" : "ПУТЬ Б"}: {i === 0 ? optionA : optionB}

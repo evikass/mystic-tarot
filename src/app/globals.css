@@ -729,6 +729,21 @@ body {
 }
 
 /* ===== SVG illustration micro-animations ===== */
+
+/* Построчное проявление интерпретаций карт */
+@keyframes cardInterpretReveal {
+  0% {
+    opacity: 0;
+    transform: translateY(12px);
+    filter: blur(3px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
 @keyframes twinkle {
   0%, 100% { opacity: 0.3; transform: scale(0.8); }
   50% { opacity: 1; transform: scale(1.2); }
