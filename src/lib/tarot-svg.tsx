@@ -2000,88 +2000,126 @@ export function CardSVG({ card, isReversed = false, width = 200, height = 320, c
   )
 }
 
-// === РУБАШКА КАРТЫ — исправленная: звёзды вращаются вокруг центра, глаз статичен ===
+// === РУБАШКА КАРТЫ — пульсирующий глаз + вращающиеся частицы + звёзды ===
 export function CardBack({ width = 200, height = 320, className }: { width?: number; height?: number; className?: string }) {
+  // Позиции статичных звёзд (x, y, задержка мерцания)
+  const stars = [
+    { x: 40, y: 50, d: 0 },
+    { x: 160, y: 70, d: 0.5 },
+    { x: 50, y: 260, d: 1 },
+    { x: 150, y: 270, d: 1.5 },
+    { x: 100, y: 80, d: 0.3 },
+    { x: 30, y: 200, d: 0.8 },
+    { x: 170, y: 220, d: 1.2 },
+    { x: 100, y: 305, d: 1.8 },
+  ]
+
   return (
     <svg viewBox="0 0 200 340" width={width} height={height} className={className} xmlns="http://www.w3.org/2000/svg">
       <defs>
-        {/* Градиент для фона */}
         <radialGradient id="bgGlow" cx="50%" cy="50%" r="70%">
           <stop offset="0%" stopColor="#1a1025"/>
           <stop offset="100%" stopColor="#0a0510"/>
         </radialGradient>
-
-        {/* Золотой градиент */}
         <linearGradient id="gold" x1="0%" y1="0%" x2="100%" y2="100%">
           <stop offset="0%" stopColor="#ffd700"/>
           <stop offset="50%" stopColor="#b8860b"/>
           <stop offset="100%" stopColor="#ffd700"/>
         </linearGradient>
-
-        {/* Фильтр для свечения */}
-        <filter id="starGlow" x="-50%" y="-50%" width="200%" height="200%">
-          <feGaussianBlur stdDeviation="1.5" result="blur"/>
+        <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+          <feGaussianBlur stdDeviation="2.5" result="blur"/>
           <feMerge>
             <feMergeNode in="blur"/>
             <feMergeNode in="SourceGraphic"/>
           </feMerge>
         </filter>
-
+        <filter id="particleGlow" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="1" result="blur"/>
+          <feMerge>
+            <feMergeNode in="blur"/>
+            <feMergeNode in="SourceGraphic"/>
+          </feMerge>
+        </filter>
+        <g id="particle">
+          <circle r="1.5" fill="#ffd700" filter="url(#particleGlow)"/>
+        </g>
         {/* Шаблон звезды */}
         <g id="star">
-          <path d="M0,-6 L1.5,-1.5 L6,0 L1.5,1.5 L0,6 L-1.5,1.5 L-6,0 L-1.5,-1.5 Z" fill="url(#gold)" filter="url(#starGlow)"/>
+          <path d="M0,-6 L1.5,-1.5 L6,0 L1.5,1.5 L0,6 L-1.5,1.5 L-6,0 L-1.5,-1.5 Z" fill="url(#gold)" filter="url(#glow)"/>
         </g>
       </defs>
 
-      {/* Фон рубашки */}
+      {/* Фон */}
       <rect width="200" height="340" rx="12" fill="url(#bgGlow)" stroke="url(#gold)" strokeWidth="2"/>
 
-      {/* Декоративная рамка */}
+      {/* Рамки */}
       <rect x="8" y="8" width="184" height="324" rx="8" fill="none" stroke="url(#gold)" strokeWidth="1" opacity="0.6"/>
       <rect x="16" y="16" width="168" height="308" rx="6" fill="none" stroke="url(#gold)" strokeWidth="0.5" strokeDasharray="4 4" opacity="0.4"/>
 
-      {/* Центральный глаз (луна) — всегда виден, без мерцания */}
-      <circle cx="100" cy="160" r="36" fill="none" stroke="url(#gold)" strokeWidth="1.5" opacity="0.8"/>
-      <circle cx="100" cy="160" r="18" fill="none" stroke="url(#gold)" strokeWidth="0.8" opacity="0.6"/>
-      <circle cx="100" cy="160" r="5" fill="url(#gold)" opacity="0.9"/>
+      {/* === Центральный глаз — пульсирует (scale 1→1.03) === */}
+      <g transform="translate(100, 160)">
+        <animateTransform
+          attributeName="transform"
+          type="scale"
+          values="1;1.05;1"
+          dur="3s"
+          repeatCount="indefinite"
+          additive="sum"
+        />
+        {/* Внешнее кольцо */}
+        <circle r="36" fill="none" stroke="url(#gold)" strokeWidth="1.5" opacity="0.8"/>
+        {/* Среднее кольцо */}
+        <circle r="22" fill="none" stroke="url(#gold)" strokeWidth="1" opacity="0.6"/>
+        {/* Внутренний круг (зрачок) */}
+        <circle r="12" fill="rgba(167,139,250,0.2)" stroke="url(#gold)" strokeWidth="0.8" opacity="0.7"/>
+        {/* Ядро */}
+        <circle r="5" fill="url(#gold)" opacity="0.9"/>
+        {/* Блик */}
+        <circle cx="-2" cy="-2" r="1.5" fill="rgba(255,255,255,0.8)"/>
+      </g>
 
-      {/* Группа звёзд с медленным вращением вокруг центра */}
+      {/* === Частицы, вращающиеся вокруг центра (12с) === */}
       <g>
         <animateTransform
           attributeName="transform"
           type="rotate"
           from="0 100 160"
           to="360 100 160"
-          dur="20s"
+          dur="12s"
           repeatCount="indefinite"
         />
-
-        {/* Звёзды с индивидуальным мерцанием (анимация opacity) */}
-        <use href="#star" x="40" y="50">
-          <animate attributeName="opacity" values="0.3;1;0.3" dur="2s" repeatCount="indefinite" begin="0s"/>
+        <use href="#particle" x="100" y="120">
+          <animate attributeName="opacity" values="0;1;0" dur="2s" repeatCount="indefinite"/>
         </use>
-        <use href="#star" x="160" y="70">
-          <animate attributeName="opacity" values="0.4;1;0.4" dur="2.3s" repeatCount="indefinite" begin="0.5s"/>
+        <use href="#particle" x="100" y="200">
+          <animate attributeName="opacity" values="0;1;0" dur="2.5s" repeatCount="indefinite" begin="0.5s"/>
         </use>
-        <use href="#star" x="50" y="260">
-          <animate attributeName="opacity" values="0.5;1;0.5" dur="1.8s" repeatCount="indefinite" begin="1s"/>
+        <use href="#particle" x="60" y="160">
+          <animate attributeName="opacity" values="0;1;0" dur="1.8s" repeatCount="indefinite" begin="1s"/>
         </use>
-        <use href="#star" x="150" y="270">
-          <animate attributeName="opacity" values="0.3;0.9;0.3" dur="2.5s" repeatCount="indefinite" begin="1.5s"/>
+        <use href="#particle" x="140" y="160">
+          <animate attributeName="opacity" values="0;1;0" dur="2.3s" repeatCount="indefinite" begin="0.3s"/>
         </use>
-        <use href="#star" x="100" y="70">
-          <animate attributeName="opacity" values="0.4;1;0.4" dur="2.1s" repeatCount="indefinite" begin="0.3s"/>
+        <use href="#particle" x="80" y="130">
+          <animate attributeName="opacity" values="0;1;0" dur="2.7s" repeatCount="indefinite" begin="1.2s"/>
         </use>
-        <use href="#star" x="30" y="150">
-          <animate attributeName="opacity" values="0.5;1;0.5" dur="1.9s" repeatCount="indefinite" begin="0.8s"/>
-        </use>
-        <use href="#star" x="170" y="180">
-          <animate attributeName="opacity" values="0.3;1;0.3" dur="2.4s" repeatCount="indefinite" begin="1.2s"/>
-        </use>
-        <use href="#star" x="100" y="300">
-          <animate attributeName="opacity" values="0.4;1;0.4" dur="2.2s" repeatCount="indefinite" begin="1.8s"/>
+        <use href="#particle" x="120" y="190">
+          <animate attributeName="opacity" values="0;1;0" dur="1.6s" repeatCount="indefinite" begin="0.8s"/>
         </use>
       </g>
+
+      {/* === Статичные звёзды по краям с мерцанием === */}
+      {stars.map((s, i) => (
+        <use key={i} href="#star" x={s.x} y={s.y}>
+          <animate
+            attributeName="opacity"
+            values="0.3;1;0.3"
+            dur={`${1.8 + (i % 4) * 0.2}s`}
+            repeatCount="indefinite"
+            begin={`${s.d}s`}
+          />
+        </use>
+      ))}
     </svg>
   )
 }
