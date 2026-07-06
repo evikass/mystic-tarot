@@ -1948,8 +1948,12 @@ export function CardSVG({ card, isReversed = false, width = 200, height = 320, c
       <rect x="0" y="0" width="200" height="320" fill={`url(#bg-${card.id})`} rx="10"/>
       <rect x="0" y="0" width="200" height="320" fill={`url(#stars-${card.id})`} rx="10"/>
 
-      {/* Декоративная рамка с орнаментом */}
+      {/* Декоративная рамка с орнаментом + анимированная пунктирная обводка */}
       <OrnateBorder accent={accentColor}/>
+      {/* Бегущая пунктирная обводка как "портал" */}
+      <rect x="11" y="11" width="178" height="298" fill="none" stroke={accentColor} strokeWidth="0.5" rx="4" strokeDasharray="4 3" opacity="0.5">
+        <animate attributeName="stroke-dashoffset" from="0" to="56" dur="25s" repeatCount="indefinite"/>
+      </rect>
 
       {/* Мистические узоры по краям — центр остаётся чистым */}
       <EdgeOrnaments accent={accentColor}/>
@@ -2014,91 +2018,71 @@ export function CardBack({ width = 200, height = 320, className }: { width?: num
           <circle cx="0" cy="30" r="0.5" fill="rgba(196,181,253,0.4)"/>
           <circle cx="30" cy="0" r="0.5" fill="rgba(196,181,253,0.4)"/>
         </pattern>
+        {/* Угловой орнамент — лилия (используется 4 раза через <use>) */}
+        <symbol id="cardback-corner" viewBox="0 0 20 20">
+          <path d="M 0 0 L 14 0 L 14 2 L 2 2 L 2 14 L 0 14 Z" fill="rgba(251,191,36,0.75)"/>
+          <path d="M 3 3 L 10 3 M 3 3 L 3 10" stroke="rgba(251,191,36,0.9)" strokeWidth="0.4" fill="none"/>
+          <circle cx="17" cy="17" r="2.5" fill="rgba(251,191,36,0.7)"/>
+          <circle cx="17" cy="17" r="5" fill="none" stroke="rgba(251,191,36,0.4)" strokeWidth="0.4"/>
+        </symbol>
+        {/* Звезда-сияние — используется 4 раза по углам полей */}
+        <symbol id="cardback-fieldstar" viewBox="-5 -5 10 10">
+          <text x="0" y="2" fontSize="5" textAnchor="middle" fill="rgba(251,191,36,0.5)">✦</text>
+        </symbol>
       </defs>
 
-      {/* Фон — без радиального свечения (просвечивало при 3D-наклоне) */}
+      {/* ===== СЛОЙ 1: Фон ===== */}
       <rect x="0" y="0" width="200" height="320" fill="url(#cardback-bg)" rx="10"/>
       <rect x="0" y="0" width="200" height="320" fill="url(#cardback-pattern)" rx="10"/>
 
-      {/* Двойная рамка */}
+      {/* ===== СЛОЙ 2: Рамка с анимированной обводкой ===== */}
       <rect x="6" y="6" width="188" height="308" fill="none" stroke="rgba(251,191,36,0.7)" strokeWidth="1.5" rx="6"/>
-      <rect x="10" y="10" width="180" height="300" fill="none" stroke="rgba(251,191,36,0.4)" strokeWidth="0.5" rx="4"/>
+      {/* Пунктирная рамка с бегущей анимацией */}
+      <rect x="10" y="10" width="180" height="300" fill="none" stroke="rgba(251,191,36,0.5)" strokeWidth="0.6" rx="4" strokeDasharray="3 2">
+        <animate attributeName="stroke-dashoffset" from="0" to="50" dur="20s" repeatCount="indefinite"/>
+      </rect>
       <rect x="13" y="13" width="174" height="294" fill="none" stroke="rgba(251,191,36,0.25)" strokeWidth="0.4" rx="3"/>
 
-      {/* Угловые орнаменты — стилизованные лилии */}
-      {[
-        [18, 18, 0], [182, 18, 90], [182, 302, 180], [18, 302, 270],
-      ].map(([x, y, rot], i) => (
-        <g key={i} transform={`rotate(${rot} ${x} ${y})`}>
-          <path d={`M ${x} ${y} L ${x + 14} ${y} L ${x + 14} ${y + 2} L ${x + 2} ${y + 2} L ${x + 2} ${y + 14} L ${x} ${y + 14} Z`} fill="rgba(251,191,36,0.75)"/>
-          <path d={`M ${x + 3} ${y + 3} L ${x + 10} ${y + 3} M ${x + 3} ${y + 3} L ${x + 3} ${y + 10}`} stroke="rgba(251,191,36,0.9)" strokeWidth="0.4"/>
-          <circle cx={x + 17} cy={y + 17} r="2.5" fill="rgba(251,191,36,0.7)"/>
-          <circle cx={x + 17} cy={y + 17} r="5" fill="none" stroke="rgba(251,191,36,0.4)" strokeWidth="0.4"/>
-        </g>
-      ))}
+      {/* ===== Угловые орнаменты через <use> (оптимизация: 1 символ, 4 использования) ===== */}
+      <use href="#cardback-corner" x="8" y="8" width="20" height="20"/>
+      <use href="#cardback-corner" x="172" y="8" width="20" height="20" transform="rotate(90 182 18)"/>
+      <use href="#cardback-corner" x="172" y="292" width="20" height="20" transform="rotate(180 182 302)"/>
+      <use href="#cardback-corner" x="8" y="292" width="20" height="20" transform="rotate(270 18 302)"/>
 
-      {/* Центральный медальон */}
+      {/* ===== СЛОЙ 3: Центральный медальон (анимированный) ===== */}
       <g transform="translate(100, 160)">
         {/* Внешний круг с орнаментом */}
         <circle r="48" fill="none" stroke="rgba(251,191,36,0.7)" strokeWidth="1.5"/>
         <circle r="44" fill="rgba(251,191,36,0.05)" stroke="rgba(251,191,36,0.4)" strokeWidth="0.8" strokeDasharray="2 1"/>
         <circle r="40" fill="none" stroke="rgba(251,191,36,0.3)" strokeWidth="0.5"/>
 
-        {/* Вращающееся кольцо лучей — анимированная группа */}
+        {/* Вращающееся кольцо лучей */}
         <g>
-          {/* Лучи вокруг — 16 штук */}
           {Array.from({ length: 16 }).map((_, i) => {
             const a = (i / 16) * Math.PI * 2
             const isLong = i % 2 === 0
             return <line key={i} x1={Math.cos(a) * 48} y1={Math.sin(a) * 48} x2={Math.cos(a) * (isLong ? 58 : 53)} y2={Math.sin(a) * (isLong ? 58 : 53)} stroke="rgba(251,191,36,0.6)" strokeWidth={isLong ? 1.2 : 0.6}/>
           })}
-
-          {/* Звёзды на лучах */}
           {Array.from({ length: 8 }).map((_, i) => {
             const a = (i / 8) * Math.PI * 2
             return <text key={i} x={Math.cos(a) * 60} y={Math.sin(a) * 60 + 2} fontSize="4" textAnchor="middle" fill="rgba(251,191,36,0.6)">✦</text>
           })}
-
-          {/* Медленное вращение лучей против часовой */}
-          <animateTransform
-            attributeName="transform"
-            attributeType="XML"
-            type="rotate"
-            from="0 0 0"
-            to="360 0 0"
-            dur="40s"
-            repeatCount="indefinite"
-          />
+          <animateTransform attributeName="transform" attributeType="XML" type="rotate" from="0 0 0" to="360 0 0" dur="40s" repeatCount="indefinite"/>
         </g>
 
-        {/* Внутренний круг с пентаграммой */}
+        {/* Внутренний круг */}
         <circle r="32" fill="rgba(26,15,46,0.4)" stroke="rgba(251,191,36,0.6)" strokeWidth="1"/>
 
         {/* 8-конечная звезда — пульсирует */}
         <g>
           <path d="M 0 -28 L 6 -8 L 28 -10 L 10 4 L 22 22 L 0 10 L -22 22 L -10 4 L -28 -10 L -6 -8 Z" fill="rgba(251,191,36,0.5)" stroke="rgba(251,191,36,0.95)" strokeWidth="1.2"/>
-          <animateTransform
-            attributeName="transform"
-            attributeType="XML"
-            type="scale"
-            values="1;1.08;1"
-            dur="4s"
-            repeatCount="indefinite"
-          />
+          <animateTransform attributeName="transform" attributeType="XML" type="scale" values="1;1.08;1" dur="4s" repeatCount="indefinite"/>
         </g>
 
-        {/* Малая 4-конечная звезда в центре — вращается в обратную сторону */}
+        {/* Малая 4-конечная звезда — вращается обратно */}
         <g>
           <path d="M 0 -16 L 3 -3 L 16 0 L 3 3 L 0 16 L -3 3 L -16 0 L -3 -3 Z" fill="rgba(251,191,36,0.7)" stroke="rgba(251,191,36,0.95)" strokeWidth="0.5"/>
-          <animateTransform
-            attributeName="transform"
-            attributeType="XML"
-            type="rotate"
-            from="360 0 0"
-            to="0 0 0"
-            dur="20s"
-            repeatCount="indefinite"
-          />
+          <animateTransform attributeName="transform" attributeType="XML" type="rotate" from="360 0 0" to="0 0 0" dur="20s" repeatCount="indefinite"/>
         </g>
 
         {/* Луна сверху */}
@@ -2111,43 +2095,32 @@ export function CardBack({ width = 200, height = 320, className }: { width?: num
             const a = (i / 8) * Math.PI * 2
             return <line key={i} x1={Math.cos(a) * 6} y1={38 + Math.sin(a) * 6} x2={Math.cos(a) * 10} y2={38 + Math.sin(a) * 10} stroke="rgba(251,191,36,0.8)" strokeWidth="1"/>
           })}
-          <animate
-            attributeName="opacity"
-            values="0.7;1;0.7"
-            dur="3s"
-            repeatCount="indefinite"
-          />
+          <animate attributeName="opacity" values="0.7;1;0.7" dur="3s" repeatCount="indefinite"/>
         </g>
 
-        {/* Глаз в центре — моргает/мерцает */}
+        {/* Глаз в центре — мерцает */}
         <g>
           <ellipse rx="9" ry="5" fill="rgba(255,255,255,0.25)" stroke="rgba(251,191,36,0.95)" strokeWidth="1"/>
           <circle r="2.5" fill="rgba(167,139,250,0.8)"/>
           <circle r="1" fill="rgba(251,191,36,0.95)"/>
-          <animate
-            attributeName="opacity"
-            values="0.8;1;0.8"
-            dur="5s"
-            repeatCount="indefinite"
-          />
+          <animate attributeName="opacity" values="0.8;1;0.8" dur="5s" repeatCount="indefinite"/>
         </g>
 
-        {/* Малые символы по сторонам */}
         <text x="-44" y="3" fontSize="6" textAnchor="middle" fill="rgba(251,191,36,0.6)">ᚠ</text>
         <text x="44" y="3" fontSize="6" textAnchor="middle" fill="rgba(251,191,36,0.6)">ᛉ</text>
       </g>
 
       {/* Декоративные символы по краям */}
-      <text x="100" y="55" fontSize="16" textAnchor="middle" fill="rgba(251,191,36,0.7)">✦</text>
-      <text x="100" y="285" fontSize="16" textAnchor="middle" fill="rgba(251,191,36,0.7)">✦</text>
+      <text x="100" y="55" fontSize="16" textAnchor="middle" fill="rgba(251,191,36,0.7)" className="svg-twinkle">✦</text>
+      <text x="100" y="285" fontSize="16" textAnchor="middle" fill="rgba(251,191,36,0.7)" className="svg-twinkle" style={{ animationDelay: "1.5s" }}>✦</text>
       <text x="35" y="165" fontSize="13" textAnchor="middle" fill="rgba(251,191,36,0.5)">☾</text>
       <text x="165" y="165" fontSize="13" textAnchor="middle" fill="rgba(251,191,36,0.5)">☉</text>
 
-      {/* Малые звёзды в полях */}
-      <text x="50" y="80" fontSize="5" fill="rgba(251,191,36,0.5)">✦</text>
-      <text x="150" y="80" fontSize="5" fill="rgba(251,191,36,0.5)">✦</text>
-      <text x="50" y="245" fontSize="5" fill="rgba(251,191,36,0.5)">✦</text>
-      <text x="150" y="245" fontSize="5" fill="rgba(251,191,36,0.5)">✦</text>
+      {/* Малые звёзды в полях — мерцают */}
+      <use href="#cardback-fieldstar" x="45" y="75" width="10" height="10"/>
+      <use href="#cardback-fieldstar" x="145" y="75" width="10" height="10"/>
+      <use href="#cardback-fieldstar" x="45" y="240" width="10" height="10"/>
+      <use href="#cardback-fieldstar" x="145" y="240" width="10" height="10"/>
     </svg>
   )
 }

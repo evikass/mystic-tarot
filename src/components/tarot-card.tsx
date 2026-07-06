@@ -4,6 +4,7 @@ import { useRef, useState, useEffect } from "react"
 import { CardSVG, CardBack } from "@/lib/tarot-svg"
 import type { TarotCard } from "@/lib/tarot-data"
 import { cn } from "@/lib/utils"
+import { playCardFlipSound, playClickSound } from "@/lib/sound-engine"
 
 interface TarotCardViewProps {
   card: TarotCard | null
@@ -56,11 +57,12 @@ export function TarotCardView({
   const [wasRevealed, setWasRevealed] = useState(false)
   const rafRef = useRef<number | null>(null)
 
-  // Reveal burst trigger
+  // Reveal burst trigger + flip sound
   useEffect(() => {
     if (revealed && !wasRevealed) {
       setWasRevealed(true)
       setShowBurst(true)
+      playCardFlipSound()
       const t = setTimeout(() => setShowBurst(false), 900)
       return () => clearTimeout(t)
     }
@@ -96,6 +98,7 @@ export function TarotCardView({
 
   const handleClick = () => {
     if (!revealed && onReveal) {
+      playClickSound()
       onReveal()
     }
   }

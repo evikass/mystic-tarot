@@ -127,6 +127,7 @@ import {
 } from "@/lib/tarot-storage"
 import { initVKBridge, isVKEnvironment, vkShare } from "@/lib/vk-bridge"
 import { useTheme } from "@/lib/use-theme"
+import { setMuted, isMuted, initMuteState, playCardDrawSound } from "@/lib/sound-engine"
 import { successSteps, stepCategories, type SuccessStep } from "@/lib/success-steps-data"
 import {
   getAllProgress,
@@ -211,6 +212,8 @@ import {
   Share2,
   Grid3x3,
   Dices,
+  Volume2,
+  VolumeX,
 } from "lucide-react"
 
 type Section = "home" | "daily" | "readings" | "tarot-forecast" | "compatibility" | "psychology" | "history" | "success" | "catalog" | "theme"
@@ -275,6 +278,18 @@ function Header({
 }) {
   const [mobileOpen, setMobileOpen] = useState(false)
   const { theme, toggleTheme, mounted } = useTheme()
+  const [muted, setMutedState] = useState(false)
+
+  useEffect(() => {
+    initMuteState()
+    setMutedState(isMuted())
+  }, [])
+
+  const toggleMute = () => {
+    const next = !muted
+    setMuted(next)
+    setMutedState(next)
+  }
   return (
     <header className="sticky top-0 z-30 glass-mystic border-b border-amber-400/20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
@@ -338,9 +353,18 @@ function Header({
           >
             {mounted && theme === "light" ? <Moon className="w-4 h-4"/> : <Sun className="w-4 h-4"/>}
           </button>
+          {/* Sound toggle */}
+          <button
+            onClick={toggleMute}
+            aria-label={muted ? "Включить звук" : "Выключить звук"}
+            title={muted ? "Включить звук" : "Выключить звук"}
+            className="flex items-center justify-center w-9 h-9 rounded-lg text-amber-200 hover:bg-amber-400/10 hover:text-amber-100 transition-all border border-amber-400/20"
+          >
+            {muted ? <VolumeX className="w-4 h-4"/> : <Volume2 className="w-4 h-4"/>}
+          </button>
         </nav>
 
-        {/* Mobile: theme toggle + menu button */}
+        {/* Mobile: theme + sound toggle + menu button */}
         <div className="md:hidden flex items-center gap-1">
           <button
             onClick={toggleTheme}
@@ -349,6 +373,14 @@ function Header({
             className="flex items-center justify-center w-9 h-9 rounded-lg text-amber-200 hover:bg-amber-400/10 hover:text-amber-100 transition-all border border-amber-400/20"
           >
             {mounted && theme === "light" ? <Moon className="w-5 h-5"/> : <Sun className="w-5 h-5"/>}
+          </button>
+          <button
+            onClick={toggleMute}
+            aria-label={muted ? "Включить звук" : "Выключить звук"}
+            title={muted ? "Включить звук" : "Выключить звук"}
+            className="flex items-center justify-center w-9 h-9 rounded-lg text-amber-200 hover:bg-amber-400/10 hover:text-amber-100 transition-all border border-amber-400/20"
+          >
+            {muted ? <VolumeX className="w-5 h-5"/> : <Volume2 className="w-5 h-5"/>}
           </button>
           <button
             className="p-2 text-amber-200"
