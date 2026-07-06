@@ -52,18 +52,20 @@ export function TarotCardView({
   const currentTilt = useRef({ x: 0, y: 0 })
   const mousePosRef = useRef<{ x: number; y: number } | null>(null)
   const isHoveredRef = useRef(false)
+  const flippedRef = useRef(false)
   const [tiltState, setTiltState] = useState({ x: 0, y: 0 })
   const [showBurst, setShowBurst] = useState(false)
   const [wasRevealed, setWasRevealed] = useState(false)
   const rafRef = useRef<number | null>(null)
 
-  // Reveal burst + flip sound
+  // Reveal burst + flip sound + sync flippedRef
   useEffect(() => {
+    flippedRef.current = revealed
     if (revealed && !wasRevealed) {
       setWasRevealed(true)
       setShowBurst(true)
       playCardFlipSound()
-      const t = setTimeout(() => setShowBurst(false), 900)
+      const t = setTimeout(() => setShowBurst(false), 800)
       return () => clearTimeout(t)
     }
     if (!revealed && wasRevealed) {
@@ -184,6 +186,7 @@ export function TarotCardView({
                     active={!revealed}
                     mousePosRef={mousePosRef}
                     isHoveredRef={isHoveredRef}
+                    flippedRef={flippedRef}
                   />
                 )}
                 {/* ::after glow is in CSS (glowPulse / glowIntense) */}

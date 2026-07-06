@@ -622,7 +622,8 @@ body {
   border-radius: inherit;
   background: radial-gradient(circle, rgba(251, 191, 36, 0.5) 0%, transparent 70%);
   pointer-events: none;
-  animation: reveal-burst 0.9s ease-out;
+  animation: reveal-burst 0.8s ease-out forwards;
+  opacity: 0;
 }
 
 /* Floating sparkle particles */
