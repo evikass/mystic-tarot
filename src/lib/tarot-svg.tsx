@@ -168,120 +168,134 @@ function OrnateBorder({ accent }: { accent: string }) {
 // === Иллюстрации Старших Арканов — детализированные ===
 function MajorArcanaArt({ card }: { card: TarotCard }) {
   const map: Record<string, ReactElement> = {
-    // 0. ШУТ — путник на краю пропасти с собакой и солнцем
+    // 0. ШУТ — в стиле Васнецова: сказочный юноша на краю пропасти, охра/бордо/золото
     "major-0": (
       <g>
-        {/* Солнце с лучами — мерцает */}
-        <g>
-          <circle cx="155" cy="80" r="10" fill="#fbbf24" opacity="0.9"/>
-          {Array.from({ length: 12 }).map((_, i) => {
-            const a = (i / 12) * Math.PI * 2
-            return <line key={i} x1={155 + Math.cos(a) * 10} y1={80 + Math.sin(a) * 10} x2={155 + Math.cos(a) * 14} y2={80 + Math.sin(a) * 14} stroke="#fbbf24" strokeWidth="1" opacity="0.8"/>
-          })}
-        </g>
-        {/* Мерцающие звёзды */}
-        <circle cx="40" cy="60" r="1.2" fill="#fef3c7" className="svg-twinkle" style={{ animationDelay: "0s" }}/>
-        <circle cx="170" cy="50" r="1" fill="#fef3c7" className="svg-twinkle" style={{ animationDelay: "1.5s" }}/>
-        <circle cx="60" cy="100" r="0.8" fill="#fef3c7" className="svg-twinkle" style={{ animationDelay: "0.8s" }}/>
-        {/* Пейзаж — горы */}
-        <path d="M 30 240 L 60 180 L 90 240 Z" fill="rgba(125,211,252,0.2)" stroke="#7dd3fc" strokeWidth="0.6" opacity="0.7"/>
-        <path d="M 110 240 L 145 175 L 175 240 Z" fill="rgba(125,211,252,0.25)" stroke="#7dd3fc" strokeWidth="0.6" opacity="0.8"/>
-        {/* Утёс под ногами */}
-        <path d="M 60 240 L 100 200 L 140 240 Z" fill="rgba(45,27,78,0.6)" stroke="#7dd3fc" strokeWidth="0.8"/>
-        {/* Фигура Шута — лёгкое дыхание */}
+        {/* === ВАСНЕЦОВСКИЙ ПЕЙЗАЖ === */}
+        {/* Небо — тёплый градиент охры */}
+        <rect x="14" y="42" width="172" height="100" fill="rgba(204,153,51,0.12)" rx="2"/>
+        {/* Закатное солнце — крупное, васнецовское */}
+        <circle cx="155" cy="75" r="14" fill="rgba(218,165,32,0.35)" stroke="#b8860b" strokeWidth="0.8"/>
+        <circle cx="155" cy="75" r="10" fill="rgba(255,200,80,0.5)"/>
+        {/* Лучи — растительные, как у Васнецова */}
+        {Array.from({ length: 8 }).map((_, i) => {
+          const a = (i / 8) * Math.PI * 2
+          return <line key={i} x1={155 + Math.cos(a) * 14} y1={75 + Math.sin(a) * 14} x2={155 + Math.cos(a) * 20} y2={75 + Math.sin(a) * 20} stroke="#b8860b" strokeWidth="0.6" opacity="0.5"/>
+        })}
+        {/* Горы — силуэты охрой */}
+        <path d="M 14 200 L 50 140 L 90 200 Z" fill="rgba(139,90,43,0.25)" stroke="#8b5a2b" strokeWidth="0.6"/>
+        <path d="M 80 200 L 120 130 L 170 200 Z" fill="rgba(139,90,43,0.3)" stroke="#8b5a2b" strokeWidth="0.6"/>
+        {/* Утёс — тёмно-коричневый */}
+        <path d="M 55 210 L 100 170 L 145 210 L 145 250 L 55 250 Z" fill="rgba(74,53,36,0.7)" stroke="#8b5a2b" strokeWidth="0.8"/>
+        {/* Трава — изумрудная, васнецовская */}
+        <path d="M 14 240 Q 40 235 60 240 Q 80 235 100 240 Q 120 235 140 240 Q 160 235 186 240 L 186 250 L 14 250 Z" fill="rgba(34,100,40,0.2)" stroke="#2d6e2d" strokeWidth="0.4"/>
+
+        {/* === ФИГУРА ШУТА — в стиле сказочного богатыря === */}
         <g className="svg-breathe" style={{ transformOrigin: "100px 180px" }}>
-          {/* Голова */}
-          <ellipse cx="100" cy="115" rx="9" ry="10" fill="rgba(255,255,255,0.6)" stroke="#7dd3fc" strokeWidth="1"/>
-          {/* Шапка с красным пером */}
-          <path d="M 92 110 Q 100 95 108 110 L 105 113 L 95 113 Z" fill="rgba(220,38,38,0.5)" stroke="#fbbf24" strokeWidth="0.8"/>
-          <path d="M 108 105 Q 120 100 118 90 Q 115 95 110 95" fill="#dc2626" stroke="#fbbf24" strokeWidth="0.5"/>
-          {/* Тело в пёстром костюме */}
-          <path d="M 88 220 L 92 130 L 108 130 L 112 220 Z" fill="rgba(125,211,252,0.4)" stroke="#7dd3fc" strokeWidth="1"/>
-          {/* Узоры на костюме */}
-          <circle cx="100" cy="155" r="3" fill="#fbbf24" opacity="0.7"/>
-          <circle cx="96" cy="180" r="2" fill="#dc2626" opacity="0.7"/>
-          <circle cx="104" cy="180" r="2" fill="#a78bfa" opacity="0.7"/>
-          <path d="M 95 200 L 105 200" stroke="#fbbf24" strokeWidth="0.6"/>
-          {/* Ноги */}
-          <path d="M 95 220 L 92 245" stroke="#7dd3fc" strokeWidth="2.5" strokeLinecap="round"/>
-          <path d="M 105 220 L 110 240" stroke="#7dd3fc" strokeWidth="2.5" strokeLinecap="round"/>
+          {/* Голова — молодой, русые кудри */}
+          <ellipse cx="100" cy="108" rx="8" ry="9" fill="rgba(232,200,160,0.9)" stroke="#8b5a2b" strokeWidth="0.8"/>
+          {/* Волосы — русые кудри */}
+          <path d="M 92 105 Q 90 98 95 96 Q 100 93 105 96 Q 110 98 108 105" fill="rgba(139,90,43,0.6)" stroke="#8b5a2b" strokeWidth="0.4"/>
+          {/* Колпак — красный с золотым узором (как у скоморохов) */}
+          <path d="M 92 106 Q 100 88 108 106 L 106 110 L 94 110 Z" fill="rgba(153,27,27,0.85)" stroke="#b8860b" strokeWidth="0.8"/>
+          {/* Узор на колпаке — растительный */}
+          <path d="M 96 100 Q 98 97 100 99 Q 102 97 104 100" fill="none" stroke="#ffd700" strokeWidth="0.5"/>
+          {/* Бубенец на кончике */}
+          <circle cx="100" cy="90" r="2" fill="#ffd700" stroke="#b8860b" strokeWidth="0.4"/>
+          {/* Тело — кафтан охровый с бордовой отделкой */}
+          <path d="M 87 225 L 91 125 L 109 125 L 113 225 Z" fill="rgba(184,134,11,0.5)" stroke="#8b5a2b" strokeWidth="1"/>
+          {/* Отделка кафтана — бордовая */}
+          <path d="M 91 125 L 109 125 L 109 130 L 91 130 Z" fill="rgba(153,27,27,0.6)"/>
+          <path d="M 87 220 L 113 220 L 113 225 L 87 225 Z" fill="rgba(153,27,27,0.6)"/>
+          {/* Растительный узор на кафтане — васнецовский */}
+          <path d="M 95 145 Q 100 142 105 145 Q 103 150 100 148 Q 97 150 95 145" fill="none" stroke="#ffd700" strokeWidth="0.5"/>
+          <circle cx="100" cy="160" r="2.5" fill="rgba(255,215,0,0.6)" stroke="#b8860b" strokeWidth="0.4"/>
+          <path d="M 95 175 Q 100 172 105 175 Q 103 180 100 178 Q 97 180 95 175" fill="none" stroke="#ffd700" strokeWidth="0.5"/>
+          <path d="M 95 195 Q 100 192 105 195 Q 103 200 100 198 Q 97 200 95 195" fill="none" stroke="#ffd700" strokeWidth="0.5"/>
+          {/* Ноги — в сапогах */}
+          <path d="M 94 225 L 91 245" stroke="#8b5a2b" strokeWidth="3" strokeLinecap="round"/>
+          <path d="M 106 225 L 111 240" stroke="#8b5a2b" strokeWidth="3" strokeLinecap="round"/>
         </g>
-        {/* Посох с узелком на плече */}
-        <line x1="78" y1="220" x2="125" y2="115" stroke="#fbbf24" strokeWidth="2" strokeLinecap="round"/>
-        <ellipse cx="125" cy="115" rx="8" ry="6" fill="rgba(220,38,38,0.5)" stroke="#fbbf24" strokeWidth="1"/>
-        <path d="M 122 113 L 128 117 M 122 117 L 128 113" stroke="#fbbf24" strokeWidth="0.5"/>
-        {/* Маленькая собака у ног — лёгкое покачивание */}
+        {/* Посох — берестяной, с узелком */}
+        <line x1="78" y1="225" x2="125" y2="110" stroke="#8b5a2b" strokeWidth="2" strokeLinecap="round"/>
+        <ellipse cx="125" cy="110" rx="7" ry="5" fill="rgba(153,27,27,0.6)" stroke="#b8860b" strokeWidth="0.8"/>
+        {/* Собачка — рыжая, как у Васнецова */}
         <g className="svg-drift" style={{ transformOrigin: "78px 238px" }}>
-          <ellipse cx="78" cy="238" rx="6" ry="3" fill="rgba(255,255,255,0.5)" stroke="#7dd3fc" strokeWidth="0.8"/>
-          <circle cx="73" cy="236" r="2" fill="rgba(255,255,255,0.7)" stroke="#7dd3fc" strokeWidth="0.5"/>
-          <path d="M 71 234 L 70 231 M 73 233 L 73 230" stroke="#7dd3fc" strokeWidth="0.5"/>
+          <ellipse cx="78" cy="238" rx="6" ry="3" fill="rgba(184,134,11,0.6)" stroke="#8b5a2b" strokeWidth="0.6"/>
+          <circle cx="72" cy="236" r="2.5" fill="rgba(184,134,11,0.7)" stroke="#8b5a2b" strokeWidth="0.5"/>
+          <path d="M 70 234 L 69 231 M 72 233 L 72 230" stroke="#8b5a2b" strokeWidth="0.5"/>
         </g>
-        {/* Розы у ног */}
-        <circle cx="130" cy="245" r="3" fill="#dc2626" stroke="#fbbf24" strokeWidth="0.5"/>
-        <circle cx="135" cy="248" r="2" fill="#dc2626" stroke="#fbbf24" strokeWidth="0.5"/>
+        {/* Розы — алые */}
+        <circle cx="130" cy="245" r="3" fill="rgba(180,30,30,0.9)" stroke="#b8860b" strokeWidth="0.4"/>
+        <circle cx="135" cy="248" r="2" fill="rgba(180,30,30,0.9)" stroke="#b8860b" strokeWidth="0.4"/>
+        {/* Растительные стебли */}
+        <path d="M 130 248 Q 128 252 126 250" fill="none" stroke="#2d6e2d" strokeWidth="0.6"/>
+        <path d="M 135 250 Q 137 254 139 252" fill="none" stroke="#2d6e2d" strokeWidth="0.6"/>
       </g>
     ),
 
-    // I. МАГ — фигура перед алтарем с 4 стихиями, лемниската над головой
+    // I. МАГ — в стиле Васнецова: волхв перед алтарём, золото/индиго/охра
     "major-1": (
       <g>
-        {/* Лемниската (бесконечность) — мерцает */}
-        <g>
-          <path d="M 90 80 Q 95 73 100 80 Q 105 73 110 80 Q 105 87 100 80 Q 95 87 90 80 Z" fill="#fbbf24" stroke="#fef3c7" strokeWidth="0.5"/>
-        </g>
-        {/* Сияние над головой */}
+        {/* === ВАСНЕЦОВСКИЙ ФОН === */}
+        {/* Арочный проём — как в храме */}
+        <path d="M 30 250 L 30 70 Q 30 50 50 50 L 150 50 Q 170 50 170 70 L 170 250 Z" fill="rgba(26,20,50,0.3)" stroke="#b8860b" strokeWidth="0.6" opacity="0.5"/>
+        {/* Лемниската — золотая, мерцает */}
+        <path d="M 90 78 Q 95 71 100 78 Q 105 71 110 78 Q 105 85 100 78 Q 95 85 90 78 Z" fill="#ffd700" stroke="#fef3c7" strokeWidth="0.5" opacity="0.9"/>
+        {/* Сияние — васнецовские лучи */}
         {Array.from({ length: 8 }).map((_, i) => {
           const a = (i / 8) * Math.PI - Math.PI
-          return <line key={i} x1={100} y1={70} x2={100 + Math.cos(a) * 10} y2={70 + Math.sin(a) * 10} stroke="#fbbf24" strokeWidth="0.8" opacity="0.7"/>
+          return <line key={i} x1={100} y1={68} x2={100 + Math.cos(a) * 12} y2={68 + Math.sin(a) * 12} stroke="#b8860b" strokeWidth="0.6" opacity="0.5"/>
         })}
-        {/* Мерцающие звёзды фона */}
-        <circle cx="40" cy="50" r="1" fill="#fef3c7" className="svg-twinkle" style={{ animationDelay: "0s" }}/>
-        <circle cx="160" cy="55" r="0.8" fill="#fef3c7" className="svg-twinkle" style={{ animationDelay: "1s" }}/>
-        {/* Фигура Мага — дыхание */}
+        {/* === ФИГУРА МАГА-ВОЛХВА === */}
         <g className="svg-breathe" style={{ transformOrigin: "100px 160px" }}>
-          {/* Голова */}
-          <circle cx="100" cy="100" r="9" fill="rgba(255,255,255,0.6)" stroke="#fbbf24" strokeWidth="1"/>
-          {/* Тело в мантии */}
-          <path d="M 86 220 L 90 115 L 110 115 L 114 220 Z" fill="rgba(251,191,36,0.3)" stroke="#fbbf24" strokeWidth="1.2"/>
-          {/* Узор на мантии — змея */}
-          <path d="M 95 140 Q 100 145 105 140 Q 110 145 105 150 Q 100 155 95 150 Q 90 155 95 160" fill="none" stroke="#fbbf24" strokeWidth="0.8"/>
-          {/* Рука с жезлом вверх */}
-          <line x1="92" y1="135" x2="68" y2="85" stroke="#7dd3fc" strokeWidth="2.5" strokeLinecap="round"/>
-          <line x1="68" y1="85" x2="68" y2="68" stroke="#fbbf24" strokeWidth="2.5" strokeLinecap="round"/>
-          {/* Жезл светится */}
-          <g>
-            <circle cx="68" cy="63" r="5" fill="#fbbf24" stroke="#fef3c7" strokeWidth="0.8"/>
-          </g>
+          {/* Голова с бородой — мудрый старец */}
+          <circle cx="100" cy="98" r="8" fill="rgba(232,200,160,0.9)" stroke="#8b5a2b" strokeWidth="0.8"/>
+          {/* Борода — длинная, белая с серебром */}
+          <path d="M 94 103 Q 92 115 96 122 L 104 122 Q 108 115 106 103" fill="rgba(220,220,230,0.6)" stroke="#8b5a2b" strokeWidth="0.4"/>
+          {/* Мантия — тёмно-синяя индиго с золотой каймой */}
+          <path d="M 84 225 L 88 112 L 112 112 L 116 225 Z" fill="rgba(30,30,80,0.7)" stroke="#b8860b" strokeWidth="1"/>
+          {/* Золотая кайма по краю */}
+          <path d="M 88 112 L 112 112 L 112 118 L 88 118 Z" fill="rgba(255,215,0,0.3)" stroke="#b8860b" strokeWidth="0.4"/>
+          <path d="M 84 220 L 116 220 L 116 225 L 84 225 Z" fill="rgba(255,215,0,0.2)" stroke="#b8860b" strokeWidth="0.4"/>
+          {/* Растительный узор на мантии */}
+          <path d="M 94 135 Q 100 132 106 135 Q 103 140 100 138 Q 97 140 94 135" fill="none" stroke="#ffd700" strokeWidth="0.4"/>
+          <path d="M 94 155 Q 100 152 106 155 Q 103 160 100 158 Q 97 160 94 155" fill="none" stroke="#ffd700" strokeWidth="0.4"/>
+          <path d="M 94 175 Q 100 172 106 175 Q 103 180 100 178 Q 97 180 94 175" fill="none" stroke="#ffd700" strokeWidth="0.4"/>
+          {/* Жезл — берестяной, с золотым навершием */}
+          <line x1="92" y1="135" x2="68" y2="80" stroke="#8b5a2b" strokeWidth="2.5" strokeLinecap="round"/>
+          <line x1="68" y1="80" x2="68" y2="65" stroke="#8b5a2b" strokeWidth="2" strokeLinecap="round"/>
+          <circle cx="68" cy="60" r="5" fill="#ffd700" stroke="#b8860b" strokeWidth="0.8"/>
           {/* Рука вниз к столу */}
-          <line x1="108" y1="135" x2="130" y2="170" stroke="#7dd3fc" strokeWidth="2.5" strokeLinecap="round"/>
+          <line x1="108" y1="135" x2="130" y2="170" stroke="rgba(232,200,160,0.9)" strokeWidth="2.5" strokeLinecap="round"/>
         </g>
-        {/* Алтарь/стол */}
-        <rect x="125" y="180" width="55" height="6" fill="rgba(45,27,78,0.6)" stroke="#fbbf24" strokeWidth="1"/>
-        <line x1="130" y1="186" x2="130" y2="215" stroke="#fbbf24" strokeWidth="1.5"/>
-        <line x1="175" y1="186" x2="175" y2="215" stroke="#fbbf24" strokeWidth="1.5"/>
-        {/* 4 символа стихий на столе — каждый слегка мерцает */}
-        {/* Чаша (Вода) */}
-        <g className="svg-twinkle" style={{ animationDelay: "0s" }}>
-          <path d="M 138 170 L 141 180 L 151 180 L 154 170 Z" fill="rgba(96,165,250,0.6)" stroke="#7dd3fc" strokeWidth="1"/>
-          <path d="M 146 168 Q 146 172 144 172 M 146 168 Q 146 172 148 172" fill="none" stroke="#7dd3fc" strokeWidth="0.4"/>
+        {/* Алтарь — деревянный, как у Васнецова */}
+        <rect x="122" y="178" width="58" height="6" fill="rgba(74,53,36,0.8)" stroke="#8b5a2b" strokeWidth="0.8"/>
+        <line x1="127" y1="184" x2="127" y2="215" stroke="#8b5a2b" strokeWidth="1.5"/>
+        <line x1="175" y1="184" x2="175" y2="215" stroke="#8b5a2b" strokeWidth="1.5"/>
+        {/* Стихии на алтаре — васнецовская палитра */}
+        {/* Чаша — медная */}
+        <g>
+          <path d="M 136 168 L 139 178 L 149 178 L 152 168 Z" fill="rgba(184,115,51,0.7)" stroke="#b8860b" strokeWidth="0.8"/>
+          <ellipse cx="144" cy="168" rx="5" ry="1.5" fill="rgba(100,150,200,0.4)" stroke="#b8860b" strokeWidth="0.4"/>
         </g>
-        {/* Меч (Воздух) */}
-        <g className="svg-twinkle" style={{ animationDelay: "0.7s" }}>
-          <line x1="160" y1="160" x2="160" y2="180" stroke="#cbd5e1" strokeWidth="1.8"/>
-          <line x1="156" y1="163" x2="164" y2="163" stroke="#fbbf24" strokeWidth="1.2"/>
-          <circle cx="160" cy="158" r="1.5" fill="#fbbf24"/>
+        {/* Меч — стальной с золотой рукоятью */}
+        <g>
+          <line x1="160" y1="158" x2="160" y2="178" stroke="rgba(180,180,190,0.8)" strokeWidth="1.8"/>
+          <line x1="155" y1="162" x2="165" y2="162" stroke="#ffd700" strokeWidth="1.2"/>
+          <circle cx="160" cy="156" r="1.8" fill="#ffd700" stroke="#b8860b" strokeWidth="0.4"/>
         </g>
-        {/* Пентакль (Земля) */}
-        <g className="svg-twinkle" style={{ animationDelay: "1.4s" }}>
-          <circle cx="170" cy="175" r="4" fill="rgba(163,230,53,0.4)" stroke="#a3e635" strokeWidth="0.8"/>
-          <path d="M 170 171 L 171.5 174 L 174 174 L 172 176 L 173 179 L 170 177 L 167 179 L 168 176 L 166 174 L 168.5 174 Z" fill="#a3e635"/>
+        {/* Пентакль — золотой */}
+        <g>
+          <circle cx="170" cy="173" r="4" fill="rgba(255,215,0,0.3)" stroke="#ffd700" strokeWidth="0.8"/>
+          <path d="M 170 169 L 171.5 172 L 174 172 L 172 174 L 173 177 L 170 175 L 167 177 L 168 174 L 166 172 L 168.5 172 Z" fill="#ffd700"/>
         </g>
-        {/* Растения и цветы на полу */}
-        <path d="M 30 245 L 35 240 L 32 235 L 38 230 L 35 225" fill="none" stroke="#86efac" strokeWidth="1"/>
-        <circle cx="35" cy="240" r="2" fill="#dc2626"/>
-        <circle cx="38" cy="230" r="2" fill="#fbbf24"/>
-        <path d="M 165 245 L 170 240 L 168 235 L 172 230" fill="none" stroke="#86efac" strokeWidth="1"/>
-        <circle cx="170" cy="240" r="2" fill="#dc2626"/>
+        {/* Растения — васнецовские травы */}
+        <path d="M 28 245 L 33 240 L 30 235 L 36 230 L 33 225" fill="none" stroke="#2d6e2d" strokeWidth="0.8"/>
+        <circle cx="33" cy="240" r="2" fill="rgba(180,30,30,0.8)"/>
+        <circle cx="36" cy="230" r="2" fill="#ffd700"/>
+        <path d="M 163 245 L 168 240 L 166 235 L 170 230" fill="none" stroke="#2d6e2d" strokeWidth="0.8"/>
+        <circle cx="168" cy="240" r="2" fill="rgba(180,30,30,0.8)"/>
       </g>
     ),
 
@@ -1924,11 +1938,11 @@ export function CardSVG({ card, isReversed = false, width = 200, height = 320, c
       }}
     >
       <defs>
-        {/* Богатый градиентный фон */}
+        {/* Богатый градиент фона — васнецовская палитра: охра/умбра */}
         <linearGradient id={`bg-${card.id}`} x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" stopColor="#1a0f2e" stopOpacity="0.98"/>
-          <stop offset="50%" stopColor="#2d1b4e" stopOpacity="0.98"/>
-          <stop offset="100%" stopColor="#1a0f2e" stopOpacity="0.98"/>
+          <stop offset="0%" stopColor="#2a1a0e" stopOpacity="0.98"/>
+          <stop offset="50%" stopColor="#3d2818" stopOpacity="0.98"/>
+          <stop offset="100%" stopColor="#2a1a0e" stopOpacity="0.98"/>
         </linearGradient>
         {/* Звёздный паттерн — только в углах, центр чистый для иллюстрации */}
         <pattern id={`stars-${card.id}`} width="200" height="320" patternUnits="userSpaceOnUse">
