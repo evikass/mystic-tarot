@@ -2001,7 +2001,10 @@ export function CardSVG({ card, isReversed = false, width = 200, height = 320, c
 }
 
 // === РУБАШКА КАРТЫ — пульсирующий глаз + вращающиеся частицы + звёзды ===
+// ID уникальны для каждого экземпляра (чтобы несколько карт не конфликтовали)
+let cardBackCounter = 0
 export function CardBack({ width = 200, height = 320, className }: { width?: number; height?: number; className?: string }) {
+  const uid = `cb${cardBackCounter++}`
   // Позиции статичных звёзд (x, y, задержка мерцания)
   const stars = [
     { x: 40, y: 50, d: 0 },
@@ -2017,46 +2020,45 @@ export function CardBack({ width = 200, height = 320, className }: { width?: num
   return (
     <svg viewBox="0 0 200 340" width={width} height={height} className={className} xmlns="http://www.w3.org/2000/svg">
       <defs>
-        <radialGradient id="bgGlow" cx="50%" cy="50%" r="70%">
+        <radialGradient id={`${uid}-bg`} cx="50%" cy="50%" r="70%">
           <stop offset="0%" stopColor="#1a1025"/>
           <stop offset="100%" stopColor="#0a0510"/>
         </radialGradient>
-        <linearGradient id="gold" x1="0%" y1="0%" x2="100%" y2="100%">
+        <linearGradient id={`${uid}-gold`} x1="0%" y1="0%" x2="100%" y2="100%">
           <stop offset="0%" stopColor="#ffd700"/>
           <stop offset="50%" stopColor="#b8860b"/>
           <stop offset="100%" stopColor="#ffd700"/>
         </linearGradient>
-        <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+        <filter id={`${uid}-glow`} x="-30%" y="-30%" width="160%" height="160%">
           <feGaussianBlur stdDeviation="2.5" result="blur"/>
           <feMerge>
             <feMergeNode in="blur"/>
             <feMergeNode in="SourceGraphic"/>
           </feMerge>
         </filter>
-        <filter id="particleGlow" x="-50%" y="-50%" width="200%" height="200%">
+        <filter id={`${uid}-pglow`} x="-50%" y="-50%" width="200%" height="200%">
           <feGaussianBlur stdDeviation="1" result="blur"/>
           <feMerge>
             <feMergeNode in="blur"/>
             <feMergeNode in="SourceGraphic"/>
           </feMerge>
         </filter>
-        <g id="particle">
-          <circle r="1.5" fill="#ffd700" filter="url(#particleGlow)"/>
+        <g id={`${uid}-particle`}>
+          <circle r="1.5" fill="#ffd700" filter={`url(#${uid}-pglow)`}/>
         </g>
-        {/* Шаблон звезды */}
-        <g id="star">
-          <path d="M0,-6 L1.5,-1.5 L6,0 L1.5,1.5 L0,6 L-1.5,1.5 L-6,0 L-1.5,-1.5 Z" fill="url(#gold)" filter="url(#glow)"/>
+        <g id={`${uid}-star`}>
+          <path d="M0,-6 L1.5,-1.5 L6,0 L1.5,1.5 L0,6 L-1.5,1.5 L-6,0 L-1.5,-1.5 Z" fill={`url(#${uid}-gold)`} filter={`url(#${uid}-glow)`}/>
         </g>
       </defs>
 
       {/* Фон */}
-      <rect width="200" height="340" rx="12" fill="url(#bgGlow)" stroke="url(#gold)" strokeWidth="2"/>
+      <rect width="200" height="340" rx="12" fill={`url(#${uid}-bg)`} stroke={`url(#${uid}-gold)`} strokeWidth="2"/>
 
       {/* Рамки */}
-      <rect x="8" y="8" width="184" height="324" rx="8" fill="none" stroke="url(#gold)" strokeWidth="1" opacity="0.6"/>
-      <rect x="16" y="16" width="168" height="308" rx="6" fill="none" stroke="url(#gold)" strokeWidth="0.5" strokeDasharray="4 4" opacity="0.4"/>
+      <rect x="8" y="8" width="184" height="324" rx="8" fill="none" stroke={`url(#${uid}-gold)`} strokeWidth="1" opacity="0.6"/>
+      <rect x="16" y="16" width="168" height="308" rx="6" fill="none" stroke={`url(#${uid}-gold)`} strokeWidth="0.5" strokeDasharray="4 4" opacity="0.4"/>
 
-      {/* === Центральный глаз — пульсирует (scale 1→1.03) === */}
+      {/* === Центральный глаз — пульсирует === */}
       <g transform="translate(100, 160)">
         <animateTransform
           attributeName="transform"
@@ -2066,19 +2068,14 @@ export function CardBack({ width = 200, height = 320, className }: { width?: num
           repeatCount="indefinite"
           additive="sum"
         />
-        {/* Внешнее кольцо */}
-        <circle r="36" fill="none" stroke="url(#gold)" strokeWidth="1.5" opacity="0.8"/>
-        {/* Среднее кольцо */}
-        <circle r="22" fill="none" stroke="url(#gold)" strokeWidth="1" opacity="0.6"/>
-        {/* Внутренний круг (зрачок) */}
-        <circle r="12" fill="rgba(167,139,250,0.2)" stroke="url(#gold)" strokeWidth="0.8" opacity="0.7"/>
-        {/* Ядро */}
-        <circle r="5" fill="url(#gold)" opacity="0.9"/>
-        {/* Блик */}
+        <circle r="36" fill="none" stroke={`url(#${uid}-gold)`} strokeWidth="1.5" opacity="0.8"/>
+        <circle r="22" fill="none" stroke={`url(#${uid}-gold)`} strokeWidth="1" opacity="0.6"/>
+        <circle r="12" fill="rgba(167,139,250,0.2)" stroke={`url(#${uid}-gold)`} strokeWidth="0.8" opacity="0.7"/>
+        <circle r="5" fill={`url(#${uid}-gold)`} opacity="0.9"/>
         <circle cx="-2" cy="-2" r="1.5" fill="rgba(255,255,255,0.8)"/>
       </g>
 
-      {/* === Частицы, вращающиеся вокруг центра (12с) === */}
+      {/* === Частицы, вращающиеся вокруг центра === */}
       <g>
         <animateTransform
           attributeName="transform"
@@ -2088,29 +2085,29 @@ export function CardBack({ width = 200, height = 320, className }: { width?: num
           dur="12s"
           repeatCount="indefinite"
         />
-        <use href="#particle" x="100" y="120">
+        <use href={`#${uid}-particle`} x="100" y="120">
           <animate attributeName="opacity" values="0;1;0" dur="2s" repeatCount="indefinite"/>
         </use>
-        <use href="#particle" x="100" y="200">
+        <use href={`#${uid}-particle`} x="100" y="200">
           <animate attributeName="opacity" values="0;1;0" dur="2.5s" repeatCount="indefinite" begin="0.5s"/>
         </use>
-        <use href="#particle" x="60" y="160">
+        <use href={`#${uid}-particle`} x="60" y="160">
           <animate attributeName="opacity" values="0;1;0" dur="1.8s" repeatCount="indefinite" begin="1s"/>
         </use>
-        <use href="#particle" x="140" y="160">
+        <use href={`#${uid}-particle`} x="140" y="160">
           <animate attributeName="opacity" values="0;1;0" dur="2.3s" repeatCount="indefinite" begin="0.3s"/>
         </use>
-        <use href="#particle" x="80" y="130">
+        <use href={`#${uid}-particle`} x="80" y="130">
           <animate attributeName="opacity" values="0;1;0" dur="2.7s" repeatCount="indefinite" begin="1.2s"/>
         </use>
-        <use href="#particle" x="120" y="190">
+        <use href={`#${uid}-particle`} x="120" y="190">
           <animate attributeName="opacity" values="0;1;0" dur="1.6s" repeatCount="indefinite" begin="0.8s"/>
         </use>
       </g>
 
-      {/* === Статичные звёзды по краям с мерцанием === */}
+      {/* === Статичные звёзды === */}
       {stars.map((s, i) => (
-        <use key={i} href="#star" x={s.x} y={s.y}>
+        <use key={i} href={`#${uid}-star`} x={s.x} y={s.y}>
           <animate
             attributeName="opacity"
             values="0.3;1;0.3"
@@ -2121,20 +2118,20 @@ export function CardBack({ width = 200, height = 320, className }: { width?: num
         </use>
       ))}
 
-      {/* === Падающие искры (каждая со своей траекторией) === */}
-      <circle cx="30" cy="0" r="1" fill="#ffd700" filter="url(#particleGlow)">
+      {/* === Падающие искры === */}
+      <circle cx="30" cy="0" r="1" fill="#ffd700" filter={`url(#${uid}-pglow)`}>
         <animate attributeName="cy" values="-10;350" dur="4s" repeatCount="indefinite" begin="0s"/>
         <animate attributeName="opacity" values="0;1;0" dur="4s" repeatCount="indefinite" begin="0s"/>
       </circle>
-      <circle cx="70" cy="0" r="1.2" fill="#ffd700" filter="url(#particleGlow)">
+      <circle cx="70" cy="0" r="1.2" fill="#ffd700" filter={`url(#${uid}-pglow)`}>
         <animate attributeName="cy" values="-10;350" dur="5s" repeatCount="indefinite" begin="1s"/>
         <animate attributeName="opacity" values="0;1;0" dur="5s" repeatCount="indefinite" begin="1s"/>
       </circle>
-      <circle cx="130" cy="0" r="0.8" fill="#ffd700" filter="url(#particleGlow)">
+      <circle cx="130" cy="0" r="0.8" fill="#ffd700" filter={`url(#${uid}-pglow)`}>
         <animate attributeName="cy" values="-10;350" dur="3.5s" repeatCount="indefinite" begin="2s"/>
         <animate attributeName="opacity" values="0;1;0" dur="3.5s" repeatCount="indefinite" begin="2s"/>
       </circle>
-      <circle cx="170" cy="0" r="1" fill="#ffd700" filter="url(#particleGlow)">
+      <circle cx="170" cy="0" r="1" fill="#ffd700" filter={`url(#${uid}-pglow)`}>
         <animate attributeName="cy" values="-10;350" dur="4.5s" repeatCount="indefinite" begin="0.5s"/>
         <animate attributeName="opacity" values="0;1;0" dur="4.5s" repeatCount="indefinite" begin="0.5s"/>
       </circle>

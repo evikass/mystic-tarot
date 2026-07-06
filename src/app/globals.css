@@ -490,73 +490,12 @@ body {
   cursor: pointer;
   perspective: 1000px;
   border-radius: 12px;
-  /* НЕТ box-shadow, НЕТ transition — свечение через ::before */
+  /* НЕТ свечения здесь — 3D-контейнер не должен иметь box-shadow */
 }
 
-/* Внешнее свечение через ::before (отдельный элемент, не мешает 3D) */
 .tarot-card::before {
-  content: "";
-  position: absolute;
-  inset: -8px;
-  border-radius: 16px;
-  pointer-events: none;
-  z-index: -1;
-  opacity: 0;
-  transition: opacity 0.4s ease;
-  box-shadow:
-    0 0 20px rgba(212, 175, 55, 0.4),
-    0 0 40px rgba(212, 175, 55, 0.2),
-    0 0 80px rgba(180, 140, 255, 0.1);
-}
-
-/* Пульсация только когда карта не перевёрнута */
-.tarot-card:not(.flipped)::before {
-  opacity: 1;
-  animation: glowPulseBefore 3s ease-in-out infinite alternate;
-}
-
-/* Усиление при ховере */
-.tarot-card:not(.flipped):hover::before {
-  animation: glowIntenseBefore 1s ease-in-out infinite alternate;
-}
-
-/* После переворота — ::before полностью невидим */
-.tarot-card.flipped::before {
-  opacity: 0 !important;
-  animation: none;
-}
-
-@keyframes glowPulseBefore {
-  0% {
-    opacity: 0.5;
-    box-shadow:
-      0 0 15px rgba(212, 175, 55, 0.3),
-      0 0 30px rgba(212, 175, 55, 0.15),
-      0 0 60px rgba(180, 140, 255, 0.08);
-  }
-  100% {
-    opacity: 1;
-    box-shadow:
-      0 0 25px rgba(255, 215, 0, 0.5),
-      0 0 50px rgba(255, 215, 0, 0.25),
-      0 0 80px rgba(180, 140, 255, 0.15);
-  }
-}
-
-@keyframes glowIntenseBefore {
-  from {
-    opacity: 0.8;
-    box-shadow:
-      0 0 20px gold,
-      0 0 40px rgba(255, 215, 0, 0.5);
-  }
-  to {
-    opacity: 1;
-    box-shadow:
-      0 0 35px #ffd700,
-      0 0 70px #daa520,
-      0 0 100px rgba(255, 215, 0, 0.4);
-  }
+  display: none;
+  content: none;
 }
 
 /* Внутренний блок для tilt (RAF, без transition) */
@@ -592,19 +531,73 @@ body {
   border-radius: 12px;
 }
 
-/* Лицевая сторона — overflow hidden чтобы обрезать иллюстрацию */
+/* Лицевая сторона */
 .tarot-card-front {
   transform: rotateY(180deg);
   overflow: hidden;
 }
 
-/* Рубашка — БЕЗ overflow hidden (чтобы не обрезать внешние эффекты) */
+/* Рубашка */
 .tarot-card-back {
   display: flex;
   align-items: center;
   justify-content: center;
-  /* Убрали overflow: hidden — рубашка не обрезает свои элементы */
-  /* Убрали ::after — свечение теперь на .tarot-card (внешний контейнер) */
+  overflow: hidden;
+}
+
+/* === СВЕЧЕНИЕ — на внешней обёртке .premium-card-float === */
+/* Эта обёртка НЕ участвует в 3D (нет perspective/transform-style),
+   поэтому box-shadow рендерится нормально, по краю карты */
+.premium-card-float {
+  position: relative;
+  border-radius: 12px;
+}
+
+.premium-card-float:has(.tarot-card:not(.flipped)) {
+  box-shadow:
+    0 0 20px rgba(212, 175, 55, 0.4),
+    0 0 40px rgba(212, 175, 55, 0.2),
+    0 0 80px rgba(180, 140, 255, 0.1);
+  animation: glowPulseOuter 3s ease-in-out infinite alternate;
+}
+
+.premium-card-float:has(.tarot-card:not(.flipped):hover) {
+  animation: glowIntenseOuter 1s ease-in-out infinite alternate;
+}
+
+/* Когда карта перевёрнута — НОЛЬ свечения */
+.premium-card-float:has(.tarot-card.flipped) {
+  box-shadow: none;
+  animation: none;
+}
+
+@keyframes glowPulseOuter {
+  0% {
+    box-shadow:
+      0 0 15px rgba(212, 175, 55, 0.3),
+      0 0 30px rgba(212, 175, 55, 0.15),
+      0 0 60px rgba(180, 140, 255, 0.08);
+  }
+  100% {
+    box-shadow:
+      0 0 25px rgba(255, 215, 0, 0.5),
+      0 0 50px rgba(255, 215, 0, 0.25),
+      0 0 80px rgba(180, 140, 255, 0.15);
+  }
+}
+
+@keyframes glowIntenseOuter {
+  from {
+    box-shadow:
+      0 0 20px gold,
+      0 0 40px rgba(255, 215, 0, 0.5);
+  }
+  to {
+    box-shadow:
+      0 0 35px #ffd700,
+      0 0 70px #daa520,
+      0 0 100px rgba(255, 215, 0, 0.4);
+  }
 }
 
 /* Idle float — лёгкое парение */
