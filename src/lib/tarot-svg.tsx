@@ -2000,127 +2000,99 @@ export function CardSVG({ card, isReversed = false, width = 200, height = 320, c
   )
 }
 
-// === РУБАШКА КАРТЫ — улучшенная с мистическими узорами ===
+// === РУБАШКА КАРТЫ — анимированные звёзды, пульсирующий глаз, золотой градиент ===
 export function CardBack({ width = 200, height = 320, className }: { width?: number; height?: number; className?: string }) {
   return (
-    <svg viewBox="0 0 200 320" width={width} height={height} className={className}>
+    <svg viewBox="0 0 200 340" width={width} height={height} className={className} xmlns="http://www.w3.org/2000/svg">
       <defs>
-        <linearGradient id="cardback-bg" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#2d1b4e"/>
-          <stop offset="50%" stopColor="#1a0f2e"/>
-          <stop offset="100%" stopColor="#0f0820"/>
+        {/* Градиент для фона */}
+        <radialGradient id="bgGlow" cx="50%" cy="50%" r="70%">
+          <stop offset="0%" stopColor="#1a1025"/>
+          <stop offset="100%" stopColor="#0a0510"/>
+        </radialGradient>
+
+        {/* Золотой градиент для элементов */}
+        <linearGradient id="gold" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#ffd700"/>
+          <stop offset="50%" stopColor="#b8860b"/>
+          <stop offset="100%" stopColor="#ffd700"/>
         </linearGradient>
-        <pattern id="cardback-pattern" width="30" height="30" patternUnits="userSpaceOnUse">
-          <path d="M 15 0 L 30 15 L 15 30 L 0 15 Z" fill="none" stroke="rgba(251,191,36,0.25)" strokeWidth="0.5"/>
-          <circle cx="15" cy="15" r="2" fill="rgba(251,191,36,0.45)"/>
-          <circle cx="0" cy="0" r="0.6" fill="rgba(251,191,36,0.5)"/>
-          <circle cx="30" cy="30" r="0.6" fill="rgba(251,191,36,0.5)"/>
-          <circle cx="0" cy="30" r="0.5" fill="rgba(196,181,253,0.4)"/>
-          <circle cx="30" cy="0" r="0.5" fill="rgba(196,181,253,0.4)"/>
-        </pattern>
-        {/* Угловой орнамент — лилия (используется 4 раза через <use>) */}
-        <symbol id="cardback-corner" viewBox="0 0 20 20">
-          <path d="M 0 0 L 14 0 L 14 2 L 2 2 L 2 14 L 0 14 Z" fill="rgba(251,191,36,0.75)"/>
-          <path d="M 3 3 L 10 3 M 3 3 L 3 10" stroke="rgba(251,191,36,0.9)" strokeWidth="0.4" fill="none"/>
-          <circle cx="17" cy="17" r="2.5" fill="rgba(251,191,36,0.7)"/>
-          <circle cx="17" cy="17" r="5" fill="none" stroke="rgba(251,191,36,0.4)" strokeWidth="0.4"/>
-        </symbol>
-        {/* Звезда-сияние — используется 4 раза по углам полей */}
-        <symbol id="cardback-fieldstar" viewBox="-5 -5 10 10">
-          <text x="0" y="2" fontSize="5" textAnchor="middle" fill="rgba(251,191,36,0.5)">✦</text>
-        </symbol>
+
+        {/* Фильтр для свечения звёзд */}
+        <filter id="starGlow" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="2" result="blur"/>
+          <feMerge>
+            <feMergeNode in="blur"/>
+            <feMergeNode in="SourceGraphic"/>
+          </feMerge>
+        </filter>
+
+        {/* Шаблон звезды */}
+        <g id="star">
+          <path d="M0,-8 L2,-2 L8,0 L2,2 L0,8 L-2,2 L-8,0 L-2,-2 Z" fill="url(#gold)" filter="url(#starGlow)"/>
+        </g>
       </defs>
 
-      {/* ===== СЛОЙ 1: Фон ===== */}
-      <rect x="0" y="0" width="200" height="320" fill="url(#cardback-bg)" rx="10"/>
-      <rect x="0" y="0" width="200" height="320" fill="url(#cardback-pattern)" rx="10"/>
+      {/* Фон рубашки */}
+      <rect width="200" height="340" rx="12" fill="url(#bgGlow)" stroke="url(#gold)" strokeWidth="2"/>
 
-      {/* ===== СЛОЙ 2: Рамка с анимированной обводкой ===== */}
-      <rect x="6" y="6" width="188" height="308" fill="none" stroke="rgba(251,191,36,0.7)" strokeWidth="1.5" rx="6"/>
-      {/* Пунктирная рамка с бегущей анимацией */}
-      <rect x="10" y="10" width="180" height="300" fill="none" stroke="rgba(251,191,36,0.5)" strokeWidth="0.6" rx="4" strokeDasharray="3 2">
-        <animate attributeName="stroke-dashoffset" from="0" to="50" dur="20s" repeatCount="indefinite"/>
-      </rect>
-      <rect x="13" y="13" width="174" height="294" fill="none" stroke="rgba(251,191,36,0.25)" strokeWidth="0.4" rx="3"/>
+      {/* Декоративная рамка */}
+      <rect x="8" y="8" width="184" height="324" rx="8" fill="none" stroke="url(#gold)" strokeWidth="1" opacity="0.6"/>
+      <rect x="16" y="16" width="168" height="308" rx="6" fill="none" stroke="url(#gold)" strokeWidth="0.5" strokeDasharray="4 4" opacity="0.4"/>
 
-      {/* ===== Угловые орнаменты через <use> (оптимизация: 1 символ, 4 использования) ===== */}
-      <use href="#cardback-corner" x="8" y="8" width="20" height="20"/>
-      <use href="#cardback-corner" x="172" y="8" width="20" height="20" transform="rotate(90 182 18)"/>
-      <use href="#cardback-corner" x="172" y="292" width="20" height="20" transform="rotate(180 182 302)"/>
-      <use href="#cardback-corner" x="8" y="292" width="20" height="20" transform="rotate(270 18 302)"/>
+      {/* Центральный символ (глаз/луна) — пульсирует */}
+      <circle cx="100" cy="160" r="40" fill="none" stroke="url(#gold)" strokeWidth="1.5" opacity="0.8">
+        <animate attributeName="r" values="40;44;40" dur="4s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0.8;0.5;0.8" dur="4s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="100" cy="160" r="20" fill="none" stroke="url(#gold)" strokeWidth="0.8" opacity="0.6">
+        <animate attributeName="r" values="20;18;20" dur="3s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="100" cy="160" r="6" fill="url(#gold)" opacity="0.9">
+        <animate attributeName="opacity" values="0.9;0.4;0.9" dur="2s" repeatCount="indefinite"/>
+      </circle>
 
-      {/* ===== СЛОЙ 3: Центральный медальон (анимированный) ===== */}
-      <g transform="translate(100, 160)">
-        {/* Внешний круг с орнаментом */}
-        <circle r="48" fill="none" stroke="rgba(251,191,36,0.7)" strokeWidth="1.5"/>
-        <circle r="44" fill="rgba(251,191,36,0.05)" stroke="rgba(251,191,36,0.4)" strokeWidth="0.8" strokeDasharray="2 1"/>
-        <circle r="40" fill="none" stroke="rgba(251,191,36,0.3)" strokeWidth="0.5"/>
+      {/* Звёзды, анимированные через CSS-классы */}
+      <use href="#star" x="40" y="50" className="star star1"/>
+      <use href="#star" x="160" y="70" className="star star2"/>
+      <use href="#star" x="50" y="260" className="star star3"/>
+      <use href="#star" x="150" y="270" className="star star4"/>
+      <use href="#star" x="100" y="80" className="star star5"/>
+      <use href="#star" x="30" y="150" className="star star6"/>
+      <use href="#star" x="170" y="180" className="star star7"/>
+      <use href="#star" x="100" y="300" className="star star8"/>
 
-        {/* Вращающееся кольцо лучей */}
-        <g>
-          {Array.from({ length: 16 }).map((_, i) => {
-            const a = (i / 16) * Math.PI * 2
-            const isLong = i % 2 === 0
-            return <line key={i} x1={Math.cos(a) * 48} y1={Math.sin(a) * 48} x2={Math.cos(a) * (isLong ? 58 : 53)} y2={Math.sin(a) * (isLong ? 58 : 53)} stroke="rgba(251,191,36,0.6)" strokeWidth={isLong ? 1.2 : 0.6}/>
-          })}
-          {Array.from({ length: 8 }).map((_, i) => {
-            const a = (i / 8) * Math.PI * 2
-            return <text key={i} x={Math.cos(a) * 60} y={Math.sin(a) * 60 + 2} fontSize="4" textAnchor="middle" fill="rgba(251,191,36,0.6)">✦</text>
-          })}
-          <animateTransform attributeName="transform" attributeType="XML" type="rotate" from="0 0 0" to="360 0 0" dur="40s" repeatCount="indefinite"/>
-        </g>
+      {/* Внутренние стили для анимации звёзд */}
+      <style>{`
+        .star {
+          transform-origin: center;
+          transform-box: fill-box;
+          animation: twinkle 2s ease-in-out infinite alternate;
+        }
+        .star1 { animation-delay: 0s; }
+        .star2 { animation-delay: 0.5s; }
+        .star3 { animation-delay: 1s; }
+        .star4 { animation-delay: 1.5s; }
+        .star5 { animation-delay: 0.3s; }
+        .star6 { animation-delay: 0.8s; }
+        .star7 { animation-delay: 1.2s; }
+        .star8 { animation-delay: 1.8s; }
 
-        {/* Внутренний круг */}
-        <circle r="32" fill="rgba(26,15,46,0.4)" stroke="rgba(251,191,36,0.6)" strokeWidth="1"/>
-
-        {/* 8-конечная звезда — пульсирует */}
-        <g>
-          <path d="M 0 -28 L 6 -8 L 28 -10 L 10 4 L 22 22 L 0 10 L -22 22 L -10 4 L -28 -10 L -6 -8 Z" fill="rgba(251,191,36,0.5)" stroke="rgba(251,191,36,0.95)" strokeWidth="1.2"/>
-          <animateTransform attributeName="transform" attributeType="XML" type="scale" values="1;1.08;1" dur="4s" repeatCount="indefinite"/>
-        </g>
-
-        {/* Малая 4-конечная звезда — вращается обратно */}
-        <g>
-          <path d="M 0 -16 L 3 -3 L 16 0 L 3 3 L 0 16 L -3 3 L -16 0 L -3 -3 Z" fill="rgba(251,191,36,0.7)" stroke="rgba(251,191,36,0.95)" strokeWidth="0.5"/>
-          <animateTransform attributeName="transform" attributeType="XML" type="rotate" from="360 0 0" to="0 0 0" dur="20s" repeatCount="indefinite"/>
-        </g>
-
-        {/* Луна сверху */}
-        <path d="M -10 -38 A 10 10 0 1 1 10 -38 A 7 7 0 1 0 -10 -38 Z" fill="rgba(196,181,253,0.8)"/>
-
-        {/* Солнце снизу — мерцает */}
-        <g>
-          <circle cx="0" cy="38" r="6" fill="rgba(251,191,36,0.85)"/>
-          {Array.from({ length: 8 }).map((_, i) => {
-            const a = (i / 8) * Math.PI * 2
-            return <line key={i} x1={Math.cos(a) * 6} y1={38 + Math.sin(a) * 6} x2={Math.cos(a) * 10} y2={38 + Math.sin(a) * 10} stroke="rgba(251,191,36,0.8)" strokeWidth="1"/>
-          })}
-          <animate attributeName="opacity" values="0.7;1;0.7" dur="3s" repeatCount="indefinite"/>
-        </g>
-
-        {/* Глаз в центре — мерцает */}
-        <g>
-          <ellipse rx="9" ry="5" fill="rgba(255,255,255,0.25)" stroke="rgba(251,191,36,0.95)" strokeWidth="1"/>
-          <circle r="2.5" fill="rgba(167,139,250,0.8)"/>
-          <circle r="1" fill="rgba(251,191,36,0.95)"/>
-          <animate attributeName="opacity" values="0.8;1;0.8" dur="5s" repeatCount="indefinite"/>
-        </g>
-
-        <text x="-44" y="3" fontSize="6" textAnchor="middle" fill="rgba(251,191,36,0.6)">ᚠ</text>
-        <text x="44" y="3" fontSize="6" textAnchor="middle" fill="rgba(251,191,36,0.6)">ᛉ</text>
-      </g>
-
-      {/* Декоративные символы по краям */}
-      <text x="100" y="55" fontSize="16" textAnchor="middle" fill="rgba(251,191,36,0.7)" className="svg-twinkle">✦</text>
-      <text x="100" y="285" fontSize="16" textAnchor="middle" fill="rgba(251,191,36,0.7)" className="svg-twinkle" style={{ animationDelay: "1.5s" }}>✦</text>
-      <text x="35" y="165" fontSize="13" textAnchor="middle" fill="rgba(251,191,36,0.5)">☾</text>
-      <text x="165" y="165" fontSize="13" textAnchor="middle" fill="rgba(251,191,36,0.5)">☉</text>
-
-      {/* Малые звёзды в полях — мерцают */}
-      <use href="#cardback-fieldstar" x="45" y="75" width="10" height="10"/>
-      <use href="#cardback-fieldstar" x="145" y="75" width="10" height="10"/>
-      <use href="#cardback-fieldstar" x="45" y="240" width="10" height="10"/>
-      <use href="#cardback-fieldstar" x="145" y="240" width="10" height="10"/>
+        @keyframes twinkle {
+          0% {
+            opacity: 0.3;
+            transform: scale(0.8) rotate(0deg);
+          }
+          50% {
+            opacity: 1;
+            transform: scale(1.2) rotate(15deg);
+          }
+          100% {
+            opacity: 0.5;
+            transform: scale(1) rotate(30deg);
+          }
+        }
+      `}</style>
     </svg>
   )
 }
