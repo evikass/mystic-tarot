@@ -5,6 +5,7 @@ import { CardSVG, CardBack } from "@/lib/tarot-svg"
 import type { TarotCard } from "@/lib/tarot-data"
 import { cn } from "@/lib/utils"
 import { playCardFlipSound, playClickSound } from "@/lib/sound-engine"
+import { EyeOfMysticCanvas } from "@/components/eye-magic-canvas"
 
 interface TarotCardViewProps {
   card: TarotCard | null
@@ -157,6 +158,14 @@ export function TarotCardView({
               {/* === Рубашка (.tarot-card-back) — видна до flip === */}
               <div className="tarot-card-back">
                 <CardBack width={width} height={height} className="rounded-xl"/>
+                {/* Canvas с моргающим оком и частицами поверх SVG рубашки */}
+                {premium && (
+                  <EyeOfMysticCanvas
+                    width={width}
+                    height={height}
+                    active={!revealed}
+                  />
+                )}
                 {/* ::after glow is in CSS (glowPulse / glowIntense) */}
               </div>
 
