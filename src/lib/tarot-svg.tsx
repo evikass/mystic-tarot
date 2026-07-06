@@ -172,7 +172,7 @@ function MajorArcanaArt({ card }: { card: TarotCard }) {
     "major-0": (
       <g>
         {/* Солнце с лучами — мерцает */}
-        <g className="svg-glow" style={{ color: "#fbbf24" }}>
+        <g>
           <circle cx="155" cy="80" r="10" fill="#fbbf24" opacity="0.9"/>
           {Array.from({ length: 12 }).map((_, i) => {
             const a = (i / 12) * Math.PI * 2
@@ -226,7 +226,7 @@ function MajorArcanaArt({ card }: { card: TarotCard }) {
     "major-1": (
       <g>
         {/* Лемниската (бесконечность) — мерцает */}
-        <g className="svg-glow" style={{ color: "#fbbf24" }}>
+        <g>
           <path d="M 90 80 Q 95 73 100 80 Q 105 73 110 80 Q 105 87 100 80 Q 95 87 90 80 Z" fill="#fbbf24" stroke="#fef3c7" strokeWidth="0.5"/>
         </g>
         {/* Сияние над головой */}
@@ -249,7 +249,7 @@ function MajorArcanaArt({ card }: { card: TarotCard }) {
           <line x1="92" y1="135" x2="68" y2="85" stroke="#7dd3fc" strokeWidth="2.5" strokeLinecap="round"/>
           <line x1="68" y1="85" x2="68" y2="68" stroke="#fbbf24" strokeWidth="2.5" strokeLinecap="round"/>
           {/* Жезл светится */}
-          <g className="svg-glow" style={{ color: "#fbbf24" }}>
+          <g>
             <circle cx="68" cy="63" r="5" fill="#fbbf24" stroke="#fef3c7" strokeWidth="0.8"/>
           </g>
           {/* Рука вниз к столу */}

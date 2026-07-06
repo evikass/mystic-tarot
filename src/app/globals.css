@@ -490,37 +490,52 @@ body {
   cursor: pointer;
   perspective: 1000px;
   border-radius: 12px;
-  /* Свечение по краю — на внешнем контейнере, не переворачивается */
-  transition: box-shadow 0.4s ease;
+  /* НЕТ box-shadow, НЕТ transition — свечение через ::before */
+}
+
+/* Внешнее свечение через ::before (отдельный элемент, не мешает 3D) */
+.tarot-card::before {
+  content: "";
+  position: absolute;
+  inset: -8px;
+  border-radius: 16px;
+  pointer-events: none;
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 0.4s ease;
   box-shadow:
-    0 0 20px rgba(212, 175, 55, 0.3),
-    0 0 40px rgba(212, 175, 55, 0.15),
+    0 0 20px rgba(212, 175, 55, 0.4),
+    0 0 40px rgba(212, 175, 55, 0.2),
     0 0 80px rgba(180, 140, 255, 0.1);
 }
 
-/* Усиление свечения при наведении (только если не перевёрнута) */
-.tarot-card:not(.flipped) {
-  animation: glowPulseCard 3s ease-in-out infinite alternate;
+/* Пульсация только когда карта не перевёрнута */
+.tarot-card:not(.flipped)::before {
+  opacity: 1;
+  animation: glowPulseBefore 3s ease-in-out infinite alternate;
 }
 
-.tarot-card:not(.flipped):hover {
-  animation: glowIntenseCard 1s ease-in-out infinite alternate;
+/* Усиление при ховере */
+.tarot-card:not(.flipped):hover::before {
+  animation: glowIntenseBefore 1s ease-in-out infinite alternate;
 }
 
-/* После переворота — НЕТ свечения вообще (не мешает картинке) */
-.tarot-card.flipped {
+/* После переворота — ::before полностью невидим */
+.tarot-card.flipped::before {
+  opacity: 0 !important;
   animation: none;
-  box-shadow: none;
 }
 
-@keyframes glowPulseCard {
+@keyframes glowPulseBefore {
   0% {
+    opacity: 0.5;
     box-shadow:
       0 0 15px rgba(212, 175, 55, 0.3),
       0 0 30px rgba(212, 175, 55, 0.15),
       0 0 60px rgba(180, 140, 255, 0.08);
   }
   100% {
+    opacity: 1;
     box-shadow:
       0 0 25px rgba(255, 215, 0, 0.5),
       0 0 50px rgba(255, 215, 0, 0.25),
@@ -528,13 +543,15 @@ body {
   }
 }
 
-@keyframes glowIntenseCard {
+@keyframes glowIntenseBefore {
   from {
+    opacity: 0.8;
     box-shadow:
       0 0 20px gold,
       0 0 40px rgba(255, 215, 0, 0.5);
   }
   to {
+    opacity: 1;
     box-shadow:
       0 0 35px #ffd700,
       0 0 70px #daa520,
