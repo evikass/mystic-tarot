@@ -20,21 +20,19 @@ interface TarotCardViewProps {
 }
 
 /**
- * Premium tarot card with clean 3D tilt (Hearthstone-style).
+ * Premium tarot card with:
+ *  - CSS 3D flip (0.8s cubic-bezier transition via .flipped class)
+ *  - RAF-based tilt on hover (only before flip — on the card back)
+ *  - Magical glow on card back (::after with glowPulse animation)
+ *  - Intensified glow on hover (glowIntense animation)
+ *  - Reveal burst flash + flip sound on reveal
  *
- * Design philosophy: LESS IS MORE.
- * The card illustration must always be clearly visible. No overlays
- * that obscure the art. Only:
- *   - Smooth 3D tilt on hover (lerp-based, no CSS transition conflict)
- *   - Subtle glow ring behind card on hover (NOT on top)
- *   - Reveal burst flash (one-shot, 0.9s)
- *   - 3 sparkle particles when revealed (outside the card, above it)
- *
- * Removed because they obscured the illustration:
- *   - Specular highlight (was covering half the card)
- *   - Inset card-glow box-shadow (was overlaying art from inside)
- *   - Continuous holo-shimmer sweep (was a "protuberance" over the art)
- *   - Foil/rainbow overlay
+ * Layer structure (tilt and flip on SEPARATE elements to avoid conflict):
+ *   .tarot-card        — perspective container, cursor
+ *     .tarot-card-tilt — RAF tilt (no transition), disabled after flip
+ *       .tarot-card-inner — CSS transition 0.8s for flip (.flipped → rotateY 180)
+ *         .tarot-card-back  — backface hidden, has ::after glow
+ *         .tarot-card-front — backface hidden, rotateY(180deg)
  */
 export function TarotCardView({
   card,
@@ -52,12 +50,11 @@ export function TarotCardView({
   const targetTilt = useRef({ x: 0, y: 0 })
   const currentTilt = useRef({ x: 0, y: 0 })
   const [tiltState, setTiltState] = useState({ x: 0, y: 0 })
-  const [isHovering, setIsHovering] = useState(false)
   const [showBurst, setShowBurst] = useState(false)
   const [wasRevealed, setWasRevealed] = useState(false)
   const rafRef = useRef<number | null>(null)
 
-  // Reveal burst trigger + flip sound
+  // Reveal burst + flip sound
   useEffect(() => {
     if (revealed && !wasRevealed) {
       setWasRevealed(true)
@@ -71,14 +68,17 @@ export function TarotCardView({
     }
   }, [revealed, wasRevealed])
 
-  // Smooth lerp animation loop — updates tilt every frame
+  // Smooth lerp tilt — only active when NOT revealed (on the back)
   useEffect(() => {
     if (!premium) return
     const animate = () => {
+      // After reveal, smoothly return tilt to zero
+      if (revealed) {
+        targetTilt.current = { x: 0, y: 0 }
+      }
       const lerp = 0.15
       const dx = targetTilt.current.x - currentTilt.current.x
       const dy = targetTilt.current.y - currentTilt.current.y
-      // Snap when very close to avoid endless micro-updates
       if (Math.abs(dx) < 0.05 && Math.abs(dy) < 0.05) {
         currentTilt.current = { x: targetTilt.current.x, y: targetTilt.current.y }
       } else {
@@ -94,7 +94,7 @@ export function TarotCardView({
     return () => {
       if (rafRef.current) cancelAnimationFrame(rafRef.current)
     }
-  }, [premium])
+  }, [premium, revealed])
 
   const handleClick = () => {
     if (!revealed && onReveal) {
@@ -104,7 +104,7 @@ export function TarotCardView({
   }
 
   const handleMouseMove = (e: React.MouseEvent) => {
-    if (!premium || !containerRef.current) return
+    if (!premium || !containerRef.current || revealed) return
     const rect = containerRef.current.getBoundingClientRect()
     const cx = rect.left + rect.width / 2
     const cy = rect.top + rect.height / 2
@@ -116,20 +116,14 @@ export function TarotCardView({
     }
   }
 
-  const handleMouseEnter = () => {
-    if (premium) setIsHovering(true)
-  }
-
   const handleMouseLeave = () => {
     if (premium) {
-      setIsHovering(false)
       targetTilt.current = { x: 0, y: 0 }
     }
   }
 
-  const flipRotation = revealed ? 180 : 0
-  // NO CSS transition on transform — RAF handles smoothing
-  const innerTransform = `rotateX(${tiltState.x}deg) rotateY(${flipRotation + tiltState.y}deg)`
+  // Tilt transform (only on .tarot-card-tilt, no transition — RAF smooths)
+  const tiltTransform = `rotateX(${tiltState.x}deg) rotateY(${tiltState.y}deg)`
 
   return (
     <div className={cn("flex flex-col items-center", className)} style={{ width }}>
@@ -139,110 +133,88 @@ export function TarotCardView({
         </div>
       )}
 
-      {/* Outer wrapper handles idle float (separate from perspective/tilt) */}
+      {/* Idle float wrapper */}
       <div className="premium-card-float">
-        {/* Inner wrapper handles 3D perspective */}
+        {/* === .tarot-card — perspective container === */}
         <div
-          className={cn("relative cursor-pointer", premium && "premium-card-container")}
-          style={{ width, height, perspective: "1200px" }}
           ref={containerRef}
+          className={cn("tarot-card", revealed && "flipped")}
+          style={{ width, height }}
           onClick={handleClick}
           onMouseMove={handleMouseMove}
-          onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
         >
-          {/* Glow ring BEHIND card (z-index -1) — never on top of art */}
-          {premium && isHovering && (
-            <div className="glow-ring" style={{ borderRadius: "0.75rem" }}/>
-          )}
-
-          {/* The 3D-flipping inner element */}
+          {/* === .tarot-card-tilt — RAF tilt (no transition) === */}
           <div
-            className="absolute inset-0"
+            className="tarot-card-tilt"
             style={{
-              transformStyle: "preserve-3d",
-              transform: innerTransform,
-              // NO transition — RAF smooths it
+              transform: tiltTransform,
             }}
           >
-            {/* ============ CARD BACK ============ */}
-            <div
-              className="absolute inset-0 transition-opacity duration-300"
-              style={{
-                backfaceVisibility: "hidden",
-                WebkitBackfaceVisibility: "hidden",
-                opacity: revealed ? 0 : 1,
-                transitionDelay: revealed ? "0ms" : "350ms",
-                borderRadius: "0.75rem",
-              }}
-            >
-              <CardBack width={width} height={height} className="rounded-xl shadow-2xl shadow-purple-900/50"/>
-            </div>
+            {/* === .tarot-card-inner — CSS flip transition (0.8s) === */}
+            <div className="tarot-card-inner">
 
-            {/* ============ CARD FACE ============ */}
-            <div
-              className="absolute inset-0"
-              style={{
-                backfaceVisibility: "hidden",
-                WebkitBackfaceVisibility: "hidden",
-                transform: "rotateY(180deg)",
-                opacity: revealed ? 1 : 0,
-                transition: "opacity 0.3s",
-                transitionDelay: revealed ? "350ms" : "0ms",
-                borderRadius: "0.75rem",
-              }}
-            >
-              {card && (
-                <div className="relative w-full h-full" style={{ borderRadius: "0.75rem", overflow: "hidden" }}>
-                  <CardSVG
-                    card={card}
-                    isReversed={isReversed}
-                    width={width}
-                    height={height}
-                    className="rounded-xl shadow-2xl shadow-purple-900/50"
-                  />
-                  {/* Reveal burst flash — one-shot, fades out */}
-                  {showBurst && <div className="reveal-burst"/>}
-                </div>
-              )}
+              {/* === Рубашка (.tarot-card-back) — видна до flip === */}
+              <div className="tarot-card-back">
+                <CardBack width={width} height={height} className="rounded-xl"/>
+                {/* ::after glow is in CSS (glowPulse / glowIntense) */}
+              </div>
+
+              {/* === Лицевая сторона (.tarot-card-front) — видна после flip === */}
+              <div className="tarot-card-front">
+                {card && (
+                  <>
+                    <CardSVG
+                      card={card}
+                      isReversed={isReversed}
+                      width={width}
+                      height={height}
+                      className="rounded-xl"
+                    />
+                    {/* Reveal burst flash — one-shot */}
+                    {showBurst && <div className="reveal-burst"/>}
+                  </>
+                )}
+              </div>
+
             </div>
           </div>
-
-          {/* Floating sparkle particles — OUTSIDE the card, above it, never covering art */}
-          {premium && revealed && (
-            <div className="absolute inset-0 pointer-events-none overflow-visible" style={{ zIndex: 10 }}>
-              {[
-                { x: 20, y: 5, delay: 0, symbol: "✦" },
-                { x: 80, y: 0, delay: 1.2, symbol: "✧" },
-                { x: 50, y: -5, delay: 2.4, symbol: "✦" },
-              ].map((s, i) => (
-                <span
-                  key={i}
-                  className="sparkle-particle sparkle-slow"
-                  style={{
-                    left: `${s.x}%`,
-                    top: `${s.y}%`,
-                    animationDelay: `${s.delay}s`,
-                    fontSize: "12px",
-                  }}
-                >
-                  {s.symbol}
-                </span>
-              ))}
-            </div>
-          )}
-
-          {/* "Click to reveal" hint */}
-          {!revealed && premium && (
-            <div
-              className="absolute -bottom-7 left-1/2 -translate-x-1/2 text-[10px] text-amber-200/60 whitespace-nowrap animate-pulse"
-              style={{ pointerEvents: "none" }}
-            >
-              ✦ нажмите, чтобы открыть
-            </div>
-          )}
         </div>
       </div>
+
+      {/* Floating sparkle particles — above card, when revealed */}
+      {premium && revealed && (
+        <div className="relative pointer-events-none" style={{ width, height: 0, zIndex: 10 }}>
+          {[
+            { x: 20, y: -10, delay: 0, symbol: "✦" },
+            { x: 80, y: -15, delay: 1.2, symbol: "✧" },
+            { x: 50, y: -20, delay: 2.4, symbol: "✦" },
+          ].map((s, i) => (
+            <span
+              key={i}
+              className="sparkle-particle sparkle-slow"
+              style={{
+                left: `${s.x}%`,
+                top: `${s.y}px`,
+                animationDelay: `${s.delay}s`,
+                fontSize: "12px",
+              }}
+            >
+              {s.symbol}
+            </span>
+          ))}
+        </div>
+      )}
+
+      {/* "Click to reveal" hint */}
+      {!revealed && premium && (
+        <div
+          className="mt-2 text-[10px] text-amber-200/60 whitespace-nowrap animate-pulse"
+          style={{ pointerEvents: "none" }}
+        >
+          ✦ нажмите, чтобы открыть
+        </div>
+      )}
 
       {card && revealed && (
         <div className="mt-5 text-center animate-fade-in">
