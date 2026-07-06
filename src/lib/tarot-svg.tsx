@@ -350,68 +350,137 @@ function MajorArcanaArt({ card }: { card: TarotCard }) {
       </g>
     ),
 
-    // I. МАГ — в стиле Васнецова: волхв перед алтарём, золото/индиго/охра
+    // I. МАГ — детализированный волхв в стиле Васнецова
     "major-1": (
       <g>
-        {/* === ВАСНЕЦОВСКИЙ ФОН === */}
-        {/* Арочный проём — как в храме */}
-        <path d="M 30 250 L 30 70 Q 30 50 50 50 L 150 50 Q 170 50 170 70 L 170 250 Z" fill="rgba(26,20,50,0.3)" stroke="#b8860b" strokeWidth="0.6" opacity="0.5"/>
-        {/* Лемниската — золотая, мерцает */}
-        <path d="M 90 78 Q 95 71 100 78 Q 105 71 110 78 Q 105 85 100 78 Q 95 85 90 78 Z" fill="#ffd700" stroke="#fef3c7" strokeWidth="0.5" opacity="0.9"/>
-        {/* Сияние — васнецовские лучи */}
+        {/* ===== ХРАМОВЫЙ ФОН — арочный проём ===== */}
+        <path d="M 28 250 L 28 80 Q 28 52 55 50 L 145 50 Q 172 52 172 80 L 172 250 Z" fill="rgba(30,20,50,0.1)" stroke="#b8860b" strokeWidth="0.4" opacity="0.4"/>
+        {/* Лемниската — золотая, над головой */}
+        <path d="M 88 78 Q 93 71 100 78 Q 107 71 112 78 Q 107 85 100 78 Q 93 85 88 78 Z" fill="#ffd700" stroke="#fef3c7" strokeWidth="0.4" opacity="0.8"/>
+        {/* Лучи сияния */}
         {Array.from({ length: 8 }).map((_, i) => {
           const a = (i / 8) * Math.PI - Math.PI
-          return <line key={i} x1={100} y1={68} x2={100 + Math.cos(a) * 12} y2={68 + Math.sin(a) * 12} stroke="#b8860b" strokeWidth="0.6" opacity="0.5"/>
+          return <line key={i} x1={100} y1={68} x2={100 + Math.cos(a) * 12} y2={68 + Math.sin(a) * 12} stroke="#b8860b" strokeWidth="0.5" opacity="0.4"/>
         })}
-        {/* === ФИГУРА МАГА-ВОЛХВА === */}
-        <g className="svg-breathe" style={{ transformOrigin: "100px 160px" }}>
-          {/* Голова с бородой — мудрый старец */}
-          <circle cx="100" cy="98" r="8" fill="rgba(232,200,160,0.9)" stroke="#8b5a2b" strokeWidth="0.8"/>
-          {/* Борода — длинная, белая с серебром */}
-          <path d="M 94 103 Q 92 115 96 122 L 104 122 Q 108 115 106 103" fill="rgba(220,220,230,0.6)" stroke="#8b5a2b" strokeWidth="0.4"/>
-          {/* Мантия — тёмно-синяя индиго с золотой каймой */}
-          <path d="M 84 225 L 88 112 L 112 112 L 116 225 Z" fill="rgba(30,30,80,0.7)" stroke="#b8860b" strokeWidth="1"/>
-          {/* Золотая кайма по краю */}
-          <path d="M 88 112 L 112 112 L 112 118 L 88 118 Z" fill="rgba(255,215,0,0.3)" stroke="#b8860b" strokeWidth="0.4"/>
-          <path d="M 84 220 L 116 220 L 116 225 L 84 225 Z" fill="rgba(255,215,0,0.2)" stroke="#b8860b" strokeWidth="0.4"/>
-          {/* Растительный узор на мантии */}
-          <path d="M 94 135 Q 100 132 106 135 Q 103 140 100 138 Q 97 140 94 135" fill="none" stroke="#ffd700" strokeWidth="0.4"/>
-          <path d="M 94 155 Q 100 152 106 155 Q 103 160 100 158 Q 97 160 94 155" fill="none" stroke="#ffd700" strokeWidth="0.4"/>
-          <path d="M 94 175 Q 100 172 106 175 Q 103 180 100 178 Q 97 180 94 175" fill="none" stroke="#ffd700" strokeWidth="0.4"/>
-          {/* Жезл — берестяной, с золотым навершием */}
-          <line x1="92" y1="135" x2="68" y2="80" stroke="#8b5a2b" strokeWidth="2.5" strokeLinecap="round"/>
-          <line x1="68" y1="80" x2="68" y2="65" stroke="#8b5a2b" strokeWidth="2" strokeLinecap="round"/>
-          <circle cx="68" cy="60" r="5" fill="#ffd700" stroke="#b8860b" strokeWidth="0.8"/>
-          {/* Рука вниз к столу */}
-          <line x1="108" y1="135" x2="130" y2="170" stroke="rgba(232,200,160,0.9)" strokeWidth="2.5" strokeLinecap="round"/>
+
+        {/* ===== ФИГУРА ВОЛХВА ===== */}
+        <g className="svg-breathe" style={{ transformOrigin: "100px 170px" }}>
+
+          {/* === НОГИ === */}
+          <path d="M 92 220 L 90 245 L 87 250 L 93 252 L 96 248 L 95 230 Z" fill="rgba(30,30,80,0.4)" stroke="#1a1a50" strokeWidth="0.3"/>
+          <path d="M 108 220 L 110 245 L 113 250 L 107 252 L 104 248 L 105 230 Z" fill="rgba(30,30,80,0.4)" stroke="#1a1a50" strokeWidth="0.3"/>
+
+          {/* === МАНТИЯ — индиго, сложный path === */}
+          <path d="M 82 230 Q 80 210 82 185 Q 83 160 85 140 Q 86 130 88 125 L 112 125 Q 114 130 115 140 Q 117 160 118 185 Q 120 210 118 230 L 112 235 L 88 235 Z"
+            fill="rgba(30,30,80,0.5)" stroke="#1a1a50" strokeWidth="0.5"/>
+
+          {/* Золотая кайма — воротник */}
+          <path d="M 86 128 Q 92 125 100 126 Q 108 125 114 128 L 114 134 Q 108 131 100 132 Q 92 131 86 134 Z"
+            fill="rgba(255,215,0,0.25)" stroke="#b8860b" strokeWidth="0.3"/>
+          {/* Золотая кайма — подол */}
+          <path d="M 82 222 Q 100 226 118 222 L 118 232 Q 100 236 82 232 Z"
+            fill="rgba(255,215,0,0.2)" stroke="#b8860b" strokeWidth="0.3"/>
+
+          {/* Васнецовские растительные узоры на мантии */}
+          <path d="M 90 145 Q 95 141 100 143 Q 105 141 110 145 Q 105 149 100 147 Q 95 149 90 145" fill="none" stroke="#ffd700" strokeWidth="0.3" opacity="0.4"/>
+          <path d="M 90 165 Q 95 161 100 163 Q 105 161 110 165 Q 105 169 100 167 Q 95 169 90 165" fill="none" stroke="#ffd700" strokeWidth="0.3" opacity="0.4"/>
+          <path d="M 90 185 Q 95 181 100 183 Q 105 181 110 185 Q 105 189 100 187 Q 95 189 90 185" fill="none" stroke="#ffd700" strokeWidth="0.3" opacity="0.4"/>
+          <path d="M 90 205 Q 95 201 100 203 Q 105 201 110 205 Q 105 209 100 207 Q 95 209 90 205" fill="none" stroke="#ffd700" strokeWidth="0.3" opacity="0.4"/>
+          {/* Медальоны между узорами */}
+          <circle cx="100" cy="155" r="1.5" fill="rgba(255,215,0,0.3)" stroke="#b8860b" strokeWidth="0.2"/>
+          <circle cx="100" cy="175" r="1.5" fill="rgba(255,215,0,0.3)" stroke="#b8860b" strokeWidth="0.2"/>
+          <circle cx="100" cy="195" r="1.5" fill="rgba(255,215,0,0.3)" stroke="#b8860b" strokeWidth="0.2"/>
+
+          {/* === РУКИ === */}
+          {/* Левая — держит жезл вверх */}
+          <path d="M 86 138 Q 78 120 70 95 Q 68 85 68 78" fill="none" stroke="rgba(232,200,160,0.85)" strokeWidth="3" strokeLinecap="round"/>
+          {/* Правая — к алтарю */}
+          <path d="M 114 138 Q 122 150 128 165" fill="none" stroke="rgba(232,200,160,0.85)" strokeWidth="3" strokeLinecap="round"/>
+
+          {/* === ШЕЯ === */}
+          <path d="M 96 120 L 96 126 L 104 126 L 104 120" fill="rgba(232,200,160,0.85)" stroke="#8b5a2b" strokeWidth="0.3"/>
+
+          {/* === ГОЛОВА — мудрый старец === */}
+          <path d="M 93 105 Q 91 97 94 92 Q 97 88 100 87 Q 103 88 106 92 Q 109 97 107 105 Q 107 112 105 115 Q 103 118 100 118 Q 97 118 95 115 Q 93 112 93 105 Z"
+            fill="rgba(232,200,160,0.85)" stroke="#8b5a2b" strokeWidth="0.4"/>
+          {/* Седая борода — длинная, клином */}
+          <path d="M 94 110 Q 91 120 93 130 Q 95 138 100 140 Q 105 138 107 130 Q 109 120 106 110 Q 104 112 100 112 Q 96 112 94 110 Z"
+            fill="rgba(220,220,230,0.5)" stroke="#8b5a2b" strokeWidth="0.3"/>
+          {/* Усы */}
+          <path d="M 95 109 Q 98 107 100 108 Q 102 107 105 109" fill="none" stroke="rgba(200,200,210,0.4)" strokeWidth="0.8"/>
+          {/* Глаза — мудрые, прищуренные */}
+          <path d="M 94 101 Q 96 100 98 101" fill="none" stroke="#5a3a20" strokeWidth="0.5"/>
+          <path d="M 102 101 Q 104 100 106 101" fill="none" stroke="#5a3a20" strokeWidth="0.5"/>
+          <circle cx="96" cy="101" r="0.6" fill="rgba(60,40,30,0.7)"/>
+          <circle cx="104" cy="101" r="0.6" fill="rgba(60,40,30,0.7)"/>
+          {/* Брови — седые, густые */}
+          <path d="M 93 98 Q 96 96 99 98" fill="none" stroke="rgba(200,200,210,0.5)" strokeWidth="0.8"/>
+          <path d="M 101 98 Q 104 96 107 98" fill="none" stroke="rgba(200,200,210,0.5)" strokeWidth="0.8"/>
+          {/* Нос */}
+          <path d="M 100 103 L 99 108 L 101 108" fill="none" stroke="#8b5a2b" strokeWidth="0.3"/>
+          {/* Морщины на лбу */}
+          <path d="M 95 94 Q 100 93 105 94" fill="none" stroke="#8b5a2b" strokeWidth="0.2" opacity="0.3"/>
+          <path d="M 96 91 Q 100 90 104 91" fill="none" stroke="#8b5a2b" strokeWidth="0.2" opacity="0.3"/>
+
+          {/* Седые волосы */}
+          <path d="M 92 96 Q 89 92 91 88 Q 94 86 96 89 Q 100 86 104 89 Q 106 86 109 88 Q 111 92 108 96" fill="rgba(200,200,210,0.3)" stroke="#8b5a2b" strokeWidth="0.3"/>
         </g>
-        {/* Алтарь — деревянный, как у Васнецова */}
-        <rect x="122" y="178" width="58" height="6" fill="rgba(74,53,36,0.8)" stroke="#8b5a2b" strokeWidth="0.8"/>
-        <line x1="127" y1="184" x2="127" y2="215" stroke="#8b5a2b" strokeWidth="1.5"/>
-        <line x1="175" y1="184" x2="175" y2="215" stroke="#8b5a2b" strokeWidth="1.5"/>
-        {/* Стихии на алтаре — васнецовская палитра */}
-        {/* Чаша — медная */}
-        <g>
-          <path d="M 136 168 L 139 178 L 149 178 L 152 168 Z" fill="rgba(184,115,51,0.7)" stroke="#b8860b" strokeWidth="0.8"/>
-          <ellipse cx="144" cy="168" rx="5" ry="1.5" fill="rgba(100,150,200,0.4)" stroke="#b8860b" strokeWidth="0.4"/>
-        </g>
-        {/* Меч — стальной с золотой рукоятью */}
-        <g>
-          <line x1="160" y1="158" x2="160" y2="178" stroke="rgba(180,180,190,0.8)" strokeWidth="1.8"/>
-          <line x1="155" y1="162" x2="165" y2="162" stroke="#ffd700" strokeWidth="1.2"/>
-          <circle cx="160" cy="156" r="1.8" fill="#ffd700" stroke="#b8860b" strokeWidth="0.4"/>
-        </g>
-        {/* Пентакль — золотой */}
-        <g>
-          <circle cx="170" cy="173" r="4" fill="rgba(255,215,0,0.3)" stroke="#ffd700" strokeWidth="0.8"/>
-          <path d="M 170 169 L 171.5 172 L 174 172 L 172 174 L 173 177 L 170 175 L 167 177 L 168 174 L 166 172 L 168.5 172 Z" fill="#ffd700"/>
-        </g>
-        {/* Растения — васнецовские травы */}
-        <path d="M 28 245 L 33 240 L 30 235 L 36 230 L 33 225" fill="none" stroke="#2d6e2d" strokeWidth="0.8"/>
-        <circle cx="33" cy="240" r="2" fill="rgba(180,30,30,0.8)"/>
-        <circle cx="36" cy="230" r="2" fill="#ffd700"/>
-        <path d="M 163 245 L 168 240 L 166 235 L 170 230" fill="none" stroke="#2d6e2d" strokeWidth="0.8"/>
-        <circle cx="168" cy="240" r="2" fill="rgba(180,30,30,0.8)"/>
+
+        {/* ===== ЖЕЗЛ — берестяный, с золотым навершием ===== */}
+        <path d="M 68 220 Q 68 180 68 140 Q 68 100 68 75" fill="none" stroke="#6b4520" strokeWidth="2.2" strokeLinecap="round"/>
+        {/* Золотое навершие — шар с лучами */}
+        <circle cx="68" cy="68" r="6" fill="rgba(255,215,0,0.25)" stroke="#b8860b" strokeWidth="0.6"/>
+        <circle cx="68" cy="68" r="3.5" fill="rgba(255,200,80,0.4)"/>
+        {/* Блик на шаре */}
+        <ellipse cx="66" cy="66" rx="1.5" ry="1" fill="rgba(255,255,230,0.4)"/>
+
+        {/* ===== АЛТАРЬ — деревянный, резной ===== */}
+        <path d="M 120 178 L 178 178 L 176 184 L 122 184 Z" fill="rgba(74,53,36,0.7)" stroke="#5a3a20" strokeWidth="0.5"/>
+        {/* Ножки стола */}
+        <path d="M 124 184 L 122 215 L 126 215 L 128 184 Z" fill="rgba(74,53,36,0.6)" stroke="#5a3a20" strokeWidth="0.4"/>
+        <path d="M 172 184 L 170 215 L 174 215 L 176 184 Z" fill="rgba(74,53,36,0.6)" stroke="#5a3a20" strokeWidth="0.4"/>
+        {/* Резной узор на столешнице */}
+        <path d="M 130 181 Q 140 179 150 181 Q 160 179 170 181" fill="none" stroke="#ffd700" strokeWidth="0.2" opacity="0.3"/>
+
+        {/* ===== ЧАША — медная, детализированная ===== */}
+        <path d="M 134 165 L 136 178 L 148 178 L 150 165 Z" fill="rgba(184,115,51,0.5)" stroke="#b8860b" strokeWidth="0.5"/>
+        <ellipse cx="142" cy="165" rx="6" ry="1.8" fill="rgba(100,150,200,0.3)" stroke="#b8860b" strokeWidth="0.3"/>
+        {/* Блик на чаше */}
+        <path d="M 137 168 Q 138 173 138 176" fill="none" stroke="rgba(255,230,180,0.3)" strokeWidth="0.4"/>
+        {/* Узел на ножке */}
+        <circle cx="142" cy="165" r="0.8" fill="#b8860b"/>
+
+        {/* ===== МЕЧ — стальной, с золотой рукоятью ===== */}
+        {/* Лезвие */}
+        <path d="M 159 158 L 161 158 L 161 178 L 159 178 Z" fill="rgba(180,180,190,0.5)" stroke="#8b8b8b" strokeWidth="0.3"/>
+        {/* Блик на лезвии */}
+        <line x1="160" y1="160" x2="160" y2="176" stroke="rgba(220,220,230,0.4)" strokeWidth="0.3"/>
+        {/* Гарда */}
+        <path d="M 155 158 L 165 158 L 165 160 L 155 160 Z" fill="#ffd700" stroke="#b8860b" strokeWidth="0.3"/>
+        {/* Рукоять */}
+        <rect x="158.5" y="155" width="3" height="4" fill="#8b5a2b" stroke="#5a3a20" strokeWidth="0.2"/>
+        {/* Навершие */}
+        <circle cx="160" cy="154" r="1.5" fill="#ffd700" stroke="#b8860b" strokeWidth="0.3"/>
+
+        {/* ===== ПЕНТАКЛЬ — золотая монета ===== */}
+        <circle cx="170" cy="173" r="4.5" fill="rgba(255,215,0,0.2)" stroke="#ffd700" strokeWidth="0.6"/>
+        {/* Пентаграмма */}
+        <path d="M 170 169 L 171.2 172 L 174 172 L 171.8 173.5 L 172.5 176.5 L 170 174.5 L 167.5 176.5 L 168.2 173.5 L 166 172 L 168.8 172 Z"
+          fill="rgba(255,215,0,0.4)" stroke="#b8860b" strokeWidth="0.2"/>
+        {/* Блик */}
+        <ellipse cx="168" cy="171" rx="1" ry="0.6" fill="rgba(255,255,230,0.3)"/>
+
+        {/* ===== РАСТЕНИЯ У НОГ — васнецовские травы ===== */}
+        <path d="M 28 245 L 31 235 L 29 228 L 34 222 L 32 215" fill="none" stroke="#2d6e2d" strokeWidth="0.6"/>
+        <circle cx="31" cy="235" r="1.5" fill="rgba(160,20,20,0.5)"/>
+        <circle cx="34" cy="222" r="1.5" fill="#ffd700" opacity="0.4"/>
+        {/* Листья */}
+        <path d="M 30 232 Q 27 230 26 233 Q 29 234 30 232" fill="rgba(34,100,40,0.15)" stroke="#2d6e2d" strokeWidth="0.3"/>
+        <path d="M 33 225 Q 36 223 37 226 Q 34 227 33 225" fill="rgba(34,100,40,0.15)" stroke="#2d6e2d" strokeWidth="0.3"/>
+        {/* Правые растения */}
+        <path d="M 168 245 L 170 235 L 168 228 L 172 222" fill="none" stroke="#2d6e2d" strokeWidth="0.6"/>
+        <circle cx="170" cy="235" r="1.5" fill="rgba(160,20,20,0.5)"/>
+        <path d="M 169 232 Q 172 230 173 233 Q 170 234 169 232" fill="rgba(34,100,40,0.15)" stroke="#2d6e2d" strokeWidth="0.3"/>
       </g>
     ),
 
