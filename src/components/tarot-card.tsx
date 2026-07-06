@@ -50,6 +50,8 @@ export function TarotCardView({
   const containerRef = useRef<HTMLDivElement>(null)
   const targetTilt = useRef({ x: 0, y: 0 })
   const currentTilt = useRef({ x: 0, y: 0 })
+  const mousePosRef = useRef<{ x: number; y: number } | null>(null)
+  const isHoveredRef = useRef(false)
   const [tiltState, setTiltState] = useState({ x: 0, y: 0 })
   const [showBurst, setShowBurst] = useState(false)
   const [wasRevealed, setWasRevealed] = useState(false)
@@ -105,21 +107,36 @@ export function TarotCardView({
   }
 
   const handleMouseMove = (e: React.MouseEvent) => {
-    if (!premium || !containerRef.current || revealed) return
+    if (!premium || !containerRef.current) return
     const rect = containerRef.current.getBoundingClientRect()
     const cx = rect.left + rect.width / 2
     const cy = rect.top + rect.height / 2
-    const dx = (e.clientX - cx) / (rect.width / 2)
-    const dy = (e.clientY - cy) / (rect.height / 2)
-    targetTilt.current = {
-      x: Math.max(-1, Math.min(1, dy)) * -10,
-      y: Math.max(-1, Math.min(1, dx)) * 10,
+    // Mouse position relative to card top-left (for eye tracking)
+    mousePosRef.current = {
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top,
+    }
+    if (!revealed) {
+      const dx = (e.clientX - cx) / (rect.width / 2)
+      const dy = (e.clientY - cy) / (rect.height / 2)
+      targetTilt.current = {
+        x: Math.max(-1, Math.min(1, dy)) * -10,
+        y: Math.max(-1, Math.min(1, dx)) * 10,
+      }
+    }
+  }
+
+  const handleMouseEnter = () => {
+    if (premium) {
+      isHoveredRef.current = true
     }
   }
 
   const handleMouseLeave = () => {
     if (premium) {
       targetTilt.current = { x: 0, y: 0 }
+      mousePosRef.current = null
+      isHoveredRef.current = false
     }
   }
 
@@ -143,6 +160,7 @@ export function TarotCardView({
           style={{ width, height }}
           onClick={handleClick}
           onMouseMove={handleMouseMove}
+          onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
         >
           {/* === .tarot-card-tilt — RAF tilt (no transition) === */}
@@ -164,6 +182,8 @@ export function TarotCardView({
                     width={width}
                     height={height}
                     active={!revealed}
+                    mousePosRef={mousePosRef}
+                    isHoveredRef={isHoveredRef}
                   />
                 )}
                 {/* ::after glow is in CSS (glowPulse / glowIntense) */}

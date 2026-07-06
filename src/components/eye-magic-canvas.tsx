@@ -3,11 +3,12 @@
 import { useEffect, useRef } from "react"
 
 /**
- * EyeOfMystic — canvas-анимация мистического глаза поверх рубашки карты.
- * Реалистичное моргающее око с золотым свечением и вращающимися частицами.
+ * EyeOfMystic — canvas-анимация мистического глаза.
+ * Обновлено: зрачок следит за курсором, свечение и скорость частиц
+ * усиливаются при наведении.
  *
- * Адаптировано из vanilla JS кода пользователя в React/TypeScript.
- * Canvas накладывается поверх SVG рубашки (pointer-events: none).
+ * Canvas имеет pointer-events: none, поэтому позиция мыши передаётся
+ * от родительского компонента через mousePosRef.
  */
 
 interface Particle {
@@ -23,11 +24,14 @@ interface Particle {
 interface EyeOfMysticCanvasProps {
   width: number
   height: number
-  /** Показывать ли анимацию (false когда карта раскрыта) */
   active: boolean
+  /** Ref с позицией мыши относительно карты ({x, y} или null) */
+  mousePosRef?: React.RefObject<{ x: number; y: number } | null>
+  /** Ref с состоянием ховера */
+  isHoveredRef?: React.RefObject<boolean>
 }
 
-export function EyeOfMysticCanvas({ width, height, active }: EyeOfMysticCanvasProps) {
+export function EyeOfMysticCanvas({ width, height, active, mousePosRef, isHoveredRef }: EyeOfMysticCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const animRef = useRef<number | null>(null)
   const stateRef = useRef({
@@ -38,12 +42,25 @@ export function EyeOfMysticCanvas({ width, height, active }: EyeOfMysticCanvasPr
     nextBlink: Math.random() * 3000 + 2000,
     lastTime: 0,
     particles: [] as Particle[],
+    // Pupil tracking
+    pupilOffsetX: 0,
+    pupilOffsetY: 0,
+    targetPupilOffsetX: 0,
+    targetPupilOffsetY: 0,
+    maxPupilOffset: 5,
+    // Glow / orbit speed
+    glowIntensity: 0.7,
+    targetGlowIntensity: 0.7,
+    orbitSpeedMultiplier: 1.0,
+    targetOrbitSpeedMultiplier: 1.0,
+    // Hover
+    wasHovered: false,
   })
 
   // Init particles once
   useEffect(() => {
     const particles: Particle[] = []
-    for (let i = 0; i < 40; i++) {
+    for (let i = 0; i < 50; i++) {
       particles.push({
         angle: Math.random() * Math.PI * 2,
         distance: 35 + Math.random() * 25,
@@ -60,7 +77,6 @@ export function EyeOfMysticCanvas({ width, height, active }: EyeOfMysticCanvasPr
   useEffect(() => {
     if (!active) {
       if (animRef.current) cancelAnimationFrame(animRef.current)
-      // Clear canvas
       const canvas = canvasRef.current
       if (canvas) {
         const ctx = canvas.getContext("2d")
@@ -76,7 +92,7 @@ export function EyeOfMysticCanvas({ width, height, active }: EyeOfMysticCanvasPr
 
     const centerX = width / 2
     const centerY = height / 2
-    const eyeRadius = Math.min(width, height) * 0.075  // ~24 для 320px
+    const eyeRadius = Math.min(width, height) * 0.075
     const pupilRadius = eyeRadius * 0.33
 
     const s = stateRef.current
@@ -100,13 +116,51 @@ export function EyeOfMysticCanvas({ width, height, active }: EyeOfMysticCanvasPr
         }
       }
 
+      // Чтение позиции мыши из ref
+      if (mousePosRef?.current) {
+        const dx = mousePosRef.current.x - centerX
+        const dy = mousePosRef.current.y - centerY
+        const dist = Math.sqrt(dx * dx + dy * dy)
+        if (dist > 0.01) {
+          const normX = dx / dist
+          const normY = dy / dist
+          const limitedDist = Math.min(dist * 0.15, s.maxPupilOffset)
+          s.targetPupilOffsetX = normX * limitedDist
+          s.targetPupilOffsetY = normY * limitedDist
+        } else {
+          s.targetPupilOffsetX = 0
+          s.targetPupilOffsetY = 0
+        }
+      } else {
+        s.targetPupilOffsetX = 0
+        s.targetPupilOffsetY = 0
+      }
+
+      // Чтение состояния ховера из ref
+      const isHovered = isHoveredRef?.current ?? false
+      if (isHovered !== s.wasHovered) {
+        s.wasHovered = isHovered
+        if (isHovered) {
+          s.targetGlowIntensity = 1.0
+          s.targetOrbitSpeedMultiplier = 2.2
+        } else {
+          s.targetGlowIntensity = 0.7
+          s.targetOrbitSpeedMultiplier = 1.0
+        }
+      }
+
+      // Lerp
+      const lerp = 0.12
+      s.pupilOffsetX += (s.targetPupilOffsetX - s.pupilOffsetX) * lerp
+      s.pupilOffsetY += (s.targetPupilOffsetY - s.pupilOffsetY) * lerp
+      s.glowIntensity += (s.targetGlowIntensity - s.glowIntensity) * lerp
+      s.orbitSpeedMultiplier += (s.targetOrbitSpeedMultiplier - s.orbitSpeedMultiplier) * lerp
+
       // Частицы
       for (const p of s.particles) {
-        p.angle += p.speed
+        p.angle += p.speed * s.orbitSpeedMultiplier
         p.alpha += p.alphaSpeed
-        if (p.alpha <= 0 || p.alpha >= 1) {
-          p.alphaSpeed *= -1
-        }
+        if (p.alpha <= 0 || p.alpha >= 1) p.alphaSpeed *= -1
       }
     }
 
@@ -114,23 +168,23 @@ export function EyeOfMysticCanvas({ width, height, active }: EyeOfMysticCanvasPr
       const x = centerX
       const y = centerY
 
-      // Свечение вокруг глаза
+      // Свечение
       const glowGrad = ctx.createRadialGradient(x, y, eyeRadius * 0.8, x, y, eyeRadius * 1.8)
-      glowGrad.addColorStop(0, "rgba(212, 175, 55, 0.7)")
-      glowGrad.addColorStop(0.5, "rgba(212, 175, 55, 0.2)")
+      glowGrad.addColorStop(0, `rgba(212, 175, 55, ${0.7 * s.glowIntensity})`)
+      glowGrad.addColorStop(0.5, `rgba(212, 175, 55, ${0.2 * s.glowIntensity})`)
       glowGrad.addColorStop(1, "rgba(0, 0, 0, 0)")
       ctx.fillStyle = glowGrad
       ctx.beginPath()
       ctx.arc(x, y, eyeRadius * 1.8, 0, Math.PI * 2)
       ctx.fill()
 
-      // Глазное яблоко (овал)
       ctx.save()
       ctx.translate(x, y)
+
+      // Моргание
       let scaleY = 1
       if (s.isBlinking) {
-        const t = s.blinkProgress
-        scaleY = 1 - Math.sin(t * Math.PI) * 0.9
+        scaleY = 1 - Math.sin(s.blinkProgress * Math.PI) * 0.9
       }
       ctx.scale(1, scaleY)
 
@@ -152,19 +206,19 @@ export function EyeOfMysticCanvas({ width, height, active }: EyeOfMysticCanvasPr
       ctx.lineWidth = 1
       ctx.stroke()
 
-      // Зрачок
+      // Зрачок (со смещением за мышью)
       ctx.fillStyle = "#000"
       ctx.beginPath()
-      ctx.arc(0, 0, pupilRadius, 0, Math.PI * 2)
+      ctx.arc(s.pupilOffsetX, s.pupilOffsetY, pupilRadius, 0, Math.PI * 2)
       ctx.fill()
 
-      // Блики
+      // Блики (смещаются наполовину от зрачка для реализма)
       ctx.fillStyle = "#fff"
       ctx.beginPath()
-      ctx.arc(-3, -4, 2.5, 0, Math.PI * 2)
+      ctx.arc(-3 + s.pupilOffsetX * 0.5, -4 + s.pupilOffsetY * 0.5, 2.5, 0, Math.PI * 2)
       ctx.fill()
       ctx.beginPath()
-      ctx.arc(5, 5, 1.5, 0, Math.PI * 2)
+      ctx.arc(5 + s.pupilOffsetX * 0.5, 5 + s.pupilOffsetY * 0.5, 1.5, 0, Math.PI * 2)
       ctx.fill()
 
       ctx.restore()
@@ -184,14 +238,15 @@ export function EyeOfMysticCanvas({ width, height, active }: EyeOfMysticCanvasPr
         const py = centerY + Math.sin(p.angle) * p.distance * 0.8
         ctx.globalAlpha = p.alpha
         ctx.fillStyle = p.color
-        ctx.shadowColor = "gold"
-        ctx.shadowBlur = 6
         ctx.beginPath()
-        ctx.arc(px, py, p.size, 0, Math.PI * 2)
+        ctx.arc(px, py, p.size * (0.8 + s.glowIntensity * 0.4), 0, Math.PI * 2)
+        ctx.fill()
+        ctx.shadowColor = "gold"
+        ctx.shadowBlur = 6 * s.glowIntensity
         ctx.fill()
       }
-      ctx.globalAlpha = 1
       ctx.shadowBlur = 0
+      ctx.globalAlpha = 1
     }
 
     const animate = () => {
@@ -212,7 +267,7 @@ export function EyeOfMysticCanvas({ width, height, active }: EyeOfMysticCanvasPr
     return () => {
       if (animRef.current) cancelAnimationFrame(animRef.current)
     }
-  }, [active, width, height])
+  }, [active, width, height, mousePosRef, isHoveredRef])
 
   if (!active) return null
 
