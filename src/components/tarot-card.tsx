@@ -178,8 +178,8 @@ export function TarotCardView({
               {/* === Рубашка (.tarot-card-back) — видна до flip === */}
               <div className="tarot-card-back">
                 <CardBack width={width} height={height} className="rounded-xl"/>
-                {/* Canvas с моргающим оком и частицами поверх SVG рубашки */}
-                {premium && (
+                {/* Canvas с моргающим оком — только когда карта НЕ раскрыта */}
+                {premium && !revealed && (
                   <EyeOfMysticCanvas
                     width={width}
                     height={height}
@@ -189,7 +189,6 @@ export function TarotCardView({
                     flippedRef={flippedRef}
                   />
                 )}
-                {/* ::after glow is in CSS (glowPulse / glowIntense) */}
               </div>
 
               {/* === Лицевая сторона (.tarot-card-front) — видна после flip === */}
