@@ -549,7 +549,11 @@ body {
 .premium-card-float {
   position: relative;
   border-radius: 12px;
-  /* Свечение по умолчанию (карта не перевёрнута) */
+  /* По умолчанию НЕТ свечения */
+}
+
+/* Свечение только когда карта НЕ раскрыта — через отдельный класс */
+.premium-card-float:not(.card-revealed) {
   box-shadow:
     0 0 20px rgba(212, 175, 55, 0.4),
     0 0 40px rgba(212, 175, 55, 0.2),
@@ -557,12 +561,12 @@ body {
   animation: glowPulseOuter 3s ease-in-out infinite alternate;
 }
 
-/* Усиление при ховере (только если не перевёрнута) */
+/* Усиление при ховере */
 .premium-card-float:not(.card-revealed):hover {
   animation: glowIntenseOuter 1s ease-in-out infinite alternate;
 }
 
-/* Когда карта перевёрнута — НОЛЬ свечения, прямо через класс */
+/* Когда карта перевёрнута — НОЛЬ свечения, никакого box-shadow */
 .premium-card-float.card-revealed {
   box-shadow: none !important;
   animation: none !important;
