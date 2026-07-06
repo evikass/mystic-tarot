@@ -2000,20 +2000,8 @@ export function CardSVG({ card, isReversed = false, width = 200, height = 320, c
   )
 }
 
-// === РУБАШКА КАРТЫ — анимированные звёзды, пульсирующий глаз, золотой градиент ===
+// === РУБАШКА КАРТЫ — исправленная: звёзды вращаются вокруг центра, глаз статичен ===
 export function CardBack({ width = 200, height = 320, className }: { width?: number; height?: number; className?: string }) {
-  // Позиции звёзд (x, y, задержка анимации в секундах)
-  const stars = [
-    { x: 40, y: 50, d: 0 },
-    { x: 160, y: 70, d: 0.5 },
-    { x: 50, y: 260, d: 1 },
-    { x: 150, y: 270, d: 1.5 },
-    { x: 100, y: 80, d: 0.3 },
-    { x: 30, y: 150, d: 0.8 },
-    { x: 170, y: 180, d: 1.2 },
-    { x: 100, y: 300, d: 1.8 },
-  ]
-
   return (
     <svg viewBox="0 0 200 340" width={width} height={height} className={className} xmlns="http://www.w3.org/2000/svg">
       <defs>
@@ -2023,28 +2011,25 @@ export function CardBack({ width = 200, height = 320, className }: { width?: num
           <stop offset="100%" stopColor="#0a0510"/>
         </radialGradient>
 
-        {/* Золотой градиент для элементов */}
+        {/* Золотой градиент */}
         <linearGradient id="gold" x1="0%" y1="0%" x2="100%" y2="100%">
           <stop offset="0%" stopColor="#ffd700"/>
           <stop offset="50%" stopColor="#b8860b"/>
           <stop offset="100%" stopColor="#ffd700"/>
         </linearGradient>
 
-        {/* Фильтр для свечения звёзд */}
+        {/* Фильтр для свечения */}
         <filter id="starGlow" x="-50%" y="-50%" width="200%" height="200%">
-          <feGaussianBlur stdDeviation="2" result="blur"/>
+          <feGaussianBlur stdDeviation="1.5" result="blur"/>
           <feMerge>
             <feMergeNode in="blur"/>
             <feMergeNode in="SourceGraphic"/>
           </feMerge>
         </filter>
 
-        {/* Шаблон звезды — с SMIL-анимацией (вращение + мерцание) */}
+        {/* Шаблон звезды */}
         <g id="star">
-          <path d="M0,-8 L2,-2 L8,0 L2,2 L0,8 L-2,2 L-8,0 L-2,-2 Z" fill="url(#gold)" filter="url(#starGlow)">
-            <animateTransform attributeName="transform" type="rotate" from="0" to="360" dur="20s" repeatCount="indefinite"/>
-            <animate attributeName="opacity" values="0.3;1;0.5;1;0.3" dur="2s" repeatCount="indefinite"/>
-          </path>
+          <path d="M0,-6 L1.5,-1.5 L6,0 L1.5,1.5 L0,6 L-1.5,1.5 L-6,0 L-1.5,-1.5 Z" fill="url(#gold)" filter="url(#starGlow)"/>
         </g>
       </defs>
 
@@ -2055,81 +2040,48 @@ export function CardBack({ width = 200, height = 320, className }: { width?: num
       <rect x="8" y="8" width="184" height="324" rx="8" fill="none" stroke="url(#gold)" strokeWidth="1" opacity="0.6"/>
       <rect x="16" y="16" width="168" height="308" rx="6" fill="none" stroke="url(#gold)" strokeWidth="0.5" strokeDasharray="4 4" opacity="0.4"/>
 
-      {/* === Центральный глаз (пульсирует) === */}
-      {/* Внешнее кольцо */}
-      <circle cx="100" cy="160" r="40" fill="none" stroke="url(#gold)" strokeWidth="1.5" opacity="0.8">
-        <animate attributeName="r" values="40;44;40" dur="4s" repeatCount="indefinite"/>
-        <animate attributeName="opacity" values="0.8;0.5;0.8" dur="4s" repeatCount="indefinite"/>
-      </circle>
-      {/* Среднее кольцо */}
-      <circle cx="100" cy="160" r="28" fill="none" stroke="url(#gold)" strokeWidth="1" opacity="0.6">
-        <animate attributeName="r" values="28;25;28" dur="3s" repeatCount="indefinite"/>
-      </circle>
-      {/* Внутренний круг (зрачок) */}
-      <circle cx="100" cy="160" r="12" fill="rgba(167,139,250,0.15)" stroke="url(#gold)" strokeWidth="0.8" opacity="0.7"/>
-      {/* Ядро глаза */}
-      <circle cx="100" cy="160" r="6" fill="url(#gold)" opacity="0.9">
-        <animate attributeName="opacity" values="0.9;0.4;0.9" dur="2s" repeatCount="indefinite"/>
-        <animate attributeName="r" values="6;7;6" dur="2s" repeatCount="indefinite"/>
-      </circle>
-      {/* Блик в глазу */}
-      <circle cx="98" cy="158" r="1.5" fill="rgba(255,255,255,0.8)"/>
+      {/* Центральный глаз (луна) — всегда виден, без мерцания */}
+      <circle cx="100" cy="160" r="36" fill="none" stroke="url(#gold)" strokeWidth="1.5" opacity="0.8"/>
+      <circle cx="100" cy="160" r="18" fill="none" stroke="url(#gold)" strokeWidth="0.8" opacity="0.6"/>
+      <circle cx="100" cy="160" r="5" fill="url(#gold)" opacity="0.9"/>
 
-      {/* === Луна сверху над глазом === */}
-      <path d="M 100 100 A 12 12 0 1 1 100 124 A 9 9 0 1 0 100 100 Z" fill="rgba(196,181,253,0.7)" stroke="url(#gold)" strokeWidth="0.5">
-        <animate attributeName="opacity" values="0.5;0.9;0.5" dur="5s" repeatCount="indefinite"/>
-      </path>
+      {/* Группа звёзд с медленным вращением вокруг центра */}
+      <g>
+        <animateTransform
+          attributeName="transform"
+          type="rotate"
+          from="0 100 160"
+          to="360 100 160"
+          dur="20s"
+          repeatCount="indefinite"
+        />
 
-      {/* === Звёзды — каждая в <g translate> для правильного позиционирования === */}
-      {stars.map((s, i) => (
-        <g key={i} transform={`translate(${s.x}, ${s.y})`}>
-          <path
-            d="M0,-7 L1.8,-1.8 L7,0 L1.8,1.8 L0,7 L-1.8,1.8 L-7,0 L-1.8,-1.8 Z"
-            fill="url(#gold)"
-            filter="url(#starGlow)"
-            opacity="0.7"
-          >
-            <animateTransform
-              attributeName="transform"
-              type="rotate"
-              from="0"
-              to="360"
-              dur="15s"
-              begin={`${s.d}s`}
-              repeatCount="indefinite"
-            />
-            <animate
-              attributeName="opacity"
-              values="0.3;1;0.5;1;0.3"
-              dur="2.5s"
-              begin={`${s.d}s`}
-              repeatCount="indefinite"
-            />
-            <animate
-              attributeName="scale"
-              values="0.8;1.2;0.8"
-              dur="2.5s"
-              begin={`${s.d}s`}
-              repeatCount="indefinite"
-            />
-          </path>
-        </g>
-      ))}
-
-      {/* === Дополнительные малые мерцающие точки === */}
-      {[
-        { x: 70, y: 40 }, { x: 130, y: 45 }, { x: 25, y: 200 },
-        { x: 175, y: 210 }, { x: 75, y: 310 }, { x: 125, y: 315 },
-      ].map((p, i) => (
-        <circle key={`dot-${i}`} cx={p.x} cy={p.y} r="1" fill="#ffd700">
-          <animate attributeName="opacity" values="0.2;0.9;0.2" dur={`${2 + i * 0.3}s`} repeatCount="indefinite"/>
-        </circle>
-      ))}
-
-      {/* === Низ — декоративные символы === */}
-      <text x="100" y="335" fontSize="8" textAnchor="middle" fill="url(#gold)" opacity="0.5" style={{ fontFamily: "var(--font-cinzel)" }}>
-        ✦ MYSTIC TAROT ✦
-      </text>
+        {/* Звёзды с индивидуальным мерцанием (анимация opacity) */}
+        <use href="#star" x="40" y="50">
+          <animate attributeName="opacity" values="0.3;1;0.3" dur="2s" repeatCount="indefinite" begin="0s"/>
+        </use>
+        <use href="#star" x="160" y="70">
+          <animate attributeName="opacity" values="0.4;1;0.4" dur="2.3s" repeatCount="indefinite" begin="0.5s"/>
+        </use>
+        <use href="#star" x="50" y="260">
+          <animate attributeName="opacity" values="0.5;1;0.5" dur="1.8s" repeatCount="indefinite" begin="1s"/>
+        </use>
+        <use href="#star" x="150" y="270">
+          <animate attributeName="opacity" values="0.3;0.9;0.3" dur="2.5s" repeatCount="indefinite" begin="1.5s"/>
+        </use>
+        <use href="#star" x="100" y="70">
+          <animate attributeName="opacity" values="0.4;1;0.4" dur="2.1s" repeatCount="indefinite" begin="0.3s"/>
+        </use>
+        <use href="#star" x="30" y="150">
+          <animate attributeName="opacity" values="0.5;1;0.5" dur="1.9s" repeatCount="indefinite" begin="0.8s"/>
+        </use>
+        <use href="#star" x="170" y="180">
+          <animate attributeName="opacity" values="0.3;1;0.3" dur="2.4s" repeatCount="indefinite" begin="1.2s"/>
+        </use>
+        <use href="#star" x="100" y="300">
+          <animate attributeName="opacity" values="0.4;1;0.4" dur="2.2s" repeatCount="indefinite" begin="1.8s"/>
+        </use>
+      </g>
     </svg>
   )
 }
