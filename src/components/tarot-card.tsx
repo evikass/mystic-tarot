@@ -134,8 +134,8 @@ export function TarotCardView({
         </div>
       )}
 
-      {/* Idle float wrapper */}
-      <div className="premium-card-float">
+      {/* Idle float wrapper — glow controlled by 'revealed' class */}
+      <div className={cn("premium-card-float", revealed && "card-revealed")}>
         {/* === .tarot-card — perspective container === */}
         <div
           ref={containerRef}

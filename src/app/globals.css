@@ -546,14 +546,10 @@ body {
 }
 
 /* === СВЕЧЕНИЕ — на внешней обёртке .premium-card-float === */
-/* Эта обёртка НЕ участвует в 3D (нет perspective/transform-style),
-   поэтому box-shadow рендерится нормально, по краю карты */
 .premium-card-float {
   position: relative;
   border-radius: 12px;
-}
-
-.premium-card-float:has(.tarot-card:not(.flipped)) {
+  /* Свечение по умолчанию (карта не перевёрнута) */
   box-shadow:
     0 0 20px rgba(212, 175, 55, 0.4),
     0 0 40px rgba(212, 175, 55, 0.2),
@@ -561,14 +557,15 @@ body {
   animation: glowPulseOuter 3s ease-in-out infinite alternate;
 }
 
-.premium-card-float:has(.tarot-card:not(.flipped):hover) {
+/* Усиление при ховере (только если не перевёрнута) */
+.premium-card-float:not(.card-revealed):hover {
   animation: glowIntenseOuter 1s ease-in-out infinite alternate;
 }
 
-/* Когда карта перевёрнута — НОЛЬ свечения */
-.premium-card-float:has(.tarot-card.flipped) {
-  box-shadow: none;
-  animation: none;
+/* Когда карта перевёрнута — НОЛЬ свечения, прямо через класс */
+.premium-card-float.card-revealed {
+  box-shadow: none !important;
+  animation: none !important;
 }
 
 @keyframes glowPulseOuter {
