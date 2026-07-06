@@ -507,12 +507,10 @@ body {
   animation: glowIntenseCard 1s ease-in-out infinite alternate;
 }
 
-/* После переворота — мягкое статичное свечение без анимации */
+/* После переворота — НЕТ свечения вообще (не мешает картинке) */
 .tarot-card.flipped {
   animation: none;
-  box-shadow:
-    0 0 15px rgba(212, 175, 55, 0.2),
-    0 0 30px rgba(180, 140, 255, 0.1);
+  box-shadow: none;
 }
 
 @keyframes glowPulseCard {
