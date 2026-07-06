@@ -2120,6 +2120,24 @@ export function CardBack({ width = 200, height = 320, className }: { width?: num
           />
         </use>
       ))}
+
+      {/* === Падающие искры (каждая со своей траекторией) === */}
+      <circle cx="30" cy="0" r="1" fill="#ffd700" filter="url(#particleGlow)">
+        <animate attributeName="cy" values="-10;350" dur="4s" repeatCount="indefinite" begin="0s"/>
+        <animate attributeName="opacity" values="0;1;0" dur="4s" repeatCount="indefinite" begin="0s"/>
+      </circle>
+      <circle cx="70" cy="0" r="1.2" fill="#ffd700" filter="url(#particleGlow)">
+        <animate attributeName="cy" values="-10;350" dur="5s" repeatCount="indefinite" begin="1s"/>
+        <animate attributeName="opacity" values="0;1;0" dur="5s" repeatCount="indefinite" begin="1s"/>
+      </circle>
+      <circle cx="130" cy="0" r="0.8" fill="#ffd700" filter="url(#particleGlow)">
+        <animate attributeName="cy" values="-10;350" dur="3.5s" repeatCount="indefinite" begin="2s"/>
+        <animate attributeName="opacity" values="0;1;0" dur="3.5s" repeatCount="indefinite" begin="2s"/>
+      </circle>
+      <circle cx="170" cy="0" r="1" fill="#ffd700" filter="url(#particleGlow)">
+        <animate attributeName="cy" values="-10;350" dur="4.5s" repeatCount="indefinite" begin="0.5s"/>
+        <animate attributeName="opacity" values="0;1;0" dur="4.5s" repeatCount="indefinite" begin="0.5s"/>
+      </circle>
     </svg>
   )
 }
