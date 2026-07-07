@@ -780,3 +780,23 @@ body {
   transform-box: fill-box;
   animation: svg-drift 6s ease-in-out infinite;
 }
+
+@keyframes wheel-of-fortune-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+.svg-wheel-spin {
+  transform-origin: 100px 155px;
+  transform-box: view-box;
+  animation: wheel-of-fortune-spin 18s linear infinite;
+}
+
+@keyframes wheel-of-fortune-counter-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(-360deg); }
+}
+.svg-wheel-counter-spin {
+  transform-origin: 100px 155px;
+  transform-box: view-box;
+  animation: wheel-of-fortune-counter-spin 18s linear infinite;
+}
