@@ -3603,188 +3603,700 @@ function MajorArcanaArt({ card }: { card: TarotCard }) {
 }
 
 // === Младшие арканы — улучшенные ===
+// === Детальный рисованный объект масти (кубок/меч/жезл/пентакль) ===
+function drawSuitObject(suit: string, x: number, y: number, scale: number = 1, rotation: number = 0, accent: string) {
+  const s = scale
+  return (
+    <g transform={`translate(${x}, ${y}) rotate(${rotation}) scale(${s})`}>
+      {suit === "cups" && (
+        <g>
+          {/* Кубок — золотой, детальный */}
+          {/* Чаша — полукруглая с расширением */}
+          <path d="M -10 -10 Q -12 0 -8 8 Q 0 12 8 8 Q 12 0 10 -10 Z" fill="rgba(255,215,0,0.55)" stroke="#b8860b" strokeWidth="0.6"/>
+          {/* Блик на чаше */}
+          <path d="M -7 -8 Q -8 0 -6 6" fill="none" stroke="rgba(255,255,200,0.6)" strokeWidth="0.8"/>
+          {/* Жидкость в чаше */}
+          <ellipse cx="0" cy="-9" rx="9" ry="2" fill="rgba(180,60,60,0.5)" stroke="#991b1b" strokeWidth="0.3"/>
+          {/* Узоры на чаше — растительные */}
+          <path d="M -6 -2 Q -3 -5 0 -2 Q 3 -5 6 -2" fill="none" stroke="#ffd700" strokeWidth="0.4" opacity="0.7"/>
+          <path d="M -5 3 Q -2 1 0 3 Q 2 1 5 3" fill="none" stroke="#ffd700" strokeWidth="0.3" opacity="0.6"/>
+          {/* Ножка кубка */}
+          <path d="M -2 8 L -2 16 L 2 16 L 2 8 Z" fill="rgba(255,215,0,0.5)" stroke="#b8860b" strokeWidth="0.4"/>
+          {/* Декор на ножке */}
+          <circle cx="0" cy="12" r="1" fill="rgba(255,215,0,0.6)" stroke="#b8860b" strokeWidth="0.3"/>
+          {/* Основание */}
+          <ellipse cx="0" cy="18" rx="8" ry="2.5" fill="rgba(255,215,0,0.55)" stroke="#b8860b" strokeWidth="0.5"/>
+          <ellipse cx="0" cy="17" rx="6" ry="1.5" fill="rgba(184,115,51,0.5)" stroke="#5a3a20" strokeWidth="0.3"/>
+          {/* Декор основания */}
+          <path d="M -6 18 Q -3 20 0 18 Q 3 20 6 18" fill="none" stroke="#ffd700" strokeWidth="0.3" opacity="0.6"/>
+        </g>
+      )}
+      {suit === "swords" && (
+        <g>
+          {/* Меч — вертикальный, детальный */}
+          {/* Клинок — длинный, с долом */}
+          <path d="M -1.5 -25 L -1.5 12 L 0 16 L 1.5 12 L 1.5 -25 Z" fill="rgba(220,220,230,0.7)" stroke="#3a2010" strokeWidth="0.4"/>
+          {/* Дол — центральная линия */}
+          <line x1="0" y1="-23" x2="0" y2="10" stroke="rgba(255,255,255,0.5)" strokeWidth="0.3"/>
+          {/* Блик на клинке */}
+          <line x1="-0.8" y1="-22" x2="-0.8" y2="8" stroke="rgba(255,255,255,0.7)" strokeWidth="0.3"/>
+          {/* Острие */}
+          <path d="M -1.5 -25 L 0 -28 L 1.5 -25 Z" fill="rgba(220,220,230,0.85)" stroke="#3a2010" strokeWidth="0.3"/>
+          {/* Гарда — золотая, резная */}
+          <path d="M -8 12 L 8 12 L 8 15 L -8 15 Z" fill="rgba(255,215,0,0.6)" stroke="#b8860b" strokeWidth="0.5"/>
+          {/* Завитки на гарде */}
+          <path d="M -8 13 Q -10 14 -8 16" fill="none" stroke="#b8860b" strokeWidth="0.4"/>
+          <path d="M 8 13 Q 10 14 8 16" fill="none" stroke="#b8860b" strokeWidth="0.4"/>
+          {/* Рукоять — обмотанная */}
+          <path d="M -2 15 L -2 22 L 2 22 L 2 15 Z" fill="rgba(120,80,40,0.7)" stroke="#3a2010" strokeWidth="0.3"/>
+          {/* Обмотка рукояти */}
+          <line x1="-2" y1="17" x2="2" y2="17" stroke="#991b1b" strokeWidth="0.4"/>
+          <line x1="-2" y1="19" x2="2" y2="19" stroke="#991b1b" strokeWidth="0.4"/>
+          <line x1="-2" y1="21" x2="2" y2="21" stroke="#991b1b" strokeWidth="0.4"/>
+          {/* Навершие — золотой шар с камнем */}
+          <circle cx="0" cy="24" r="2.5" fill="rgba(255,215,0,0.6)" stroke="#b8860b" strokeWidth="0.4"/>
+          <circle cx="0" cy="24" r="1" fill={accent} stroke="#3a2010" strokeWidth="0.2"/>
+        </g>
+      )}
+      {suit === "wands" && (
+        <g>
+          {/* Жезл — живая ветвь с побегами */}
+          {/* Основной стержень — деревянный, изогнутый */}
+          <path d="M -1 -25 Q 0 -10 -1 5 Q 0 15 -1 22" fill="none" stroke="rgba(80,55,30,0.85)" strokeWidth="3" strokeLinecap="round"/>
+          {/* Кора — текстура */}
+          <path d="M -1 -20 Q 0 -15 -1 -10" fill="none" stroke="#3a2010" strokeWidth="0.4"/>
+          <path d="M -1 -5 Q 0 0 -1 5" fill="none" stroke="#3a2010" strokeWidth="0.4"/>
+          <path d="M -1 10 Q 0 15 -1 20" fill="none" stroke="#3a2010" strokeWidth="0.4"/>
+          {/* Малые веточки */}
+          <path d="M -1 -15 Q -4 -17 -6 -20" fill="none" stroke="rgba(80,55,30,0.8)" strokeWidth="1.2" strokeLinecap="round"/>
+          <path d="M -1 5 Q 3 7 5 10" fill="none" stroke="rgba(80,55,30,0.8)" strokeWidth="1.2" strokeLinecap="round"/>
+          {/* Листья — золотые и зелёные */}
+          <path d="M -6 -20 Q -8 -22 -10 -20 Q -8 -19 -6 -20 Z" fill="rgba(255,215,0,0.6)" stroke="#b8860b" strokeWidth="0.3"/>
+          <path d="M -6 -20 Q -4 -22 -2 -20 Q -4 -19 -6 -20 Z" fill="rgba(34,100,40,0.6)" stroke="#2d6e2d" strokeWidth="0.3"/>
+          <path d="M 5 10 Q 7 8 9 10 Q 7 12 5 10 Z" fill="rgba(255,215,0,0.6)" stroke="#b8860b" strokeWidth="0.3"/>
+          <path d="M 5 10 Q 3 8 1 10 Q 3 12 5 10 Z" fill="rgba(34,100,40,0.6)" stroke="#2d6e2d" strokeWidth="0.3"/>
+          {/* Цветок на вершине */}
+          <circle cx="-1" cy="-25" r="2" fill="rgba(220,60,60,0.7)" stroke="#991b1b" strokeWidth="0.3"/>
+          <circle cx="-3" cy="-26" r="1" fill="rgba(220,60,60,0.6)"/>
+          <circle cx="1" cy="-26" r="1" fill="rgba(220,60,60,0.6)"/>
+          <circle cx="-1" cy="-28" r="1" fill="rgba(220,60,60,0.6)"/>
+          <circle cx="-1" cy="-25" r="0.6" fill="#ffd700"/>
+          {/* Основание — корни */}
+          <path d="M -1 22 Q -3 24 -5 25" fill="none" stroke="rgba(80,55,30,0.8)" strokeWidth="1" strokeLinecap="round"/>
+          <path d="M -1 22 Q 1 24 3 25" fill="none" stroke="rgba(80,55,30,0.8)" strokeWidth="1" strokeLinecap="round"/>
+        </g>
+      )}
+      {suit === "pentacles" && (
+        <g>
+          {/* Пентакль — золотая монета с гравировкой */}
+          {/* Внешний круг монеты */}
+          <circle cx="0" cy="0" r="12" fill="rgba(255,215,0,0.55)" stroke="#b8860b" strokeWidth="0.8"/>
+          {/* Внутренний круг */}
+          <circle cx="0" cy="0" r="9" fill="rgba(184,115,51,0.5)" stroke="#5a3a20" strokeWidth="0.5"/>
+          {/* Декоративный бордюр */}
+          <circle cx="0" cy="0" r="10.5" fill="none" stroke="#ffd700" strokeWidth="0.4" opacity="0.7"/>
+          {/* Точки по кругу */}
+          {Array.from({length: 12}).map((_, i) => {
+            const a = (i / 12) * Math.PI * 2
+            return <circle key={i} cx={Math.cos(a) * 11} cy={Math.sin(a) * 11} r="0.4" fill="#ffd700" opacity="0.7"/>
+          })}
+          {/* Пентаграмма в центре — звезда */}
+          <path d="M 0 -6 L 1.8 -2 L 6 -2 L 2.5 1 L 4 5 L 0 2.5 L -4 5 L -2.5 1 L -6 -2 L -1.8 -2 Z"
+            fill="rgba(255,215,0,0.4)" stroke="#b8860b" strokeWidth="0.4"/>
+          {/* Центральный камень */}
+          <circle cx="0" cy="0" r="1.2" fill={accent} stroke="#3a2010" strokeWidth="0.3"/>
+          {/* Блики на монете */}
+          <path d="M -8 -8 Q -10 -6 -10 -3" fill="none" stroke="rgba(255,255,200,0.7)" strokeWidth="0.6"/>
+          <path d="M -9 -2 Q -10 0 -9 2" fill="none" stroke="rgba(255,255,200,0.5)" strokeWidth="0.4"/>
+          {/* Растительный узор по краям */}
+          <path d="M 8 -8 Q 10 -6 8 -4" fill="none" stroke="#ffd700" strokeWidth="0.3" opacity="0.6"/>
+          <path d="M 8 8 Q 10 6 8 4" fill="none" stroke="#ffd700" strokeWidth="0.3" opacity="0.6"/>
+        </g>
+      )}
+    </g>
+  )
+}
+
+// === Детальная фигура персонажа для фигурных карт ===
+function drawFigure(rank: string, suit: string, suitColor: string, accent: string) {
+  // Общие цвета
+  const skinTone = "rgba(232,200,160,0.9)"
+  const hairColor = "rgba(180,140,70,0.85)"
+  const goldTrim = "#ffd700"
+
+  return (
+    <g>
+      {/* ===== ПАЖ — юноша стоящий, с посохом ===== */}
+      {rank === "page" && (
+        <g>
+          {/* Земля */}
+          <path d="M 50 245 Q 100 240 150 245 L 150 250 L 50 250 Z" fill="rgba(80,55,30,0.3)" stroke="#3a2010" strokeWidth="0.3"/>
+          {/* Трава */}
+          <path d="M 60 245 Q 62 240 64 245" fill="none" stroke="#2d6e2d" strokeWidth="0.4"/>
+          <path d="M 140 245 Q 142 240 144 245" fill="none" stroke="#2d6e2d" strokeWidth="0.4"/>
+
+          {/* Тело — в охряной тунике */}
+          <path d="M 86 220 Q 84 200 86 175 Q 88 158 92 145 L 108 145 Q 112 158 114 175 Q 116 200 114 220 Q 100 225 86 220 Z"
+            fill="rgba(184,134,11,0.5)" stroke="#5a3a20" strokeWidth="0.5"/>
+          {/* Складки туники */}
+          <path d="M 92 150 Q 92 185 92 220" fill="none" stroke="rgba(120,80,40,0.5)" strokeWidth="0.4"/>
+          <path d="M 100 150 Q 100 185 100 220" fill="none" stroke="rgba(120,80,40,0.4)" strokeWidth="0.3"/>
+          <path d="M 108 150 Q 108 185 108 220" fill="none" stroke="rgba(120,80,40,0.5)" strokeWidth="0.4"/>
+          {/* Пояс */}
+          <path d="M 86 180 Q 100 178 114 180 L 114 184 Q 100 182 86 184 Z" fill="rgba(120,90,50,0.7)" stroke="#5a3a20" strokeWidth="0.4"/>
+
+          {/* Золотой растительный узор */}
+          <path d="M 88 165 Q 96 161 100 165 Q 104 161 112 165 Q 108 169 100 167 Q 92 169 88 165 Z" fill="none" stroke={goldTrim} strokeWidth="0.4" opacity="0.7"/>
+
+          {/* Ноги в сапогах */}
+          <path d="M 92 220 L 90 240 L 96 240 L 96 220 Z" fill="rgba(80,55,30,0.8)" stroke="#3a2010" strokeWidth="0.4"/>
+          <path d="M 104 220 L 104 240 L 110 240 L 108 220 Z" fill="rgba(80,55,30,0.8)" stroke="#3a2010" strokeWidth="0.4"/>
+
+          {/* Шея */}
+          <path d="M 96 135 L 96 145 L 104 145 L 104 135 Z" fill={skinTone} stroke="#8b5a2b" strokeWidth="0.3"/>
+
+          {/* Лицо — детское */}
+          <path d="M 92 130 Q 90 122 94 116 Q 97 113 100 112 Q 103 113 106 116 Q 110 122 108 130 Q 109 134 107 137 Q 104 140 100 140 Q 96 140 93 137 Q 91 134 92 130 Z"
+            fill={skinTone} stroke="#8b5a2b" strokeWidth="0.4"/>
+          {/* Глаза */}
+          <ellipse cx="96" cy="123" rx="1" ry="0.7" fill="rgba(255,255,255,0.85)"/>
+          <ellipse cx="104" cy="123" rx="1" ry="0.7" fill="rgba(255,255,255,0.85)"/>
+          <circle cx="96" cy="123.3" r="0.6" fill="#5a3a20"/>
+          <circle cx="104" cy="123.3" r="0.6" fill="#5a3a20"/>
+          {/* Брови */}
+          <path d="M 94 120 Q 96 119 98 120" fill="none" stroke="#5a3a20" strokeWidth="0.4"/>
+          <path d="M 102 120 Q 104 119 106 120" fill="none" stroke="#5a3a20" strokeWidth="0.4"/>
+          {/* Нос */}
+          <path d="M 100 125 L 99 130 Q 100 131 101 130 Z" fill="none" stroke="#8b5a2b" strokeWidth="0.3"/>
+          {/* Рот */}
+          <path d="M 96 134 Q 100 135 104 134" fill="none" stroke="#991b1b" strokeWidth="0.4"/>
+
+          {/* Волосы — русые */}
+          <path d="M 92 118 Q 96 113 100 113 Q 104 113 108 118 Q 106 116 104 115 Q 100 112 96 115 Q 94 116 92 118 Z" fill={hairColor} stroke="#8b5a2b" strokeWidth="0.3"/>
+          {/* Чёлка */}
+          <path d="M 94 117 Q 100 114 106 117" fill="none" stroke={hairColor} strokeWidth="0.5"/>
+
+          {/* Шапочка с пером */}
+          <path d="M 91 112 Q 100 102 109 112 L 107 117 L 93 117 Z" fill="rgba(184,134,11,0.5)" stroke="#b8860b" strokeWidth="0.4"/>
+          {/* Декор шапочки */}
+          <path d="M 95 110 Q 100 107 105 110" fill="none" stroke={goldTrim} strokeWidth="0.3" opacity="0.6"/>
+          {/* Перо */}
+          <path d="M 108 108 Q 116 100 118 92 Q 114 100 110 104 Z" fill="rgba(180,30,30,0.55)" stroke="#991b1b" strokeWidth="0.3"/>
+          <path d="M 110 105 Q 114 100 116 95" fill="none" stroke="#5a1010" strokeWidth="0.3"/>
+
+          {/* Руки — одна держит посох */}
+          <path d="M 92 160 Q 86 168 84 178" fill="none" stroke={skinTone} strokeWidth="2.5" strokeLinecap="round"/>
+          <path d="M 108 160 Q 114 170 116 185" fill="none" stroke={skinTone} strokeWidth="2.5" strokeLinecap="round"/>
+
+          {/* Посох / символ масти в руке */}
+          {drawSuitObject(suit, 116, 168, 0.9, 0, accent)}
+        </g>
+      )}
+
+      {/* ===== РЫЦАРЬ — на коне, в доспехах ===== */}
+      {rank === "knight" && (
+        <g>
+          {/* Земля */}
+          <path d="M 30 245 Q 100 240 170 245 L 170 250 L 30 250 Z" fill="rgba(80,55,30,0.3)" stroke="#3a2010" strokeWidth="0.3"/>
+
+          {/* Конь — детальный */}
+          <g>
+            {/* Тело коня */}
+            <path d="M 70 215 Q 65 207 70 200 Q 90 195 115 197 Q 130 200 130 210 Q 130 220 122 222 Q 100 225 80 222 Q 70 220 70 215 Z"
+              fill="rgba(50,35,25,0.7)" stroke="#3a2010" strokeWidth="0.5"/>
+            {/* Голова коня */}
+            <path d="M 60 205 Q 52 195 56 185 Q 62 180 68 188 Q 72 195 70 205 Z"
+              fill="rgba(50,35,25,0.7)" stroke="#3a2010" strokeWidth="0.5"/>
+            {/* Морда */}
+            <path d="M 56 195 Q 52 200 56 205 Q 60 205 62 200 Z" fill="rgba(80,55,30,0.7)" stroke="#3a2010" strokeWidth="0.4"/>
+            {/* Ноздря */}
+            <ellipse cx="58" cy="198" rx="0.6" ry="0.9" fill="rgba(20,15,10,0.7)"/>
+            {/* Глаз */}
+            <ellipse cx="62" cy="192" rx="0.7" ry="0.5" fill="#3a2010"/>
+            <circle cx="62" cy="192" r="0.2" fill="#ffd700"/>
+            {/* Уши */}
+            <path d="M 64 185 L 63 180 L 65 184 Z" fill="rgba(50,35,25,0.8)" stroke="#3a2010" strokeWidth="0.3"/>
+            <path d="M 67 184 L 66 179 L 68 183 Z" fill="rgba(50,35,25,0.8)" stroke="#3a2010" strokeWidth="0.3"/>
+            {/* Грива — золотая, пышная */}
+            <path d="M 66 188 Q 60 180 64 175 Q 60 178 58 185" fill="none" stroke="rgba(255,215,0,0.7)" strokeWidth="1.2" strokeLinecap="round"/>
+            <path d="M 68 192 Q 62 184 66 178" fill="none" stroke="rgba(255,215,0,0.5)" strokeWidth="0.8" strokeLinecap="round"/>
+            <path d="M 70 196 Q 66 188 70 182" fill="none" stroke="rgba(220,180,70,0.6)" strokeWidth="0.6" strokeLinecap="round"/>
+
+            {/* Ноги коня */}
+            <path d="M 78 222 L 76 240 L 82 240 L 82 222 Z" fill="rgba(50,35,25,0.75)" stroke="#3a2010" strokeWidth="0.4"/>
+            <path d="M 76 240 L 74 242 L 82 242 L 82 240 Z" fill="rgba(40,25,15,0.85)" stroke="#3a2010" strokeWidth="0.3"/>
+            <path d="M 92 222 L 90 242 L 96 242 L 96 222 Z" fill="rgba(50,35,25,0.75)" stroke="#3a2010" strokeWidth="0.4"/>
+            <path d="M 90 242 L 88 244 L 96 244 L 96 242 Z" fill="rgba(40,25,15,0.85)" stroke="#3a2010" strokeWidth="0.3"/>
+            <path d="M 110 220 L 108 242 L 114 242 L 114 220 Z" fill="rgba(50,35,25,0.75)" stroke="#3a2010" strokeWidth="0.4"/>
+            <path d="M 108 242 L 106 244 L 114 244 L 114 242 Z" fill="rgba(40,25,15,0.85)" stroke="#3a2010" strokeWidth="0.3"/>
+            <path d="M 122 218 L 124 240 L 130 240 L 128 218 Z" fill="rgba(50,35,25,0.75)" stroke="#3a2010" strokeWidth="0.4"/>
+            <path d="M 124 240 L 122 242 L 130 242 L 128 240 Z" fill="rgba(40,25,15,0.85)" stroke="#3a2010" strokeWidth="0.3"/>
+
+            {/* Хвост */}
+            <path d="M 130 210 Q 138 215 138 230 Q 138 235 134 238" fill="none" stroke="rgba(60,40,30,0.8)" strokeWidth="2" strokeLinecap="round"/>
+            <path d="M 130 210 Q 136 218 134 230" fill="none" stroke="rgba(40,25,15,0.6)" strokeWidth="1" strokeLinecap="round"/>
+
+            {/* Седло — резное */}
+            <path d="M 80 200 Q 100 197 118 200 L 118 205 Q 100 202 80 205 Z" fill="rgba(40,25,15,0.7)" stroke="#3a2010" strokeWidth="0.4"/>
+            <path d="M 84 202 Q 100 200 116 202" fill="none" stroke={goldTrim} strokeWidth="0.3" opacity="0.6"/>
+          </g>
+
+          {/* ===== Рыцарь — в доспехах ===== */}
+          <g>
+            {/* Ноги в стременах */}
+            <path d="M 92 200 L 88 220 L 94 220 L 96 200 Z" fill="rgba(50,50,60,0.65)" stroke="#3a3a40" strokeWidth="0.4"/>
+            <path d="M 108 200 L 110 220 L 116 220 L 112 200 Z" fill="rgba(50,50,60,0.65)" stroke="#3a3a40" strokeWidth="0.4"/>
+            {/* Сапоги */}
+            <ellipse cx="91" cy="220" rx="3" ry="1.5" fill="rgba(40,25,15,0.85)" stroke="#3a2010" strokeWidth="0.3"/>
+            <ellipse cx="113" cy="220" rx="3" ry="1.5" fill="rgba(40,25,15,0.85)" stroke="#3a2010" strokeWidth="0.3"/>
+
+            {/* Доспех — нагрудник */}
+            <path d="M 86 180 Q 84 165 88 150 L 112 150 Q 116 165 114 180 Q 100 185 86 180 Z"
+              fill="rgba(60,60,70,0.65)" stroke="#3a3a40" strokeWidth="0.5"/>
+            {/* Чешуя на доспехе */}
+            {Array.from({length: 3}).map((_, row) => 
+              Array.from({length: 3}).map((_, col) => (
+                <path key={`d-${row}-${col}`} d={`M ${89 + col * 7} ${155 + row * 7} q 3 -2 6 0`} fill="none" stroke="rgba(160,160,170,0.4)" strokeWidth="0.4"/>
+              ))
+            )}
+            {/* Блик на доспехе */}
+            <path d="M 90 155 Q 88 165 90 175" fill="none" stroke="rgba(220,220,230,0.5)" strokeWidth="0.5"/>
+
+            {/* Красный плащ */}
+            <path d="M 86 180 L 78 150 L 76 180 Q 81 183 86 180 Z" fill="rgba(120,20,20,0.55)" stroke="#5a1010" strokeWidth="0.4"/>
+            <path d="M 114 180 L 122 150 L 124 180 Q 119 183 114 180 Z" fill="rgba(120,20,20,0.55)" stroke="#5a1010" strokeWidth="0.4"/>
+
+            {/* Шея */}
+            <path d="M 96 140 L 96 150 L 104 150 L 104 140 Z" fill={skinTone} stroke="#8b5a2b" strokeWidth="0.3"/>
+
+            {/* Лицо — серьёзное */}
+            <path d="M 92 130 Q 90 122 94 116 Q 97 113 100 112 Q 103 113 106 116 Q 110 122 108 130 Q 109 135 107 138 Q 104 141 100 141 Q 96 141 93 138 Q 91 135 92 130 Z"
+              fill={skinTone} stroke="#8b5a2b" strokeWidth="0.4"/>
+            {/* Глаза — строгие */}
+            <path d="M 93 124 Q 95 123 97 124 Q 97 125 95 125 Q 93 125 93 124 Z" fill="rgba(255,255,255,0.85)"/>
+            <path d="M 103 124 Q 105 123 107 124 Q 107 125 105 125 Q 103 125 103 124 Z" fill="rgba(255,255,255,0.85)"/>
+            <circle cx="95" cy="124.3" r="0.7" fill="#3a2010"/>
+            <circle cx="105" cy="124.3" r="0.7" fill="#3a2010"/>
+            {/* Брови — нахмуренные */}
+            <path d="M 93 121 Q 96 119 98 121" fill="none" stroke="#5a3a20" strokeWidth="0.5"/>
+            <path d="M 102 121 Q 104 119 107 121" fill="none" stroke="#5a3a20" strokeWidth="0.5"/>
+            {/* Нос */}
+            <path d="M 100 126 L 99 132 Q 99 133 100 133 Q 101 133 101 132 Z" fill="none" stroke="#8b5a2b" strokeWidth="0.3"/>
+            {/* Рот — плотно сжат */}
+            <path d="M 96 136 Q 100 137 104 136" fill="none" stroke="#991b1b" strokeWidth="0.4"/>
+
+            {/* Шлем — золотой, остроконечный, с забралом */}
+            <path d="M 88 117 Q 100 95 112 117 L 110 124 L 90 124 Z" fill="rgba(255,215,0,0.3)" stroke="#b8860b" strokeWidth="0.5"/>
+            {/* Декор шлема */}
+            <path d="M 92 110 Q 100 102 108 110" fill="none" stroke={goldTrim} strokeWidth="0.4" opacity="0.5"/>
+            {/* Гребень шлема */}
+            <path d="M 100 95 L 100 88 L 102 88 L 102 95 Z" fill="rgba(120,20,20,0.7)" stroke="#5a1010" strokeWidth="0.3"/>
+            {/* Забрало */}
+            <line x1="91" y1="120" x2="109" y2="120" stroke="#3a2010" strokeWidth="0.5"/>
+            <line x1="91" y1="123" x2="109" y2="123" stroke="#3a2010" strokeWidth="0.3"/>
+            {/* Султан — перо на шлеме */}
+            <path d="M 100 88 Q 102 80 100 75 Q 98 80 100 88 Z" fill="rgba(180,30,30,0.7)" stroke="#5a1010" strokeWidth="0.3"/>
+            <path d="M 100 86 Q 102 82 102 78" fill="none" stroke="#5a1010" strokeWidth="0.3"/>
+
+            {/* Рука — поднята с оружием */}
+            <path d="M 110 165 Q 118 155 124 145" fill="none" stroke="rgba(60,60,70,0.85)" strokeWidth="3" strokeLinecap="round"/>
+            <path d="M 86 165 Q 78 170 76 180" fill="none" stroke="rgba(60,60,70,0.85)" strokeWidth="3" strokeLinecap="round"/>
+
+            {/* Оружие — символ масти в руке */}
+            {drawSuitObject(suit, 124, 130, 1.1, 0, accent)}
+          </g>
+        </g>
+      )}
+
+      {/* ===== КОРОЛЕВА — на троне, в платье ===== */}
+      {rank === "queen" && (
+        <g>
+          {/* Трон — резной, деревянный */}
+          <path d="M 70 250 L 70 165 L 130 165 L 130 250 Z" fill="rgba(74,53,36,0.5)" stroke="#3a2010" strokeWidth="0.5"/>
+          {/* Спинка трона — резная */}
+          <path d="M 65 165 L 135 165 L 135 155 L 65 155 Z" fill="rgba(139,90,43,0.5)" stroke="#5a3a20" strokeWidth="0.4"/>
+          {/* Края трона — резные */}
+          <path d="M 60 165 L 65 155 L 65 165 Z" fill="rgba(139,90,43,0.6)" stroke="#5a3a20" strokeWidth="0.3"/>
+          <path d="M 140 165 L 135 155 L 135 165 Z" fill="rgba(139,90,43,0.6)" stroke="#5a3a20" strokeWidth="0.3"/>
+          {/* Декор трона — растительный */}
+          <path d="M 75 180 Q 85 175 95 180 Q 105 175 115 180 Q 125 175 130 180" fill="none" stroke={goldTrim} strokeWidth="0.4" opacity="0.5"/>
+          <path d="M 75 220 Q 85 215 95 220 Q 105 215 115 220 Q 125 215 130 220" fill="none" stroke={goldTrim} strokeWidth="0.4" opacity="0.5"/>
+          {/* Боковые завитки */}
+          <path d="M 70 200 Q 65 195 67 190 Q 70 195 72 198" fill="none" stroke="#5a3a20" strokeWidth="0.4"/>
+          <path d="M 130 200 Q 135 195 133 190 Q 130 195 128 198" fill="none" stroke="#5a3a20" strokeWidth="0.4"/>
+          {/* Подлокотники */}
+          <path d="M 65 200 L 70 200 L 70 210 L 65 210 Z" fill="rgba(139,90,43,0.55)" stroke="#5a3a20" strokeWidth="0.3"/>
+          <path d="M 135 200 L 130 200 L 130 210 L 135 210 Z" fill="rgba(139,90,43,0.55)" stroke="#5a3a20" strokeWidth="0.3"/>
+
+          {/* Платье — длинное, бордовое */}
+          <path d="M 78 245 Q 80 215 84 195 Q 88 175 92 155 L 108 155 Q 112 175 116 195 Q 120 215 122 245 Q 100 250 78 245 Z"
+            fill="rgba(120,20,20,0.55)" stroke="#5a1010" strokeWidth="0.5"/>
+          {/* Складки платья */}
+          <path d="M 84 165 Q 86 200 84 240" fill="none" stroke="rgba(60,10,10,0.5)" strokeWidth="0.4"/>
+          <path d="M 92 165 Q 94 200 92 240" fill="none" stroke="rgba(60,10,10,0.4)" strokeWidth="0.3"/>
+          <path d="M 100 165 Q 100 200 100 240" fill="none" stroke="rgba(60,10,10,0.4)" strokeWidth="0.3"/>
+          <path d="M 108 165 Q 106 200 108 240" fill="none" stroke="rgba(60,10,10,0.4)" strokeWidth="0.3"/>
+          <path d="M 116 165 Q 114 200 116 240" fill="none" stroke="rgba(60,10,10,0.5)" strokeWidth="0.4"/>
+
+          {/* Золотой растительный узор */}
+          <path d="M 82 180 Q 92 176 100 180 Q 108 176 118 180 Q 110 186 100 182 Q 92 186 82 180 Z" fill="none" stroke={goldTrim} strokeWidth="0.4" opacity="0.7"/>
+          <path d="M 82 215 Q 92 211 100 215 Q 108 211 118 215 Q 110 221 100 217 Q 92 221 82 215 Z" fill="none" stroke={goldTrim} strokeWidth="0.4" opacity="0.7"/>
+
+          {/* Золотой пояс с медальоном */}
+          <path d="M 80 195 Q 100 193 120 195 L 120 200 Q 100 198 80 200 Z" fill="rgba(255,215,0,0.4)" stroke="#b8860b" strokeWidth="0.4"/>
+          <circle cx="100" cy="197" r="3" fill="rgba(255,215,0,0.5)" stroke="#b8860b" strokeWidth="0.4"/>
+          <circle cx="100" cy="197" r="1" fill={accent}/>
+
+          {/* Воротник — золотой */}
+          <path d="M 88 155 L 112 155 L 112 162 L 88 162 Z" fill="rgba(255,215,0,0.4)" stroke="#b8860b" strokeWidth="0.4"/>
+          <path d="M 90 160 Q 100 158 110 160" fill="none" stroke="#991b1b" strokeWidth="0.3"/>
+
+          {/* Шея */}
+          <path d="M 96 142 L 96 155 L 104 155 L 104 142 Z" fill={skinTone} stroke="#8b5a2b" strokeWidth="0.3"/>
+
+          {/* Лицо — женское, нежное */}
+          <path d="M 92 132 Q 90 124 94 118 Q 97 114 100 113 Q 103 114 106 118 Q 110 124 108 132 Q 109 137 107 140 Q 104 144 100 144 Q 96 144 93 140 Q 91 137 92 132 Z"
+            fill={skinTone} stroke="#8b5a2b" strokeWidth="0.4"/>
+          {/* Глаза — миндалевидные */}
+          <path d="M 93 126 Q 95 125 97 126 Q 97 127 95 128 Q 93 127 93 126 Z" fill="rgba(255,255,255,0.85)"/>
+          <path d="M 103 126 Q 105 125 107 126 Q 107 127 105 128 Q 103 127 103 126 Z" fill="rgba(255,255,255,0.85)"/>
+          <circle cx="95" cy="126.5" r="0.8" fill="#5a3a20"/>
+          <circle cx="105" cy="126.5" r="0.8" fill="#5a3a20"/>
+          {/* Брови — тонкие */}
+          <path d="M 93 123 Q 95 122 97 123" fill="none" stroke="#5a3a20" strokeWidth="0.4"/>
+          <path d="M 103 123 Q 105 122 107 123" fill="none" stroke="#5a3a20" strokeWidth="0.4"/>
+          {/* Нос */}
+          <path d="M 100 128 L 99 134 Q 99 135 100 135 Q 101 135 101 134 Z" fill="none" stroke="#8b5a2b" strokeWidth="0.3"/>
+          {/* Рот — мягкая улыбка */}
+          <path d="M 96 138 Q 100 140 104 138" fill="none" stroke="#991b1b" strokeWidth="0.4"/>
+          {/* Румянец */}
+          <ellipse cx="94" cy="134" rx="1.5" ry="1" fill="rgba(220,120,80,0.3)"/>
+          <ellipse cx="106" cy="134" rx="1.5" ry="1" fill="rgba(220,120,80,0.3)"/>
+
+          {/* Волосы — длинные, распущенные */}
+          <path d="M 88 125 Q 84 155 86 185" fill="none" stroke={hairColor} strokeWidth="2.5" strokeLinecap="round"/>
+          <path d="M 112 125 Q 116 155 114 185" fill="none" stroke={hairColor} strokeWidth="2.5" strokeLinecap="round"/>
+          <path d="M 92 118 Q 96 113 100 114 Q 104 113 108 118 Q 106 116 104 115 Q 100 112 96 115 Q 94 116 92 118 Z" fill={hairColor} stroke="#8b5a2b" strokeWidth="0.3"/>
+          {/* Пряди */}
+          <path d="M 90 130 Q 88 150 90 170" fill="none" stroke={hairColor} strokeWidth="1" strokeLinecap="round"/>
+          <path d="M 110 130 Q 112 150 110 170" fill="none" stroke={hairColor} strokeWidth="1" strokeLinecap="round"/>
+
+          {/* Корона — золотая, с камнями */}
+          <path d="M 88 115 L 90 105 L 93 113 L 96 102 L 100 110 L 104 102 L 107 113 L 110 105 L 112 115 Z"
+            fill="rgba(255,215,0,0.5)" stroke="#b8860b" strokeWidth="0.4"/>
+          <path d="M 88 115 L 112 115 L 112 118 L 88 118 Z" fill="rgba(255,215,0,0.4)" stroke="#b8860b" strokeWidth="0.3"/>
+          {/* Камни на короне */}
+          <circle cx="92" cy="108" r="1" fill="rgba(180,30,30,0.7)" stroke="#5a1010" strokeWidth="0.2"/>
+          <circle cx="96" cy="106" r="1" fill="rgba(34,100,40,0.7)" stroke="#1e1e50" strokeWidth="0.2"/>
+          <circle cx="100" cy="108" r="1.2" fill="rgba(180,30,30,0.7)" stroke="#5a1010" strokeWidth="0.2"/>
+          <circle cx="104" cy="106" r="1" fill="rgba(34,100,40,0.7)" stroke="#1e1e50" strokeWidth="0.2"/>
+          <circle cx="108" cy="108" r="1" fill="rgba(180,30,30,0.7)" stroke="#5a1010" strokeWidth="0.2"/>
+
+          {/* Руки — сложены или держат символ */}
+          <path d="M 88 175 Q 82 185 80 195" fill="none" stroke={skinTone} strokeWidth="3" strokeLinecap="round"/>
+          <path d="M 112 175 Q 118 185 120 195" fill="none" stroke={skinTone} strokeWidth="3" strokeLinecap="round"/>
+
+          {/* Символ масти в руках */}
+          {drawSuitObject(suit, 100, 200, 0.85, 0, accent)}
+        </g>
+      )}
+
+      {/* ===== КОРОЛЬ — на троне, в мантии ===== */}
+      {rank === "king" && (
+        <g>
+          {/* Трон — более массивный */}
+          <path d="M 65 250 L 65 160 L 135 160 L 135 250 Z" fill="rgba(74,53,36,0.55)" stroke="#3a2010" strokeWidth="0.5"/>
+          {/* Спинка трона */}
+          <path d="M 60 160 L 140 160 L 140 148 L 60 148 Z" fill="rgba(139,90,43,0.55)" stroke="#5a3a20" strokeWidth="0.4"/>
+          {/* Резные края трона */}
+          <path d="M 58 160 L 60 145 L 65 148 L 65 160 Z" fill="rgba(139,90,43,0.6)" stroke="#5a3a20" strokeWidth="0.3"/>
+          <path d="M 142 160 L 140 145 L 135 148 L 135 160 Z" fill="rgba(139,90,43,0.6)" stroke="#5a3a20" strokeWidth="0.3"/>
+          {/* Резной декор трона */}
+          <path d="M 75 175 Q 85 170 95 175 Q 105 170 115 175 Q 125 170 130 175" fill="none" stroke={goldTrim} strokeWidth="0.4" opacity="0.6"/>
+          <path d="M 75 200 Q 85 195 95 200 Q 105 195 115 200 Q 125 195 130 200" fill="none" stroke={goldTrim} strokeWidth="0.4" opacity="0.6"/>
+          <path d="M 75 225 Q 85 220 95 225 Q 105 220 115 225 Q 125 220 130 225" fill="none" stroke={goldTrim} strokeWidth="0.4" opacity="0.6"/>
+          {/* Боковые завитки */}
+          <path d="M 65 195 Q 60 190 62 185 Q 65 190 67 193" fill="none" stroke="#5a3a20" strokeWidth="0.4"/>
+          <path d="M 135 195 Q 140 190 138 185 Q 135 190 133 193" fill="none" stroke="#5a3a20" strokeWidth="0.4"/>
+          {/* Подлокотники */}
+          <path d="M 60 195 L 65 195 L 65 210 L 60 210 Z" fill="rgba(139,90,43,0.6)" stroke="#5a3a20" strokeWidth="0.3"/>
+          <path d="M 140 195 L 135 195 L 135 210 L 140 210 Z" fill="rgba(139,90,43,0.6)" stroke="#5a3a20" strokeWidth="0.3"/>
+          {/* Шар на спинке трона */}
+          <circle cx="100" cy="148" r="3" fill="rgba(255,215,0,0.4)" stroke="#b8860b" strokeWidth="0.4"/>
+          <path d="M 97 148 Q 100 145 103 148 Q 100 151 97 148 Z" fill="#991b1b" opacity="0.6"/>
+
+          {/* Мантия — тёмно-синяя, длинная, с золотым шитьём */}
+          <path d="M 76 245 Q 78 215 82 195 Q 86 175 90 155 L 110 155 Q 114 175 118 195 Q 122 215 124 245 Q 100 250 76 245 Z"
+            fill="rgba(30,30,80,0.6)" stroke="#1e1e50" strokeWidth="0.5"/>
+          {/* Складки мантии */}
+          <path d="M 84 165 Q 86 200 84 240" fill="none" stroke="rgba(15,15,40,0.5)" strokeWidth="0.4"/>
+          <path d="M 92 165 Q 94 200 92 240" fill="none" stroke="rgba(15,15,40,0.4)" strokeWidth="0.3"/>
+          <path d="M 100 165 Q 100 200 100 240" fill="none" stroke="rgba(15,15,40,0.4)" strokeWidth="0.3"/>
+          <path d="M 108 165 Q 106 200 108 240" fill="none" stroke="rgba(15,15,40,0.4)" strokeWidth="0.3"/>
+          <path d="M 116 165 Q 114 200 116 240" fill="none" stroke="rgba(15,15,40,0.5)" strokeWidth="0.4"/>
+
+          {/* Золотой растительный узор на мантии */}
+          <path d="M 80 180 Q 90 176 100 180 Q 110 176 120 180 Q 110 186 100 182 Q 90 186 80 180 Z" fill="none" stroke={goldTrim} strokeWidth="0.4" opacity="0.7"/>
+          <path d="M 80 215 Q 90 211 100 215 Q 110 211 120 215 Q 110 221 100 217 Q 90 221 80 215 Z" fill="none" stroke={goldTrim} strokeWidth="0.4" opacity="0.7"/>
+
+          {/* Золотой пояс */}
+          <path d="M 78 195 Q 100 193 122 195 L 122 200 Q 100 198 78 200 Z" fill="rgba(255,215,0,0.4)" stroke="#b8860b" strokeWidth="0.4"/>
+          <circle cx="100" cy="197" r="3" fill="rgba(255,215,0,0.5)" stroke="#b8860b" strokeWidth="0.4"/>
+          <path d="M 97 197 Q 100 194 103 197 Q 100 200 97 197 Z" fill="#991b1b" opacity="0.6"/>
+
+          {/* Воротник — золотой */}
+          <path d="M 88 155 L 112 155 L 112 162 L 88 162 Z" fill="rgba(255,215,0,0.4)" stroke="#b8860b" strokeWidth="0.4"/>
+          <path d="M 90 160 Q 100 158 110 160" fill="none" stroke="#991b1b" strokeWidth="0.3"/>
+
+          {/* Шея */}
+          <path d="M 96 142 L 96 155 L 104 155 L 104 142 Z" fill={skinTone} stroke="#8b5a2b" strokeWidth="0.3"/>
+
+          {/* Лицо — мужское, суровое */}
+          <path d="M 92 132 Q 90 124 94 118 Q 97 114 100 113 Q 103 114 106 118 Q 110 124 108 132 Q 109 138 107 141 Q 104 145 100 145 Q 96 145 93 141 Q 91 138 92 132 Z"
+            fill={skinTone} stroke="#8b5a2b" strokeWidth="0.4"/>
+          {/* Морщины */}
+          <path d="M 94 120 Q 100 119 106 120" fill="none" stroke="rgba(120,80,40,0.4)" strokeWidth="0.3"/>
+          {/* Глаза — суровые */}
+          <path d="M 93 126 Q 95 125 97 126 Q 97 127 95 128 Q 93 127 93 126 Z" fill="rgba(255,255,255,0.85)"/>
+          <path d="M 103 126 Q 105 125 107 126 Q 107 127 105 128 Q 103 127 103 126 Z" fill="rgba(255,255,255,0.85)"/>
+          <circle cx="95" cy="126.5" r="0.8" fill="#3a2010"/>
+          <circle cx="105" cy="126.5" r="0.8" fill="#3a2010"/>
+          {/* Брови — нахмуренные */}
+          <path d="M 93 123 Q 95 121 97 122" fill="none" stroke="#5a3a20" strokeWidth="0.5"/>
+          <path d="M 103 122 Q 105 121 107 123" fill="none" stroke="#5a3a20" strokeWidth="0.5"/>
+          {/* Нос — крупный */}
+          <path d="M 100 128 L 99 135 Q 99 136 100 136 Q 101 136 101 135 Z" fill="none" stroke="#8b5a2b" strokeWidth="0.4"/>
+          {/* Усы и борода — короткие */}
+          <path d="M 95 140 Q 100 142 105 140" fill="rgba(60,40,30,0.7)"/>
+          <path d="M 94 141 Q 92 145 95 147 L 105 147 Q 108 145 106 141" fill="rgba(80,60,40,0.5)" stroke="#5a3a20" strokeWidth="0.3"/>
+          {/* Рот */}
+          <path d="M 96 142 Q 100 143 104 142" fill="none" stroke="#991b1b" strokeWidth="0.4"/>
+
+          {/* Волосы — короткие, тёмные */}
+          <path d="M 92 118 Q 96 113 100 113 Q 104 113 108 118 Q 106 116 104 115 Q 100 112 96 115 Q 94 116 92 118 Z" fill="rgba(80,50,30,0.8)" stroke="#5a3a20" strokeWidth="0.3"/>
+
+          {/* Корона — золотая, царская, с большими зубцами */}
+          <path d="M 86 115 L 88 100 L 92 110 L 96 95 L 100 108 L 104 95 L 108 110 L 112 100 L 114 115 Z"
+            fill="rgba(255,215,0,0.5)" stroke="#b8860b" strokeWidth="0.5"/>
+          <path d="M 86 115 L 114 115 L 114 119 L 86 119 Z" fill="rgba(255,215,0,0.4)" stroke="#b8860b" strokeWidth="0.4"/>
+          {/* Камни на короне */}
+          <circle cx="88" cy="103" r="1.2" fill="rgba(180,30,30,0.8)" stroke="#5a1010" strokeWidth="0.2"/>
+          <circle cx="96" cy="100" r="1.2" fill="rgba(34,100,40,0.8)" stroke="#1e1e50" strokeWidth="0.2"/>
+          <circle cx="100" cy="102" r="1.5" fill="rgba(180,30,30,0.8)" stroke="#5a1010" strokeWidth="0.2"/>
+          <circle cx="104" cy="100" r="1.2" fill="rgba(34,100,40,0.8)" stroke="#1e1e50" strokeWidth="0.2"/>
+          <circle cx="112" cy="103" r="1.2" fill="rgba(180,30,30,0.8)" stroke="#5a1010" strokeWidth="0.2"/>
+          {/* Центральный крест */}
+          <path d="M 99 95 L 101 95 L 101 92 L 102 92 L 102 95 L 104 95 L 104 96 L 102 96 L 102 99 L 101 99 L 101 96 L 99 96 Z" fill={goldTrim} stroke="#b8860b" strokeWidth="0.2"/>
+
+          {/* Руки — держат символ масти или скипетр */}
+          <path d="M 88 175 Q 82 185 80 195" fill="none" stroke={skinTone} strokeWidth="3" strokeLinecap="round"/>
+          <path d="M 112 175 Q 118 185 120 195" fill="none" stroke={skinTone} strokeWidth="3" strokeLinecap="round"/>
+
+          {/* Символ масти в руках */}
+          {drawSuitObject(suit, 100, 200, 0.85, 0, accent)}
+        </g>
+      )}
+    </g>
+  )
+}
+
 function MinorArcanaArt({ card }: { card: TarotCard }) {
   const suitColor = suitInfo[card.suit].color
   const rank = card.rank!
+  const accent = suitColor
 
-  // === ВАСНЕЦОВСКИЕ ТУЗЫ — рука из облака, золотой орнамент ===
+  // === ВАСНЕЦОВСКИЕ ТУЗЫ — детальный объект масти из облака ===
   if (rank === "ace") {
     return (
       <g>
-        {/* Облако — васнецовское */}
-        <ellipse cx="100" cy="90" rx="25" ry="10" fill="rgba(255,250,230,0.08)"/>
-        <ellipse cx="85" cy="88" rx="12" ry="6" fill="rgba(255,250,230,0.06)"/>
-        <ellipse cx="115" cy="88" rx="12" ry="6" fill="rgba(255,250,230,0.06)"/>
-        {/* Рука из облака */}
-        <path d="M 88 100 L 108 100 L 110 115 L 100 110 L 90 115 Z" fill="rgba(232,200,160,0.6)" stroke="#8b5a2b" strokeWidth="0.8"/>
+        {/* Небесный фон — золотистый */}
+        <rect x="14" y="42" width="172" height="208" fill="rgba(204,153,51,0.06)" rx="2"/>
+        {/* Свечение */}
+        <circle cx="100" cy="160" r="60" fill="rgba(255,215,0,0.06)" stroke="none"/>
+
+        {/* Облако — васнецовское, детальное */}
+        <path d="M 60 100 Q 70 88 85 92 Q 95 85 105 92 Q 120 85 130 95 Q 145 95 145 105 Q 140 115 130 113 Q 120 120 105 115 Q 95 122 85 115 Q 70 118 60 110 Q 55 105 60 100 Z" fill="rgba(255,250,230,0.25)" stroke="#b8860b" strokeWidth="0.5"/>
+        <path d="M 70 95 Q 80 88 90 92" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="0.5"/>
+        <path d="M 110 90 Q 120 85 130 92" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="0.5"/>
+        {/* Дополнительные облачные пряди */}
+        <ellipse cx="75" cy="105" rx="10" ry="3" fill="rgba(255,250,230,0.2)"/>
+        <ellipse cx="125" cy="105" rx="10" ry="3" fill="rgba(255,250,230,0.2)"/>
+
+        {/* Рука из облака — детальная */}
+        <path d="M 88 110 L 86 120 Q 84 125 88 128 L 92 130 Q 96 132 100 130 L 104 130 Q 108 132 112 130 L 116 128 Q 120 125 118 120 L 116 110 Z"
+          fill="rgba(232,200,160,0.85)" stroke="#8b5a2b" strokeWidth="0.5"/>
+        {/* Ладонь — с пальцами */}
+        <path d="M 88 128 Q 86 132 88 135 L 92 136 Q 95 135 95 132 Z" fill="rgba(232,200,160,0.85)" stroke="#8b5a2b" strokeWidth="0.4"/>
+        <path d="M 95 132 Q 95 136 97 138 L 100 138 Q 102 136 102 132 Z" fill="rgba(232,200,160,0.85)" stroke="#8b5a2b" strokeWidth="0.4"/>
+        <path d="M 102 132 Q 102 136 104 138 L 107 138 Q 108 136 108 132 Z" fill="rgba(232,200,160,0.85)" stroke="#8b5a2b" strokeWidth="0.4"/>
+        <path d="M 108 132 Q 108 134 110 136 L 113 136 Q 115 134 114 130 Z" fill="rgba(232,200,160,0.85)" stroke="#8b5a2b" strokeWidth="0.4"/>
+        {/* Ногти */}
+        <ellipse cx="89" cy="135" rx="0.6" ry="0.4" fill="rgba(220,180,140,0.7)"/>
+        <ellipse cx="98" cy="137" rx="0.6" ry="0.4" fill="rgba(220,180,140,0.7)"/>
+        <ellipse cx="105" cy="137" rx="0.6" ry="0.4" fill="rgba(220,180,140,0.7)"/>
+        <ellipse cx="111" cy="135" rx="0.6" ry="0.4" fill="rgba(220,180,140,0.7)"/>
+
         {/* Рукав — с золотым растительным узором */}
-        <path d="M 88 105 Q 80 95 88 90 L 92 100 M 108 105 Q 116 95 108 90 L 104 100" fill="rgba(184,134,11,0.2)" stroke="#b8860b" strokeWidth="0.5"/>
-        {/* Большой символ масти */}
-        <text x="100" y="200" fontSize="80" textAnchor="middle" fill={suitColor} opacity="0.8">{getSuitSymbol(card.suit)}</text>
+        <path d="M 88 110 Q 78 100 80 90 L 90 95 L 92 105 Z" fill="rgba(184,134,11,0.4)" stroke="#b8860b" strokeWidth="0.5"/>
+        <path d="M 116 110 Q 126 100 124 90 L 114 95 L 112 105 Z" fill="rgba(184,134,11,0.4)" stroke="#b8860b" strokeWidth="0.5"/>
+        {/* Узор на рукаве */}
+        <path d="M 82 100 Q 86 96 90 100" fill="none" stroke="#ffd700" strokeWidth="0.4" opacity="0.6"/>
+        <path d="M 84 95 Q 88 91 92 95" fill="none" stroke="#ffd700" strokeWidth="0.3" opacity="0.5"/>
+        <path d="M 118 100 Q 114 96 110 100" fill="none" stroke="#ffd700" strokeWidth="0.4" opacity="0.6"/>
+        <path d="M 116 95 Q 112 91 108 95" fill="none" stroke="#ffd700" strokeWidth="0.3" opacity="0.5"/>
+
+        {/* Большой объект масти — детальный */}
+        {drawSuitObject(card.suit, 100, 175, 2.2, 0, accent)}
+
         {/* Лучи — растительные, васнецовские */}
-        {Array.from({ length: 8 }).map((_, i) => {
-          const a = (i / 8) * Math.PI * 2
-          return <line key={i} x1={100 + Math.cos(a) * 50} y1={180 + Math.sin(a) * 50} x2={100 + Math.cos(a) * 62} y2={180 + Math.sin(a) * 62} stroke="#b8860b" strokeWidth="0.6" opacity="0.3"/>
+        {Array.from({ length: 16 }).map((_, i) => {
+          const a = (i / 16) * Math.PI * 2
+          return (
+            <g key={i}>
+              {i % 2 === 0 ? (
+                <path d={`M ${100 + Math.cos(a) * 55} ${175 + Math.sin(a) * 55} L ${100 + Math.cos(a) * 70} ${175 + Math.sin(a) * 70}`} stroke="#b8860b" strokeWidth="1" opacity="0.4"/>
+              ) : (
+                <path d={`M ${100 + Math.cos(a) * 55} ${175 + Math.sin(a) * 55} Q ${100 + Math.cos(a) * 62} ${175 + Math.sin(a) * 62 - 2} ${100 + Math.cos(a) * 70} ${175 + Math.sin(a) * 70}`} stroke="rgba(255,215,0,0.5)" strokeWidth="0.6" fill="none"/>
+              )}
+            </g>
+          )
         })}
-        {/* Декоративные растительные завитки */}
-        <path d="M 50 240 Q 60 248 70 240 Q 65 244 60 242" fill="none" stroke="#b8860b" strokeWidth="0.5" opacity="0.4"/>
-        <path d="M 130 240 Q 140 248 150 240 Q 145 244 140 242" fill="none" stroke="#b8860b" strokeWidth="0.5" opacity="0.4"/>
-        {/* Цветы */}
-        <circle cx="55" cy="242" r="2" fill="rgba(180,30,30,0.4)" stroke="#b8860b" strokeWidth="0.3"/>
-        <circle cx="145" cy="242" r="2" fill="#ffd700" opacity="0.4" stroke="#b8860b" strokeWidth="0.3"/>
+
+        {/* Декоративные растительные завитки внизу */}
+        <path d="M 35 240 Q 50 250 65 240 Q 60 246 50 244 Q 40 246 35 240 Z" fill="none" stroke="#b8860b" strokeWidth="0.5" opacity="0.5"/>
+        <path d="M 135 240 Q 150 250 165 240 Q 160 246 150 244 Q 140 246 135 240 Z" fill="none" stroke="#b8860b" strokeWidth="0.5" opacity="0.5"/>
+
+        {/* Цветы в завитках */}
+        <g>
+          <circle cx="45" cy="242" r="2" fill="rgba(180,30,30,0.6)" stroke="#991b1b" strokeWidth="0.3"/>
+          <path d="M 43 242 Q 45 240 47 242 Q 45 244 43 242 Z" fill="rgba(255,180,180,0.5)"/>
+          <path d="M 45 242 L 45 247" fill="none" stroke="#2d6e2d" strokeWidth="0.4"/>
+        </g>
+        <g>
+          <circle cx="155" cy="242" r="2" fill="#ffd700" opacity="0.6" stroke="#b8860b" strokeWidth="0.3"/>
+          <path d="M 153 242 Q 155 240 157 242 Q 155 244 153 242 Z" fill="rgba(255,235,150,0.6)"/>
+          <path d="M 155 242 L 155 247" fill="none" stroke="#2d6e2d" strokeWidth="0.4"/>
+        </g>
+        <g>
+          <circle cx="60" cy="248" r="1.5" fill="rgba(34,100,40,0.7)" stroke="#2d6e2d" strokeWidth="0.3"/>
+          <path d="M 60 248 L 60 251" fill="none" stroke="#2d6e2d" strokeWidth="0.4"/>
+        </g>
+        <g>
+          <circle cx="140" cy="248" r="1.5" fill="rgba(34,100,40,0.7)" stroke="#2d6e2d" strokeWidth="0.3"/>
+          <path d="M 140 248 L 140 251" fill="none" stroke="#2d6e2d" strokeWidth="0.4"/>
+        </g>
       </g>
     )
   }
 
-  // === ВАСНЕЦОВСКИЕ ЧИСЛОВЫЕ КАРТЫ — узорное расположение с растительным орнаментом ===
+  // === ВАСНЕЦОВСКИЕ ЧИСЛОВЫЕ КАРТЫ — детальные объекты масти ===
   if (["two","three","four","five","six","seven","eight","nine","ten"].includes(rank)) {
     const count = { two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, ten: 10 }[rank]!
-    const positions: Record<number, [number, number][]> = {
-      2: [[100, 130], [100, 215]],
-      3: [[100, 120], [100, 175], [100, 230]],
-      4: [[70, 130], [130, 130], [70, 215], [130, 215]],
-      5: [[70, 125], [130, 125], [100, 172], [70, 220], [130, 220]],
-      6: [[70, 125], [130, 125], [70, 172], [130, 172], [70, 220], [130, 220]],
-      7: [[70, 120], [130, 120], [100, 152], [70, 180], [130, 180], [70, 225], [130, 225]],
-      8: [[70, 120], [130, 120], [100, 152], [70, 180], [130, 180], [70, 225], [130, 225], [100, 230]],
-      9: [[70, 120], [130, 120], [70, 160], [130, 160], [100, 180], [70, 200], [130, 200], [70, 235], [130, 235]],
-      10: [[70, 115], [130, 115], [70, 150], [130, 150], [70, 185], [130, 185], [70, 220], [130, 220], [100, 132], [100, 200]],
+    const positions: Record<number, [number, number, number][]> = {
+      2: [[100, 130, 0], [100, 220, 180]],
+      3: [[100, 110, 0], [100, 175, 0], [100, 240, 180]],
+      4: [[70, 120, 0], [130, 120, 0], [70, 220, 180], [130, 220, 180]],
+      5: [[70, 110, 0], [130, 110, 0], [100, 165, 0], [70, 220, 180], [130, 220, 180]],
+      6: [[70, 110, 0], [130, 110, 0], [70, 165, 0], [130, 165, 0], [70, 220, 180], [130, 220, 180]],
+      7: [[70, 105, 0], [130, 105, 0], [100, 145, 0], [70, 185, 0], [130, 185, 0], [70, 230, 180], [130, 230, 180]],
+      8: [[70, 105, 0], [130, 105, 0], [100, 145, 0], [70, 185, 0], [130, 185, 0], [100, 220, 0], [70, 235, 180], [130, 235, 180]],
+      9: [[70, 105, 0], [130, 105, 0], [70, 150, 0], [130, 150, 0], [100, 175, 0], [70, 200, 180], [130, 200, 180], [70, 240, 180], [130, 240, 180]],
+      10: [[70, 100, 0], [130, 100, 0], [70, 140, 0], [130, 140, 0], [70, 180, 0], [130, 180, 0], [70, 225, 180], [130, 225, 180], [100, 125, 0], [100, 200, 0]],
     }
     const pos = positions[count] || []
 
     return (
       <g>
-        {/* Васнецовская арка с растительным орнаментом */}
-        <path d="M 45 110 Q 100 85 155 110" fill="none" stroke="#b8860b" strokeWidth="0.6" opacity="0.4"/>
-        {/* Цветы на арке */}
-        <circle cx="45" cy="110" r="2.5" fill="rgba(180,30,30,0.4)" stroke="#b8860b" strokeWidth="0.3"/>
-        <circle cx="155" cy="110" r="2.5" fill="#ffd700" opacity="0.4" stroke="#b8860b" strokeWidth="0.3"/>
-        {/* Листья */}
-        <path d="M 50 108 Q 55 100 60 108" fill="none" stroke="#2d6e2d" strokeWidth="0.4" opacity="0.3"/>
-        <path d="M 140 108 Q 145 100 150 108" fill="none" stroke="#2d6e2d" strokeWidth="0.4" opacity="0.3"/>
+        {/* Васнецовская арка с растительным орнаментом — детальная */}
+        <path d="M 40 110 Q 100 75 160 110" fill="none" stroke="#b8860b" strokeWidth="1" opacity="0.5"/>
+        <path d="M 45 108 Q 100 80 155 108" fill="none" stroke="rgba(255,215,0,0.3)" strokeWidth="0.5"/>
 
-        {/* Символы масти */}
-        {pos.map(([x, y], i) => (
+        {/* Цветы на арке */}
+        <g>
+          <circle cx="40" cy="110" r="3" fill="rgba(180,30,30,0.6)" stroke="#991b1b" strokeWidth="0.3"/>
+          <path d="M 38 110 Q 40 107 42 110 Q 40 113 38 110 Z" fill="rgba(255,180,180,0.6)"/>
+          <circle cx="40" cy="110" r="1" fill="#ffd700"/>
+          {/* Лепестки */}
+          <path d="M 37 109 Q 38 107 40 108" fill="none" stroke="rgba(180,30,30,0.5)" strokeWidth="0.3"/>
+          <path d="M 40 108 Q 42 107 43 109" fill="none" stroke="rgba(180,30,30,0.5)" strokeWidth="0.3"/>
+          <path d="M 37 111 Q 38 113 40 112" fill="none" stroke="rgba(180,30,30,0.5)" strokeWidth="0.3"/>
+          <path d="M 40 112 Q 42 113 43 111" fill="none" stroke="rgba(180,30,30,0.5)" strokeWidth="0.3"/>
+        </g>
+        <g>
+          <circle cx="160" cy="110" r="3" fill="#ffd700" opacity="0.6" stroke="#b8860b" strokeWidth="0.3"/>
+          <path d="M 158 110 Q 160 107 162 110 Q 160 113 158 110 Z" fill="rgba(255,235,150,0.7)"/>
+          <circle cx="160" cy="110" r="1" fill="rgba(120,80,40,0.7)"/>
+          <path d="M 157 109 Q 158 107 160 108" fill="none" stroke="#b8860b" strokeWidth="0.3"/>
+          <path d="M 160 108 Q 162 107 163 109" fill="none" stroke="#b8860b" strokeWidth="0.3"/>
+          <path d="M 157 111 Q 158 113 160 112" fill="none" stroke="#b8860b" strokeWidth="0.3"/>
+          <path d="M 160 112 Q 162 113 163 111" fill="none" stroke="#b8860b" strokeWidth="0.3"/>
+        </g>
+
+        {/* Листья на арке */}
+        <path d="M 50 105 Q 55 95 60 105 Q 55 110 50 105 Z" fill="rgba(34,100,40,0.6)" stroke="#2d6e2d" strokeWidth="0.3"/>
+        <path d="M 140 105 Q 145 95 150 105 Q 145 110 140 105 Z" fill="rgba(34,100,40,0.6)" stroke="#2d6e2d" strokeWidth="0.3"/>
+        <path d="M 65 95 Q 70 88 75 95 Q 70 100 65 95 Z" fill="rgba(34,100,40,0.5)" stroke="#2d6e2d" strokeWidth="0.3"/>
+        <path d="M 125 95 Q 130 88 135 95 Q 130 100 125 95 Z" fill="rgba(34,100,40,0.5)" stroke="#2d6e2d" strokeWidth="0.3"/>
+        <path d="M 80 90 Q 85 84 90 90 Q 85 95 80 90 Z" fill="rgba(34,100,40,0.5)" stroke="#2d6e2d" strokeWidth="0.3"/>
+        <path d="M 110 90 Q 115 84 120 90 Q 115 95 110 90 Z" fill="rgba(34,100,40,0.5)" stroke="#2d6e2d" strokeWidth="0.3"/>
+
+        {/* Декоративные завитки */}
+        <path d="M 35 115 Q 30 110 35 105 Q 38 110 35 115 Z" fill="none" stroke="#b8860b" strokeWidth="0.4" opacity="0.4"/>
+        <path d="M 165 115 Q 170 110 165 105 Q 162 110 165 115 Z" fill="none" stroke="#b8860b" strokeWidth="0.4" opacity="0.4"/>
+
+        {/* Объекты масти — детальные */}
+        {pos.map(([x, y, rot], i) => (
           <g key={i}>
-            <text x={x} y={y + 7} fontSize="20" textAnchor="middle" fill={suitColor} opacity="0.8">{getSuitSymbol(card.suit)}</text>
-            {/* Растительные искры */}
-            {i % 2 === 0 && (
-              <>
-                <circle cx={x - 7} cy={y} r="0.8" fill="#ffd700" opacity="0.3"/>
-                <circle cx={x + 7} cy={y} r="0.8" fill="#ffd700" opacity="0.3"/>
-              </>
-            )}
+            {drawSuitObject(card.suit, x, y, 1.1, rot, accent)}
           </g>
         ))}
 
-        {/* Васнецовская арка снизу */}
-        <path d="M 45 245 Q 100 260 155 245" fill="none" stroke="#b8860b" strokeWidth="0.6" opacity="0.4"/>
-        <circle cx="45" cy="245" r="2" fill="rgba(34,100,40,0.3)" stroke="#b8860b" strokeWidth="0.3"/>
-        <circle cx="155" cy="245" r="2" fill="rgba(180,30,30,0.3)" stroke="#b8860b" strokeWidth="0.3"/>
+        {/* Васнецовская арка снизу — детальная */}
+        <path d="M 40 245 Q 100 260 160 245" fill="none" stroke="#b8860b" strokeWidth="1" opacity="0.5"/>
+        <path d="M 45 245 Q 100 258 155 245" fill="none" stroke="rgba(255,215,0,0.3)" strokeWidth="0.5"/>
+
+        {/* Цветы на нижней арке */}
+        <g>
+          <circle cx="40" cy="245" r="2.5" fill="rgba(34,100,40,0.6)" stroke="#2d6e2d" strokeWidth="0.3"/>
+          <path d="M 38 245 Q 40 243 42 245 Q 40 247 38 245 Z" fill="rgba(180,30,30,0.5)"/>
+          <circle cx="40" cy="245" r="0.8" fill="#ffd700"/>
+        </g>
+        <g>
+          <circle cx="160" cy="245" r="2.5" fill="rgba(180,30,30,0.6)" stroke="#991b1b" strokeWidth="0.3"/>
+          <path d="M 158 245 Q 160 243 162 245 Q 160 247 158 245 Z" fill="rgba(255,180,180,0.5)"/>
+          <circle cx="160" cy="245" r="0.8" fill="#ffd700"/>
+        </g>
 
         {/* Центральная декоративная розетка для нечётных */}
         {count % 2 === 1 && (
           <g>
-            <circle cx="100" cy="175" r="3" fill="none" stroke="#b8860b" strokeWidth="0.4" opacity="0.3"/>
-            <path d="M 97 175 Q 100 170 103 175 Q 100 180 97 175" fill="none" stroke="#ffd700" strokeWidth="0.3" opacity="0.3"/>
+            <circle cx="100" cy="175" r="6" fill="none" stroke="#b8860b" strokeWidth="0.5" opacity="0.4"/>
+            <circle cx="100" cy="175" r="3" fill="none" stroke="#ffd700" strokeWidth="0.4" opacity="0.4"/>
+            <path d="M 96 175 Q 100 170 104 175 Q 100 180 96 175 Z" fill="none" stroke={accent} strokeWidth="0.4" opacity="0.5"/>
+            <circle cx="100" cy="175" r="0.8" fill={accent} opacity="0.7"/>
           </g>
         )}
       </g>
     )
   }
 
-  // === ВАСНЕЦОВСКИЕ ФИГУРНЫЕ КАРТЫ — сказочные персонажи ===
-  const figureConfig: Record<string, { color: string; accessory: string }> = {
-    page: { color: "rgba(184,134,11,0.3)", accessory: "П" },
-    knight: { color: "rgba(60,60,70,0.4)", accessory: "R" },
-    queen: { color: "rgba(120,20,20,0.35)", accessory: "Q" },
-    king: { color: "rgba(30,30,80,0.4)", accessory: "K" },
-  }
-  const fc = figureConfig[rank]
-
+  // === ВАСНЕЦОВСКИЕ ФИГУРНЫЕ КАРТЫ — детальные персонажи ===
   return (
     <g>
-      {/* === Конь для рыцаря — сказочный, васнецовский === */}
-      {rank === "knight" && (
-        <>
-          <ellipse cx="100" cy="210" rx="32" ry="13" fill="rgba(139,90,43,0.3)" stroke="#8b5a2b" strokeWidth="0.8"/>
-          {/* Голова коня */}
-          <path d="M 68 210 Q 60 198 64 188 L 76 190 L 80 205 Z" fill="rgba(139,90,43,0.35)" stroke="#8b5a2b" strokeWidth="0.6"/>
-          <circle cx="68" cy="195" r="1" fill="rgba(60,40,30,0.6)"/>
-          {/* Грива — золотая */}
-          <path d="M 72 188 Q 75 178 80 185" fill="none" stroke="#ffd700" strokeWidth="0.8" opacity="0.4"/>
-          {/* Ноги */}
-          {[75, 90, 110, 125].map((x, i) => (
-            <line key={i} x1={x} y1="222" x2={x} y2="240" stroke="#8b5a2b" strokeWidth="1.8"/>
-          ))}
-          {/* Хвост */}
-          <path d="M 132 210 Q 138 215 136 225" fill="none" stroke="#8b5a2b" strokeWidth="0.6"/>
-        </>
-      )}
+      {/* Фон-арка с растительным орнаментом */}
+      <path d="M 30 110 Q 100 80 170 110" fill="none" stroke="#b8860b" strokeWidth="0.8" opacity="0.4"/>
+      <path d="M 35 108 Q 100 85 165 108" fill="none" stroke="rgba(255,215,0,0.3)" strokeWidth="0.4"/>
+      {/* Цветы на арке */}
+      <circle cx="30" cy="110" r="2.5" fill="rgba(180,30,30,0.6)" stroke="#991b1b" strokeWidth="0.3"/>
+      <circle cx="170" cy="110" r="2.5" fill="#ffd700" opacity="0.6" stroke="#b8860b" strokeWidth="0.3"/>
 
-      {/* === Трон для королевы и короля — деревянный, резной === */}
-      {(rank === "queen" || rank === "king") && (
-        <>
-          <path d="M 65 250 L 65 185 L 135 185 L 135 250 Z" fill="rgba(74,53,36,0.4)" stroke="#8b5a2b" strokeWidth="0.6"/>
-          <path d="M 60 185 L 140 185 L 140 170 L 60 170 Z" fill="rgba(139,90,43,0.4)" stroke="#8b5a2b" strokeWidth="0.4"/>
-          {/* Резной растительный узор на троне */}
-          <path d="M 75 200 Q 85 195 95 200 Q 105 195 115 200 Q 125 195 135 200" fill="none" stroke="#ffd700" strokeWidth="0.3" opacity="0.3"/>
-          <path d="M 75 225 Q 85 220 95 225 Q 105 220 115 225 Q 125 220 135 225" fill="none" stroke="#ffd700" strokeWidth="0.3" opacity="0.3"/>
-        </>
-      )}
-
-      {/* === Фигура персонажа === */}
-      {/* Тело — в васнецовской одежде */}
-      <path d="M 86 195 L 90 125 L 110 125 L 114 195 Z" fill={fc.color} stroke="#8b5a2b" strokeWidth="0.6"/>
-      {/* Растительный узор на одежде */}
-      <path d="M 93 145 Q 100 140 107 145 Q 103 150 100 148 Q 97 150 93 145" fill="none" stroke="#ffd700" strokeWidth="0.3" opacity="0.4"/>
-      <path d="M 93 170 Q 100 165 107 170 Q 103 175 100 173 Q 97 175 93 170" fill="none" stroke="#ffd700" strokeWidth="0.3" opacity="0.4"/>
-      {/* Голова — с тёплым тоном кожи */}
-      <circle cx="100" cy="118" r="9" fill="rgba(232,200,160,0.7)" stroke="#8b5a2b" strokeWidth="0.6"/>
-
-      {/* === Корона для короля и королевы — золотая, с самоцветами === */}
-      {(rank === "king" || rank === "queen") && (
-        <g>
-          <path d="M 90 105 L 93 92 L 97 98 L 100 88 L 103 98 L 107 92 L 110 105 Z" fill="rgba(255,215,0,0.3)" stroke="#b8860b" strokeWidth="0.5"/>
-          <circle cx="93" cy="92" r="1.2" fill="rgba(180,30,30,0.6)"/>
-          <circle cx="100" cy="88" r="1.2" fill="rgba(30,30,80,0.5)"/>
-          <circle cx="107" cy="92" r="1.2" fill="rgba(180,30,30,0.6)"/>
-        </g>
-      )}
-
-      {/* === Шлем для рыцаря — золотой, остроконечный === */}
-      {rank === "knight" && (
-        <g>
-          <path d="M 89 115 Q 100 98 111 115 L 109 125 L 91 125 Z" fill="rgba(255,215,0,0.15)" stroke="#b8860b" strokeWidth="0.5"/>
-          <line x1="100" y1="98" x2="100" y2="90" stroke="#ffd700" strokeWidth="0.6"/>
-          <circle cx="100" cy="89" r="1.5" fill="#ffd700"/>
-          {/* Забрало */}
-          <line x1="93" y1="118" x2="107" y2="118" stroke="#5a3a20" strokeWidth="0.4"/>
-        </g>
-      )}
-
-      {/* === Шапочка с пером для пажа — охряная === */}
-      {rank === "page" && (
-        <g>
-          <path d="M 91 112 Q 100 100 109 112 L 107 118 L 93 118 Z" fill="rgba(184,134,11,0.3)" stroke="#b8860b" strokeWidth="0.4"/>
-          <path d="M 109 108 Q 117 100 115 90 Q 112 98 109 98" fill="rgba(180,30,30,0.4)" stroke="#b8860b" strokeWidth="0.3"/>
-        </g>
-      )}
-
-      {/* === Символ масти в руках — медальон с растительным узором === */}
-      <g transform="translate(100, 158)">
-        <circle r="10" fill={`${suitColor}22`} stroke="#b8860b" strokeWidth="0.5"/>
-        {/* Растительный узор вокруг медальона */}
-        <path d="M -8 -8 Q -4 -12 0 -8 Q 4 -12 8 -8" fill="none" stroke="#ffd700" strokeWidth="0.3" opacity="0.3"/>
-        <text y="5" fontSize="14" textAnchor="middle" fill={suitColor} opacity="0.9">{getSuitSymbol(card.suit)}</text>
-      </g>
-
-      {/* Декоративные цветы по бокам */}
-      <circle cx="48" cy="160" r="1.5" fill="rgba(180,30,30,0.3)" stroke="#b8860b" strokeWidth="0.3"/>
-      <circle cx="152" cy="160" r="1.5" fill="#ffd700" opacity="0.3" stroke="#b8860b" strokeWidth="0.3"/>
+      {/* Детальная фигура персонажа */}
+      {drawFigure(rank, card.suit, suitColor, accent)}
 
       {/* Буква ранга внизу — с золотым орнаментом */}
-      <text x="100" y="245" fontSize="11" textAnchor="middle" fill={suitColor} opacity="0.6" fontWeight="bold" style={{ fontFamily: "var(--font-cinzel)" }}>{fc.accessory}</text>
+      <text x="100" y="245" fontSize="11" textAnchor="middle" fill={suitColor} opacity="0.5" fontWeight="bold" style={{ fontFamily: "var(--font-cinzel)" }}>
+        {rank === "page" ? "П" : rank === "knight" ? "R" : rank === "queen" ? "Q" : "K"}
+      </text>
     </g>
   )
 }
