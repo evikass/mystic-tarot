@@ -830,3 +830,33 @@ body {
   transform-box: view-box;
   animation: sun-glow-pulse 5s ease-in-out infinite;
 }
+
+@keyframes moon-rays-rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+.svg-moon-rays {
+  transform-origin: 100px 80px;
+  transform-box: view-box;
+  animation: moon-rays-rotate 60s linear infinite;
+}
+
+@keyframes moon-glow-pulse {
+  0%, 100% { opacity: 0.5; transform: scale(1); }
+  50% { opacity: 0.85; transform: scale(1.12); }
+}
+.svg-moon-glow {
+  transform-origin: 100px 80px;
+  transform-box: view-box;
+  animation: moon-glow-pulse 6s ease-in-out infinite;
+}
+
+@keyframes moon-face-breathe {
+  0%, 100% { opacity: 0.85; }
+  50% { opacity: 1; }
+}
+.svg-moon-face {
+  transform-origin: 100px 80px;
+  transform-box: view-box;
+  animation: moon-face-breathe 4s ease-in-out infinite;
+}
