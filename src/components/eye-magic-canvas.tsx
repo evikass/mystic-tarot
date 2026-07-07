@@ -77,6 +77,8 @@ export function EyeOfMysticCanvas({ width, height, active, mousePosRef, isHovere
     runeCount: 8,
     // Hue shift
     timeHue: 0,
+    // Mobile frame skip
+    mobileSkip: 0,
   })
 
   useEffect(() => {
@@ -371,6 +373,16 @@ export function EyeOfMysticCanvas({ width, height, active, mousePosRef, isHovere
     }
 
     const animate = () => {
+      animRef.current = requestAnimationFrame(animate)
+
+      // На мобильных — пропускаем каждый 2-й кадр
+      const isMobile = width < 160
+      if (isMobile) {
+        s.mobileSkip = (s.mobileSkip || 0) + 1
+        if (s.mobileSkip < 2) return
+        s.mobileSkip = 0
+      }
+
       const now = performance.now()
       const deltaTime = (now - s.lastTime) / 1000
       s.lastTime = now
@@ -379,8 +391,6 @@ export function EyeOfMysticCanvas({ width, height, active, mousePosRef, isHovere
       ctx.clearRect(0, 0, width, height)
       drawEye()
       drawParticles()
-
-      animRef.current = requestAnimationFrame(animate)
     }
 
     animate()

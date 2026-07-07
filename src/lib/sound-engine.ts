@@ -81,7 +81,7 @@ export function playCardFlipSound() {
     osc.frequency.value = freq
 
     const gain = ctx.createGain()
-    const peak = 0.16 / (i + 1)
+    const peak = 0.09 / (i + 1)  // тише (было 0.16)
     gain.gain.setValueAtTime(0, now)
     gain.gain.linearRampToValueAtTime(peak, now + 0.005)
     gain.gain.exponentialRampToValueAtTime(0.0001, now + 1.8 - i * 0.25)
@@ -111,7 +111,7 @@ export function playCardFlipSound() {
 
     const noiseGain = ctx.createGain()
     noiseGain.gain.setValueAtTime(0, now)
-    noiseGain.gain.linearRampToValueAtTime(0.07, now + 0.05)
+    noiseGain.gain.linearRampToValueAtTime(0.04, now + 0.05)  // тише (было 0.07)
     noiseGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.4)
 
     noise.connect(filter)
@@ -135,7 +135,7 @@ export function playCardFlipSound() {
 
       const gain = ctx.createGain()
       const start = now + 0.02 + i * 0.015
-      const peak = 0.05
+      const peak = 0.03  // тише (было 0.05)
       gain.gain.setValueAtTime(0, start)
       gain.gain.linearRampToValueAtTime(peak, start + 0.01)
       gain.gain.exponentialRampToValueAtTime(0.0001, start + 1.2)
@@ -166,7 +166,7 @@ export function playCardFlipSound() {
     filter.frequency.value = 2000
 
     const gain = ctx.createGain()
-    gain.gain.value = 0.08
+    gain.gain.value = 0.05  // тише (было 0.08)
 
     noise.connect(filter)
     filter.connect(gain)

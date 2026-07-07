@@ -243,10 +243,11 @@ export default function Home() {
   }
 
   // Sync ambient button state with actual playback (draw functions start it)
+  // Polling every 3s (less frequent = fewer re-renders)
   useEffect(() => {
     const interval = setInterval(() => {
       setAmbientOn(isAmbientPlaying())
-    }, 1000)
+    }, 3000)
     return () => clearInterval(interval)
   }, [])
 
