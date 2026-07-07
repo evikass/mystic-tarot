@@ -127,7 +127,7 @@ import {
 } from "@/lib/tarot-storage"
 import { initVKBridge, isVKEnvironment, vkShare } from "@/lib/vk-bridge"
 import { useTheme } from "@/lib/use-theme"
-import { setMuted, isMuted, initMuteState, playCardDrawSound } from "@/lib/sound-engine"
+import { setMuted, isMuted, initMuteState, playCardDrawSound, startAmbient, toggleAmbient, isAmbientPlaying } from "@/lib/sound-engine"
 import { successSteps, stepCategories, type SuccessStep } from "@/lib/success-steps-data"
 import {
   getAllProgress,
@@ -214,6 +214,8 @@ import {
   Dices,
   Volume2,
   VolumeX,
+  Music,
+  Music2,
 } from "lucide-react"
 
 type Section = "home" | "daily" | "readings" | "tarot-forecast" | "compatibility" | "psychology" | "history" | "success" | "catalog" | "theme"
@@ -227,9 +229,23 @@ interface DrawnCard {
 export default function Home() {
   const [section, setSection] = useState<Section>("home")
   const { toast } = useToast()
+  const [ambientOn, setAmbientOn] = useState(false)
 
   useEffect(() => {
     initVKBridge()
+  }, [])
+
+  const handleToggleAmbient = () => {
+    const playing = toggleAmbient()
+    setAmbientOn(playing)
+  }
+
+  // Sync ambient button state with actual playback (draw functions start it)
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setAmbientOn(isAmbientPlaying())
+    }, 1000)
+    return () => clearInterval(interval)
   }, [])
 
   const navItems: { id: Section; label: string; icon: React.ReactNode }[] = [
@@ -262,6 +278,20 @@ export default function Home() {
         </main>
         <Footer/>
       </div>
+
+      {/* Floating ambient sound toggle */}
+      <button
+        onClick={handleToggleAmbient}
+        aria-label={ambientOn ? "Выключить эмбиент" : "Включить эмбиент"}
+        title={ambientOn ? "Выключить мистический эмбиент" : "Включить мистический эмбиент"}
+        className="fixed bottom-4 right-4 z-50 flex items-center justify-center w-11 h-11 rounded-full text-amber-200 hover:bg-amber-400/15 hover:text-amber-100 transition-all border border-amber-400/30 backdrop-blur-sm"
+        style={{
+          background: ambientOn ? "rgba(180,140,255,0.2)" : "rgba(20,15,30,0.7)",
+          boxShadow: ambientOn ? "0 0 15px rgba(180,140,255,0.4)" : "0 0 8px rgba(0,0,0,0.5)",
+        }}
+      >
+        {ambientOn ? <Music2 className="w-5 h-5 animate-pulse"/> : <Music className="w-5 h-5"/>}
+      </button>
     </div>
   )
 }
@@ -638,6 +668,7 @@ function DailyCardSection() {
   })
 
   const drawDailyCard = useCallback(() => {
+    startAmbient()
     setIsDrawing(true)
     setRevealed(false)
     setDrawnCard(null)
@@ -1000,6 +1031,7 @@ function ThreeCardReading() {
   const positions = ["Прошлое", "Настоящее", "Будущее"]
 
   const draw = useCallback(() => {
+    startAmbient()
     setIsDrawing(true)
     setDrawnCards([])
     setRevealedIndexes([])
@@ -1160,6 +1192,7 @@ function CelticCrossReading() {
   ]
 
   const draw = useCallback(() => {
+    startAmbient()
     setIsDrawing(true)
     setDrawnCards([])
     setRevealedIndexes([])
@@ -1309,6 +1342,7 @@ function YesNoReading() {
       toast({ title: "Сформулируйте вопрос", description: "Для Да/Нет нужен конкретный вопрос", variant: "destructive" })
       return
     }
+    startAmbient()
     setIsDrawing(true)
     setRevealed(false)
     setDrawnCard(null)
@@ -1455,6 +1489,7 @@ function TwoPathsReading() {
       toast({ title: "Опишите оба варианта", description: "Для расклада «Два пути» нужно два варианта выбора", variant: "destructive" })
       return
     }
+    startAmbient()
     setIsDrawing(true)
     setDrawnCards([])
     setRevealedIndexes([])
