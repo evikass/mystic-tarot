@@ -2,8 +2,8 @@
 
 import { useState, useEffect, useCallback, useRef, useMemo } from "react"
 import { StarryBackground } from "@/components/starry-bg"
-import { TarotCardView } from "@/components/tarot-card"
-import { CardSVG, CardBack } from "@/lib/tarot-svg"
+import { TarotCardView, CardBackWithEye } from "@/components/tarot-card"
+import { CardSVG } from "@/lib/tarot-svg"
 import { ColorQuiz } from "@/components/color-quiz"
 import { GeometryQuiz } from "@/components/geometry-quiz"
 import { PalmInteractive } from "@/components/palm-interactive"
@@ -696,7 +696,7 @@ function DailyCardSection() {
                   zIndex: 4 - i,
                 }}
               >
-                <CardBack width={200} height={320} className="rounded-xl shadow-2xl"/>
+                <CardBackWithEye width={200} height={320} className="rounded-xl shadow-2xl"/>
               </div>
             ))}
           </div>
@@ -711,7 +711,7 @@ function DailyCardSection() {
         <div className="flex flex-col items-center gap-6">
           <div className="relative w-[200px] h-[320px]">
             <div className="absolute inset-0 animate-pulse">
-              <CardBack width={200} height={320} className="rounded-xl"/>
+              <CardBackWithEye width={200} height={320} className="rounded-xl"/>
             </div>
           </div>
           <p className="text-amber-200/80 text-lg animate-pulse" style={{ fontFamily: "var(--font-cormorant)" }}>
@@ -1047,7 +1047,7 @@ function ThreeCardReading() {
           <div className="flex gap-3">
             {[0, 1, 2].map((i) => (
               <div key={i} style={{ transform: `rotate(${(i - 1) * 4}deg)` }}>
-                <CardBack width={140} height={224} className="rounded-xl shadow-2xl"/>
+                <CardBackWithEye width={140} height={224} className="rounded-xl shadow-2xl"/>
               </div>
             ))}
           </div>
@@ -1208,7 +1208,7 @@ function CelticCrossReading() {
                 className="absolute inset-0"
                 style={{ transform: `translate(${i * 5}px, ${i * 5}px) rotate(${(i - 2) * 3}deg)` }}
               >
-                <CardBack width={140} height={224} className="rounded-xl shadow-2xl"/>
+                <CardBackWithEye width={140} height={224} className="rounded-xl shadow-2xl"/>
               </div>
             ))}
           </div>
@@ -1359,7 +1359,7 @@ function YesNoReading() {
 
       {!drawnCard && !isDrawing && (
         <div className="flex flex-col items-center gap-6">
-          <CardBack width={180} height={288} className="rounded-xl shadow-2xl animate-float"/>
+          <CardBackWithEye width={180} height={288} className="rounded-xl shadow-2xl animate-float"/>
           <Button onClick={draw} className="btn-gold px-8 py-3" disabled={!question.trim()}>
             <Zap className="w-5 h-5 mr-2"/>
             Получить ответ
@@ -1519,7 +1519,7 @@ function TwoPathsReading() {
           <div className="flex gap-2">
             {[0,1,2,3,4].map((i) => (
               <div key={i} style={{ transform: `rotate(${(i-2)*3}deg)` }}>
-                <CardBack width={100} height={160} className="rounded-xl shadow-2xl"/>
+                <CardBackWithEye width={100} height={160} className="rounded-xl shadow-2xl"/>
               </div>
             ))}
           </div>
@@ -1809,9 +1809,9 @@ function CompatibilityTarotTab() {
       {!person1Cards && !isDrawing && (
         <div className="flex flex-col items-center gap-6">
           <div className="flex gap-8 items-center">
-            <CardBack width={140} height={224} className="rounded-xl shadow-2xl"/>
+            <CardBackWithEye width={140} height={224} className="rounded-xl shadow-2xl"/>
             <Heart className="w-10 h-10 text-rose-400 animate-pulse"/>
-            <CardBack width={140} height={224} className="rounded-xl shadow-2xl"/>
+            <CardBackWithEye width={140} height={224} className="rounded-xl shadow-2xl"/>
           </div>
           <Button onClick={draw} className="btn-gold px-8 py-3">
             <Heart className="w-5 h-5 mr-2"/>
@@ -2618,7 +2618,7 @@ function ArchetypeTab() {
           <div className="flex gap-2">
             {[0, 1, 2, 3, 4].map((i) => (
               <div key={i} style={{ transform: `rotate(${(i - 2) * 3}deg)` }}>
-                <CardBack width={100} height={160} className="rounded-xl shadow-2xl"/>
+                <CardBackWithEye width={100} height={160} className="rounded-xl shadow-2xl"/>
               </div>
             ))}
           </div>

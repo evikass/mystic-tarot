@@ -259,3 +259,22 @@ export function TarotCardView({
     </div>
   )
 }
+
+/**
+ * CardBackWithEye — обёртка для standalone-использования рубашки.
+ * Включает CardBack SVG + EyeOfMysticCanvas (мигающий глаз, частицы, руны).
+ * Используется везде, где рубашка показывается без TarotCardView (декоративные колоды, превью).
+ * Гарантирует, что рубашка выглядит одинаково и в раскладе, и отдельно.
+ */
+export function CardBackWithEye({ width = 200, height = 320, className }: { width?: number; height?: number; className?: string }) {
+  return (
+    <div className={cn("relative", className)} style={{ width, height }}>
+      <CardBack width={width} height={height} className="rounded-xl"/>
+      <EyeOfMysticCanvas
+        width={width}
+        height={height}
+        active={true}
+      />
+    </div>
+  )
+}
