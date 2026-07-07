@@ -128,6 +128,7 @@ import {
 import { initVKBridge, isVKEnvironment, vkShare } from "@/lib/vk-bridge"
 import { useTheme } from "@/lib/use-theme"
 import { setMuted, isMuted, initMuteState, playCardDrawSound, startAmbient, toggleAmbient, isAmbientPlaying } from "@/lib/sound-engine"
+import { TypewriterText } from "@/lib/use-typewriter"
 import { successSteps, stepCategories, type SuccessStep } from "@/lib/success-steps-data"
 import {
   getAllProgress,
@@ -799,9 +800,11 @@ function DailyCardSection() {
                       Основное значение
                     </h4>
                     <p className="text-amber-100/85 text-sm leading-relaxed">
-                      {drawnCard.isReversed
-                        ? drawnCard.card.reversed.summary
-                        : drawnCard.card.upright.summary}
+                      <TypewriterText
+                        text={drawnCard.isReversed ? drawnCard.card.reversed.summary : drawnCard.card.upright.summary}
+                        speed={25}
+                        enabled={revealed}
+                      />
                     </p>
                   </div>
 
@@ -1146,7 +1149,11 @@ function ThreeCardReading() {
                       </h4>
                     </div>
                     <p className="text-sm text-amber-100/80 leading-relaxed">
-                      {d.isReversed ? d.card.reversed.summary : d.card.upright.summary}
+                      <TypewriterText
+                        text={d.isReversed ? d.card.reversed.summary : d.card.upright.summary}
+                        speed={25}
+                        enabled={allRevealed}
+                      />
                     </p>
                   </CardContent>
                 </Card>
@@ -1306,7 +1313,11 @@ function CelticCrossReading() {
                           {d.isReversed && <span className="ml-2 text-xs text-rose-300">(перевёрнута)</span>}
                         </h4>
                         <p className="text-xs text-amber-100/80 leading-relaxed">
-                          {d.isReversed ? d.card.reversed.summary : d.card.upright.summary}
+                          <TypewriterText
+                            text={d.isReversed ? d.card.reversed.summary : d.card.upright.summary}
+                            speed={20}
+                            enabled={revealedIndexes.length === drawnCards.length}
+                          />
                         </p>
                       </div>
                     </div>
@@ -1439,14 +1450,24 @@ function YesNoReading() {
                 {answer === "yes" ? "ДА" : answer === "no" ? "НЕТ" : "ВОЗМОЖНО"}
               </div>
               <p className="text-amber-200/70 text-sm mb-4">
-                {answer === "yes" && "Карты указывают на положительный ответ. Энергия способствует вашему намерению."}
-                {answer === "no" && "Карты указывают на отрицательный ответ. Сейчас не время или путь неверен."}
-                {answer === "maybe" && "Ответ неоднозначен. Многое зависит от вашего выбора и обстоятельств."}
+                {answer === "yes" && (
+                  <TypewriterText text="Карты указывают на положительный ответ. Энергия способствует вашему намерению." speed={30} enabled={revealed && !!answer} />
+                )}
+                {answer === "no" && (
+                  <TypewriterText text="Карты указывают на отрицательный ответ. Сейчас не время или путь неверен." speed={30} enabled={revealed && !!answer} />
+                )}
+                {answer === "maybe" && (
+                  <TypewriterText text="Ответ неоднозначен. Многое зависит от вашего выбора и обстоятельств." speed={30} enabled={revealed && !!answer} />
+                )}
               </p>
               <Card className="glass-card border-amber-400/20 text-left">
                 <CardContent className="p-4">
                   <p className="text-xs text-amber-100/80 italic">
-                    {drawnCard.isReversed ? drawnCard.card.reversed.summary : drawnCard.card.upright.summary}
+                    <TypewriterText
+                      text={drawnCard.isReversed ? drawnCard.card.reversed.summary : drawnCard.card.upright.summary}
+                      speed={25}
+                      enabled={revealed && !!answer}
+                    />
                   </p>
                 </CardContent>
               </Card>
@@ -1656,7 +1677,11 @@ function TwoPathsReading() {
                     {drawnCards[0].isReversed && <span className="ml-2 text-xs text-rose-300">(перевёрнута)</span>}
                   </h4>
                   <p className="text-sm text-amber-100/80 leading-relaxed">
-                    {drawnCards[0].isReversed ? drawnCards[0].card.reversed.summary : drawnCards[0].card.upright.summary}
+                    <TypewriterText
+                      text={drawnCards[0].isReversed ? drawnCards[0].card.reversed.summary : drawnCards[0].card.upright.summary}
+                      speed={25}
+                      enabled={allRevealed}
+                    />
                   </p>
                 </CardContent>
               </Card>
@@ -1687,7 +1712,11 @@ function TwoPathsReading() {
                               {drawnCards[cardIdx].isReversed && <span className="text-xs text-rose-300">↺</span>}
                             </div>
                             <p className="text-xs text-amber-100/75 leading-relaxed">
-                              {drawnCards[cardIdx].isReversed ? drawnCards[cardIdx].card.reversed.summary : drawnCards[cardIdx].card.upright.summary}
+                              <TypewriterText
+                                text={drawnCards[cardIdx].isReversed ? drawnCards[cardIdx].card.reversed.summary : drawnCards[cardIdx].card.upright.summary}
+                                speed={25}
+                                enabled={allRevealed}
+                              />
                             </p>
                           </div>
                         ))}
@@ -4916,7 +4945,11 @@ function TarotForecastSection() {
                   </h4>
                 </div>
                 <p className="text-sm text-amber-100/80 leading-relaxed">
-                  {f.isReversed ? f.card.reversed.summary : f.card.upright.summary}
+                  <TypewriterText
+                    text={f.isReversed ? f.card.reversed.summary : f.card.upright.summary}
+                    speed={25}
+                    enabled={allRevealed}
+                  />
                 </p>
                 <p className="text-xs text-amber-200/60 italic mt-2">{f.hint}</p>
               </CardContent>
