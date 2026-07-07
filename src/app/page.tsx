@@ -721,7 +721,7 @@ function DailyCardSection() {
       )}
 
       {drawnCard && !isDrawing && (
-        <div className="flex flex-col items-center gap-6">
+        <div className="cards-dealt flex flex-col items-center gap-6">
           <TarotCardView
             card={drawnCard.card}
             isReversed={drawnCard.isReversed}
@@ -1069,7 +1069,7 @@ function ThreeCardReading() {
 
       {drawnCards.length > 0 && !isDrawing && (
         <div>
-          <div className="flex flex-wrap justify-center gap-6 mb-8">
+          <div className="cards-dealt flex flex-wrap justify-center gap-6 mb-8">
             {drawnCards.map((d, i) => (
               <TarotCardView
                 key={i}
@@ -1234,7 +1234,7 @@ function CelticCrossReading() {
 
       {drawnCards.length > 0 && !isDrawing && (
         <div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 mb-8 justify-items-center">
+          <div className="cards-dealt grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 mb-8 justify-items-center">
             {drawnCards.map((d, i) => (
               <TarotCardView
                 key={i}
@@ -1377,7 +1377,7 @@ function YesNoReading() {
       )}
 
       {drawnCard && !isDrawing && (
-        <div className="flex flex-col items-center gap-6">
+        <div className="cards-dealt flex flex-col items-center gap-6">
           <TarotCardView
             card={drawnCard.card}
             isReversed={drawnCard.isReversed}
@@ -1542,7 +1542,7 @@ function TwoPathsReading() {
       {drawnCards.length > 0 && !isDrawing && (
         <div>
           {/* Карта текущей ситуации — центр */}
-          <div className="flex flex-col items-center mb-6">
+          <div className="cards-dealt flex flex-col items-center mb-6">
             <div className="text-xs uppercase tracking-wider text-amber-200/70 mb-2">{drawnCards[0].position}</div>
             <TarotCardView
               card={drawnCards[0].card}
@@ -1562,7 +1562,7 @@ function TwoPathsReading() {
                 ПУТЬ А
               </Badge>
               <div className="text-xs text-amber-100 text-center max-w-[200px] truncate" title={optionA}>{optionA}</div>
-              <div className="flex gap-3">
+              <div className="cards-dealt flex gap-3">
                 {[1, 2].map((idx) => (
                   <div key={idx} className="flex flex-col items-center">
                     <div className="text-[10px] uppercase tracking-wider text-amber-200/60 mb-1 text-center">
@@ -1587,7 +1587,7 @@ function TwoPathsReading() {
                 ПУТЬ Б
               </Badge>
               <div className="text-xs text-amber-100 text-center max-w-[200px] truncate" title={optionB}>{optionB}</div>
-              <div className="flex gap-3">
+              <div className="cards-dealt flex gap-3">
                 {[3, 4].map((idx) => (
                   <div key={idx} className="flex flex-col items-center">
                     <div className="text-[10px] uppercase tracking-wider text-amber-200/60 mb-1 text-center">
@@ -4849,7 +4849,7 @@ function TarotForecastSection() {
 
       <div className="text-center text-sm text-amber-200/60 capitalize mb-6">{dateLabel}</div>
 
-      <div className="flex flex-wrap justify-center gap-6 mb-8">
+      <div className="cards-dealt flex flex-wrap justify-center gap-6 mb-8">
         {forecast.map((f, i) => {
           const revealed = revealedIndexes.includes(i)
           return (
