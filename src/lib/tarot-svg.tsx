@@ -1808,21 +1808,28 @@ function MajorArcanaArt({ card }: { card: TarotCard }) {
           {/* Пояс — на талии (между ногами и телом) */}
           <path d="M 88 175 Q 100 173 112 175 L 112 180 Q 100 178 88 180 Z" fill="rgba(120,90,50,0.8)" stroke="#5a3a20" strokeWidth="0.4"/>
 
-          {/* === РУКИ — за спиной, связаны за головой === */}
-          {/* Левая рука — из плеча за спину */}
-          <path d="M 92 180 Q 84 195 88 210" fill="none" stroke="rgba(232,200,160,0.9)" strokeWidth="3" strokeLinecap="round"/>
-          <path d="M 92 180 Q 84 195 88 210" fill="none" stroke="#8b5a2b" strokeWidth="0.4"/>
-          {/* Правая рука */}
-          <path d="M 108 180 Q 116 195 112 210" fill="none" stroke="rgba(232,200,160,0.9)" strokeWidth="3" strokeLinecap="round"/>
-          <path d="M 108 180 Q 116 195 112 210" fill="none" stroke="#8b5a2b" strokeWidth="0.4"/>
+          {/* === РУКИ — из плеч (возле головы), согнуты за спиной, кисти за головой === */}
+          {/* Левая рука — из левого плеча (y~212) за спину к голове */}
+          <path d="M 92 212 Q 84 218 88 228" fill="none" stroke="rgba(232,200,160,0.9)" strokeWidth="3" strokeLinecap="round"/>
+          <path d="M 92 212 Q 84 218 88 228" fill="none" stroke="#8b5a2b" strokeWidth="0.4"/>
+          {/* Правая рука — из правого плеча за спину к голове */}
+          <path d="M 108 212 Q 116 218 112 228" fill="none" stroke="rgba(232,200,160,0.9)" strokeWidth="3" strokeLinecap="round"/>
+          <path d="M 108 212 Q 116 218 112 228" fill="none" stroke="#8b5a2b" strokeWidth="0.4"/>
           {/* Связанные кисти — за головой */}
-          <ellipse cx="88" cy="210" rx="3" ry="2.5" fill="rgba(232,200,160,0.9)" stroke="#8b5a2b" strokeWidth="0.4"/>
-          <ellipse cx="112" cy="210" rx="3" ry="2.5" fill="rgba(232,200,160,0.9)" stroke="#8b5a2b" strokeWidth="0.4"/>
-          {/* Верёвка, связывающая кисти */}
-          <path d="M 88 210 Q 100 213 112 210" fill="none" stroke="rgba(120,90,50,0.85)" strokeWidth="1"/>
-          <path d="M 88 212 Q 100 215 112 212" fill="none" stroke="rgba(120,90,50,0.75)" strokeWidth="0.7"/>
+          <ellipse cx="88" cy="228" rx="3" ry="2.5" fill="rgba(232,200,160,0.9)" stroke="#8b5a2b" strokeWidth="0.4"/>
+          <ellipse cx="112" cy="228" rx="3" ry="2.5" fill="rgba(232,200,160,0.9)" stroke="#8b5a2b" strokeWidth="0.4"/>
+          {/* Пальцы на кистях */}
+          <path d="M 86 230 L 85 232" fill="none" stroke="rgba(232,200,160,0.9)" strokeWidth="0.8" strokeLinecap="round"/>
+          <path d="M 88 231 L 88 233" fill="none" stroke="rgba(232,200,160,0.9)" strokeWidth="0.8" strokeLinecap="round"/>
+          <path d="M 112 231 L 112 233" fill="none" stroke="rgba(232,200,160,0.9)" strokeWidth="0.8" strokeLinecap="round"/>
+          <path d="M 114 230 L 115 232" fill="none" stroke="rgba(232,200,160,0.9)" strokeWidth="0.8" strokeLinecap="round"/>
+          {/* Верёвка, связывающая кисти за головой */}
+          <path d="M 91 228 Q 100 230 109 228" fill="none" stroke="rgba(120,90,50,0.9)" strokeWidth="1.2"/>
+          <path d="M 91 230 Q 100 232 109 230" fill="none" stroke="rgba(120,90,50,0.75)" strokeWidth="0.8"/>
           {/* Узел на верёвке */}
-          <circle cx="100" cy="213" r="1.2" fill="rgba(120,90,50,0.85)" stroke="#5a3a20" strokeWidth="0.3"/>
+          <circle cx="100" cy="231" r="1.5" fill="rgba(120,90,50,0.9)" stroke="#5a3a20" strokeWidth="0.4"/>
+          <path d="M 98 232 Q 96 234 98 236" fill="none" stroke="rgba(120,90,50,0.8)" strokeWidth="0.5"/>
+          <path d="M 102 232 Q 104 234 102 236" fill="none" stroke="rgba(120,90,50,0.8)" strokeWidth="0.5"/>
 
           {/* === ГОЛОВА — внизу, детальная, с нимбом === */}
           {/* Шея */}
@@ -1890,258 +1897,268 @@ function MajorArcanaArt({ card }: { card: TarotCard }) {
       </g>
     ),
 
-    // XIII. СМЕРТЬ — скелет в чёрном плаще на бледном коне с чёрным стягом
+    // XIII. СМЕРТЬ — скелет в плаще на бледном коне со стягом Мистической Розы
     "major-13": (
       <g>
-        {/* Мрачный фон — васнецовский закат, но не слишком тёмный, чтобы сохранить читаемость */}
-        <rect x="14" y="42" width="172" height="208" fill="rgba(80,40,20,0.15)" rx="2"/>
-        {/* Закатное небо — горизонтальными полосами */}
-        <path d="M 14 42 L 186 42 L 186 90 Q 150 75 100 80 Q 50 75 14 90 Z" fill="rgba(200,100,40,0.2)"/>
-        <path d="M 14 60 L 186 60 L 186 100 Q 150 85 100 90 Q 50 85 14 100 Z" fill="rgba(160,60,20,0.15)"/>
+        {/* Светлый фон — закатное небо, но достаточно светлое, чтобы видеть детали */}
+        <rect x="14" y="42" width="172" height="208" fill="rgba(180,100,50,0.18)" rx="2"/>
+        {/* Закатное небо — мягкие горизонтальные полосы */}
+        <path d="M 14 42 L 186 42 L 186 85 Q 150 70 100 75 Q 50 70 14 85 Z" fill="rgba(220,140,60,0.25)"/>
+        <path d="M 14 55 L 186 55 L 186 90 Q 150 78 100 82 Q 50 78 14 90 Z" fill="rgba(180,80,30,0.15)"/>
 
         {/* Восходящее солнце между двумя башнями — символ возрождения */}
         <g>
           {/* Свечение солнца */}
-          <circle cx="100" cy="100" r="20" fill="rgba(255,200,80,0.15)" stroke="none"/>
-          <circle cx="100" cy="100" r="14" fill="rgba(255,200,80,0.2)" stroke="none"/>
+          <circle cx="100" cy="95" r="22" fill="rgba(255,200,80,0.18)" stroke="none"/>
+          <circle cx="100" cy="95" r="15" fill="rgba(255,200,80,0.25)" stroke="none"/>
           {/* Диск солнца — выглядывает из-за горизонта */}
-          <path d="M 86 100 Q 86 88 100 88 Q 114 88 114 100 Z" fill="rgba(255,180,60,0.5)" stroke="#b8860b" strokeWidth="0.5"/>
-          {/* Лучи солнца — короткие, восходящие */}
+          <path d="M 84 95 Q 84 82 100 82 Q 116 82 116 95 Z" fill="rgba(255,180,60,0.6)" stroke="#b8860b" strokeWidth="0.5"/>
+          {/* Лучи солнца */}
           {[-50, -30, -15, 0, 15, 30, 50].map(deg => {
             const rad = deg * Math.PI / 180
-            return <line key={deg} x1={100 + Math.cos(rad - Math.PI/2) * 14} y1={100 + Math.sin(rad - Math.PI/2) * 14} x2={100 + Math.cos(rad - Math.PI/2) * 24} y2={100 + Math.sin(rad - Math.PI/2) * 24} stroke="#ffd700" strokeWidth="0.6" opacity="0.5"/>
+            return <line key={deg} x1={100 + Math.cos(rad - Math.PI/2) * 15} y1={95 + Math.sin(rad - Math.PI/2) * 15} x2={100 + Math.cos(rad - Math.PI/2) * 26} y2={95 + Math.sin(rad - Math.PI/2) * 26} stroke="#ffd700" strokeWidth="0.7" opacity="0.6"/>
           })}
         </g>
 
         {/* Две башни на горизонте — простые силуэты */}
-        {/* Левая башня */}
-        <path d="M 30 130 L 30 110 L 28 108 L 32 108 L 32 130 Z" fill="rgba(40,25,15,0.55)" stroke="#3a2010" strokeWidth="0.3"/>
-        <path d="M 28 110 Q 30 105 32 110" fill="rgba(255,215,0,0.3)" stroke="#b8860b" strokeWidth="0.3"/>
-        {/* Правая башня */}
-        <path d="M 170 130 L 170 108 L 168 106 L 172 106 L 172 130 Z" fill="rgba(40,25,15,0.55)" stroke="#3a2010" strokeWidth="0.3"/>
-        <path d="M 168 108 Q 170 103 172 108" fill="rgba(255,215,0,0.3)" stroke="#b8860b" strokeWidth="0.3"/>
-
-        {/* Облака — рваные, тёмные */}
-        <path d="M 25 55 Q 35 50 45 55 Q 55 51 65 57 Q 60 60 50 58 Q 40 61 30 58 Q 22 58 25 55 Z" fill="rgba(40,25,15,0.3)"/>
-        <path d="M 130 50 Q 140 45 150 50 Q 165 47 175 53 Q 168 57 158 54 Q 148 58 138 54 Q 128 55 130 50 Z" fill="rgba(40,25,15,0.3)"/>
+        <path d="M 28 130 L 28 108 L 26 106 L 30 106 L 30 130 Z" fill="rgba(60,40,25,0.6)" stroke="#3a2010" strokeWidth="0.3"/>
+        <path d="M 26 108 Q 28 103 30 108" fill="rgba(255,215,0,0.35)" stroke="#b8860b" strokeWidth="0.3"/>
+        <path d="M 172 130 L 172 106 L 170 104 L 174 104 L 174 130 Z" fill="rgba(60,40,25,0.6)" stroke="#3a2010" strokeWidth="0.3"/>
+        <path d="M 170 106 Q 172 101 174 106" fill="rgba(255,215,0,0.35)" stroke="#b8860b" strokeWidth="0.3"/>
 
         {/* Река на горизонте — символ Стикса */}
-        <path d="M 14 135 Q 50 132 100 134 Q 150 132 186 135 L 186 145 L 14 145 Z" fill="rgba(70,100,130,0.25)" stroke="#4a6a8a" strokeWidth="0.4"/>
+        <path d="M 14 130 Q 50 127 100 130 Q 150 127 186 130 L 186 142 L 14 142 Z" fill="rgba(80,110,140,0.3)" stroke="#4a6a8a" strokeWidth="0.4"/>
         {/* Волны на реке */}
-        <path d="M 25 140 Q 35 138 45 140 Q 55 142 65 140" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="0.3"/>
-        <path d="M 110 138 Q 120 136 130 138 Q 140 140 150 138" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="0.3"/>
+        <path d="M 25 136 Q 35 134 45 136 Q 55 138 65 136" fill="none" stroke="rgba(255,255,255,0.35)" strokeWidth="0.3"/>
+        <path d="M 110 134 Q 120 132 130 134 Q 140 136 150 134" fill="none" stroke="rgba(255,255,255,0.35)" strokeWidth="0.3"/>
 
         {/* Дальние холмы */}
-        <path d="M 14 145 Q 50 142 100 145 Q 150 142 186 145 L 186 160 L 14 160 Z" fill="rgba(50,30,20,0.3)" stroke="#3a2010" strokeWidth="0.3"/>
+        <path d="M 14 142 Q 50 139 100 142 Q 150 139 186 142 L 186 160 L 14 160 Z" fill="rgba(80,55,30,0.4)" stroke="#3a2010" strokeWidth="0.3"/>
 
-        {/* Мёртвое дерево слева — простой искривлённый силуэт */}
+        {/* Мёртвое дерево слева */}
         <g>
-          <path d="M 22 200 Q 23 160 22 130 Q 21 120 24 110" fill="none" stroke="rgba(60,40,25,0.7)" strokeWidth="2.5" strokeLinecap="round"/>
-          {/* Ветви */}
-          <path d="M 22 140 Q 18 135 14 130" fill="none" stroke="rgba(60,40,25,0.7)" strokeWidth="1.2" strokeLinecap="round"/>
-          <path d="M 22 155 Q 26 150 30 145" fill="none" stroke="rgba(60,40,25,0.7)" strokeWidth="1" strokeLinecap="round"/>
-          <path d="M 22 125 Q 18 120 15 115" fill="none" stroke="rgba(60,40,25,0.7)" strokeWidth="0.8" strokeLinecap="round"/>
-          {/* Малые ветви */}
-          <path d="M 14 130 Q 11 128 9 125" fill="none" stroke="rgba(60,40,25,0.6)" strokeWidth="0.5"/>
-          <path d="M 30 145 Q 33 143 35 140" fill="none" stroke="rgba(60,40,25,0.6)" strokeWidth="0.5"/>
+          <path d="M 22 200 Q 23 160 22 130 Q 21 120 24 110" fill="none" stroke="rgba(80,55,30,0.8)" strokeWidth="2.5" strokeLinecap="round"/>
+          <path d="M 22 140 Q 18 135 14 130" fill="none" stroke="rgba(80,55,30,0.8)" strokeWidth="1.2" strokeLinecap="round"/>
+          <path d="M 22 155 Q 26 150 30 145" fill="none" stroke="rgba(80,55,30,0.8)" strokeWidth="1" strokeLinecap="round"/>
+          <path d="M 22 125 Q 18 120 15 115" fill="none" stroke="rgba(80,55,30,0.8)" strokeWidth="0.8" strokeLinecap="round"/>
+          <path d="M 14 130 Q 11 128 9 125" fill="none" stroke="rgba(80,55,30,0.7)" strokeWidth="0.5"/>
+          <path d="M 30 145 Q 33 143 35 140" fill="none" stroke="rgba(80,55,30,0.7)" strokeWidth="0.5"/>
         </g>
 
         {/* Земля — выжженная, ровная */}
-        <path d="M 14 200 Q 50 195 100 200 Q 150 195 186 200 L 186 250 L 14 250 Z" fill="rgba(70,45,25,0.4)" stroke="#3a2010" strokeWidth="0.3"/>
+        <path d="M 14 200 Q 50 195 100 200 Q 150 195 186 200 L 186 250 L 14 250 Z" fill="rgba(100,65,35,0.45)" stroke="#3a2010" strokeWidth="0.3"/>
         {/* Трещины на земле */}
         <path d="M 30 225 L 40 232 L 35 240" fill="none" stroke="#3a2010" strokeWidth="0.4"/>
         <path d="M 150 220 L 158 230 L 155 240" fill="none" stroke="#3a2010" strokeWidth="0.4"/>
 
         {/* ===== КОНЬ — бледный, крупный, центральная фигура ===== */}
         <g>
-          {/* Тело коня — крупное, мощное */}
+          {/* Тело коня */}
           <path d="M 55 195 Q 48 188 50 178 Q 65 172 90 174 Q 115 175 122 182 Q 125 195 120 205 Q 100 210 75 208 Q 58 205 55 195 Z"
-            fill="rgba(220,210,190,0.55)" stroke="#5a3a20" strokeWidth="0.7"/>
+            fill="rgba(230,220,200,0.65)" stroke="#5a3a20" strokeWidth="0.7"/>
           {/* Тень на животе */}
-          <path d="M 55 200 Q 80 205 120 200" fill="none" stroke="rgba(120,90,60,0.3)" strokeWidth="0.5"/>
+          <path d="M 55 200 Q 80 205 120 200" fill="none" stroke="rgba(120,90,60,0.4)" strokeWidth="0.6"/>
           {/* Блик на крупе */}
-          <path d="M 65 185 Q 80 180 95 183" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="0.6"/>
+          <path d="M 65 185 Q 80 180 95 183" fill="none" stroke="rgba(255,255,255,0.5)" strokeWidth="0.7"/>
 
-          {/* Голова коня — повёрнута вперёд, детальная */}
+          {/* Голова коня */}
           <path d="M 50 192 Q 40 184 38 172 Q 42 164 50 168 Q 58 175 60 185 Q 60 192 55 196 Z"
-            fill="rgba(220,210,190,0.6)" stroke="#5a3a20" strokeWidth="0.6"/>
-          {/* Морда — вытянутая */}
+            fill="rgba(230,220,200,0.7)" stroke="#5a3a20" strokeWidth="0.6"/>
+          {/* Морда */}
           <path d="M 38 180 Q 33 184 36 192 Q 42 195 47 192 Q 47 184 38 180 Z"
-            fill="rgba(240,230,210,0.7)" stroke="#5a3a20" strokeWidth="0.5"/>
+            fill="rgba(245,235,215,0.8)" stroke="#5a3a20" strokeWidth="0.5"/>
           {/* Ноздри */}
           <ellipse cx="38" cy="187" rx="0.8" ry="1.3" fill="rgba(40,25,15,0.85)"/>
           <ellipse cx="42" cy="189" rx="0.6" ry="1" fill="rgba(40,25,15,0.7)"/>
-          {/* Рот коня — приоткрыт */}
+          {/* Рот */}
           <path d="M 36 192 Q 40 194 44 192" fill="none" stroke="#3a2010" strokeWidth="0.4"/>
-          {/* Глаз коня — горящий красным */}
+          {/* Глаз коня — горящий */}
           <ellipse cx="46" cy="178" rx="1.3" ry="0.9" fill="rgba(255,60,20,0.85)" stroke="#3a2010" strokeWidth="0.3"/>
           <circle cx="46" cy="178" r="0.5" fill="#ffd700"/>
           <circle cx="46.2" cy="177.8" r="0.2" fill="rgba(255,255,255,0.9)"/>
           {/* Уши */}
-          <path d="M 50 168 L 49 162 L 53 167 Z" fill="rgba(220,210,190,0.7)" stroke="#5a3a20" strokeWidth="0.3"/>
-          <path d="M 54 168 L 55 162 L 57 167 Z" fill="rgba(220,210,190,0.7)" stroke="#5a3a20" strokeWidth="0.3"/>
+          <path d="M 50 168 L 49 162 L 53 167 Z" fill="rgba(230,220,200,0.8)" stroke="#5a3a20" strokeWidth="0.3"/>
+          <path d="M 54 168 L 55 162 L 57 167 Z" fill="rgba(230,220,200,0.8)" stroke="#5a3a20" strokeWidth="0.3"/>
 
-          {/* Грива — длинная, развевающаяся назад */}
-          <path d="M 56 172 Q 48 165 42 168 Q 38 162 36 170 Q 32 165 30 175" fill="none" stroke="rgba(60,40,30,0.85)" strokeWidth="2" strokeLinecap="round"/>
-          <path d="M 58 175 Q 50 170 46 175 Q 42 170 38 178" fill="none" stroke="rgba(60,40,30,0.7)" strokeWidth="1.5" strokeLinecap="round"/>
+          {/* Грива — развевающаяся */}
+          <path d="M 56 172 Q 48 165 42 168 Q 38 162 36 170 Q 32 165 30 175" fill="none" stroke="rgba(60,40,30,0.9)" strokeWidth="2" strokeLinecap="round"/>
+          <path d="M 58 175 Q 50 170 46 175 Q 42 170 38 178" fill="none" stroke="rgba(60,40,30,0.75)" strokeWidth="1.5" strokeLinecap="round"/>
           <path d="M 60 180 Q 52 178 48 182" fill="none" stroke="rgba(60,40,30,0.6)" strokeWidth="1" strokeLinecap="round"/>
 
-          {/* Ноги коня — 4 ноги, детальные с копытами */}
-          {/* Передняя левая */}
-          <path d="M 60 205 L 56 232 L 62 232 L 64 205 Z" fill="rgba(220,210,190,0.55)" stroke="#5a3a20" strokeWidth="0.4"/>
+          {/* Ноги коня */}
+          <path d="M 60 205 L 56 232 L 62 232 L 64 205 Z" fill="rgba(230,220,200,0.65)" stroke="#5a3a20" strokeWidth="0.4"/>
           <path d="M 55 232 L 53 235 L 64 235 L 62 232 Z" fill="rgba(40,25,15,0.9)" stroke="#3a2010" strokeWidth="0.3"/>
-          {/* Передняя правая */}
-          <path d="M 78 207 L 75 234 L 81 234 L 82 207 Z" fill="rgba(220,210,190,0.55)" stroke="#5a3a20" strokeWidth="0.4"/>
+          <path d="M 78 207 L 75 234 L 81 234 L 82 207 Z" fill="rgba(230,220,200,0.65)" stroke="#5a3a20" strokeWidth="0.4"/>
           <path d="M 74 234 L 72 237 L 82 237 L 81 234 Z" fill="rgba(40,25,15,0.9)" stroke="#3a2010" strokeWidth="0.3"/>
-          {/* Задняя левая */}
-          <path d="M 100 205 L 98 232 L 104 232 L 104 205 Z" fill="rgba(220,210,190,0.55)" stroke="#5a3a20" strokeWidth="0.4"/>
+          <path d="M 100 205 L 98 232 L 104 232 L 104 205 Z" fill="rgba(230,220,200,0.65)" stroke="#5a3a20" strokeWidth="0.4"/>
           <path d="M 97 232 L 95 235 L 105 235 L 104 232 Z" fill="rgba(40,25,15,0.9)" stroke="#3a2010" strokeWidth="0.3"/>
-          {/* Задняя правая */}
-          <path d="M 115 203 L 113 232 L 119 232 L 119 203 Z" fill="rgba(220,210,190,0.55)" stroke="#5a3a20" strokeWidth="0.4"/>
+          <path d="M 115 203 L 113 232 L 119 232 L 119 203 Z" fill="rgba(230,220,200,0.65)" stroke="#5a3a20" strokeWidth="0.4"/>
           <path d="M 112 232 L 110 235 L 120 235 L 119 232 Z" fill="rgba(40,25,15,0.9)" stroke="#3a2010" strokeWidth="0.3"/>
 
-          {/* Хвост — длинный, развевающийся */}
-          <path d="M 122 195 Q 132 200 134 215 Q 136 228 132 240" fill="none" stroke="rgba(60,40,30,0.85)" strokeWidth="2.5" strokeLinecap="round"/>
-          <path d="M 122 195 Q 130 205 130 220 Q 128 232 124 240" fill="none" stroke="rgba(60,40,30,0.6)" strokeWidth="1.5" strokeLinecap="round"/>
+          {/* Хвост */}
+          <path d="M 122 195 Q 132 200 134 215 Q 136 228 132 240" fill="none" stroke="rgba(60,40,30,0.9)" strokeWidth="2.5" strokeLinecap="round"/>
+          <path d="M 122 195 Q 130 205 130 220 Q 128 232 124 240" fill="none" stroke="rgba(60,40,30,0.65)" strokeWidth="1.5" strokeLinecap="round"/>
 
-          {/* Седло — чёрное, с золотой отделкой */}
-          <path d="M 70 180 Q 85 175 100 178 L 100 188 Q 85 184 70 188 Z" fill="rgba(40,25,15,0.85)" stroke="#3a2010" strokeWidth="0.5"/>
-          <path d="M 74 183 Q 85 180 96 183" fill="none" stroke="#ffd700" strokeWidth="0.4" opacity="0.6"/>
+          {/* Седло — коричневое с золотой отделкой */}
+          <path d="M 70 180 Q 85 175 100 178 L 100 188 Q 85 184 70 188 Z" fill="rgba(100,65,35,0.8)" stroke="#3a2010" strokeWidth="0.5"/>
+          <path d="M 74 183 Q 85 180 96 183" fill="none" stroke="#ffd700" strokeWidth="0.4" opacity="0.7"/>
           {/* Стремя */}
-          <path d="M 76 188 L 74 200 L 78 200 L 78 188 Z" fill="rgba(80,55,30,0.8)" stroke="#3a2010" strokeWidth="0.3"/>
+          <path d="M 76 188 L 74 200 L 78 200 L 78 188 Z" fill="rgba(80,55,30,0.85)" stroke="#3a2010" strokeWidth="0.3"/>
         </g>
 
-        {/* ===== ВСАДНИК — СМЕРТЬ (скелет в чёрном плаще с капюшоном) ===== */}
+        {/* ===== ВСАДНИК — СМЕРТЬ (скелет в плаще, плащ узкий, не квадратный) ===== */}
         <g className="svg-breathe" style={{ transformOrigin: "85px 165px" }}>
-          {/* Чёрный плащ — длинный, развевающийся */}
-          <path d="M 65 195 Q 60 175 65 150 L 105 150 Q 110 175 105 195 Q 85 200 65 195 Z"
-            fill="rgba(20,10,5,0.85)" stroke="#3a2010" strokeWidth="0.7"/>
-          {/* Складки плаща */}
-          <path d="M 72 155 Q 70 175 72 195" fill="none" stroke="rgba(60,40,30,0.5)" strokeWidth="0.4"/>
-          <path d="M 85 155 Q 85 175 85 195" fill="none" stroke="rgba(60,40,30,0.4)" strokeWidth="0.3"/>
-          <path d="M 98 155 Q 100 175 98 195" fill="none" stroke="rgba(60,40,30,0.5)" strokeWidth="0.4"/>
+          {/* Плащ — узкий, развевающийся, НЕ сплошной (оставляет фигуру читаемой) */}
+          {/* Левая полоса плаща */}
+          <path d="M 78 150 Q 73 170 76 190 L 80 190 Q 78 170 82 150 Z"
+            fill="rgba(40,25,15,0.8)" stroke="#3a2010" strokeWidth="0.5"/>
+          {/* Правая полоса плаща */}
+          <path d="M 92 150 Q 96 170 94 190 L 90 190 Q 92 170 88 150 Z"
+            fill="rgba(40,25,15,0.8)" stroke="#3a2010" strokeWidth="0.5"/>
+          {/* Развевающийся край плаща слева */}
+          <path d="M 78 150 Q 70 152 66 162 Q 64 175 68 180" fill="none" stroke="rgba(40,25,15,0.85)" strokeWidth="2" strokeLinecap="round"/>
+          {/* Развевающийся край плаща справа */}
+          <path d="M 92 150 Q 100 152 104 162 Q 106 175 102 180" fill="none" stroke="rgba(40,25,15,0.85)" strokeWidth="2" strokeLinecap="round"/>
 
-          {/* Развевающиеся края плаща — за спиной */}
-          <path d="M 65 150 Q 55 145 50 155 Q 48 168 52 175" fill="none" stroke="rgba(20,10,5,0.85)" strokeWidth="2.5" strokeLinecap="round"/>
-          <path d="M 65 160 Q 58 158 54 165" fill="none" stroke="rgba(20,10,5,0.7)" strokeWidth="1.5" strokeLinecap="round"/>
+          {/* === СКЕЛЕТ — виден между полосами плаща === */}
+          {/* Позвоночник — вертикальные позвонки */}
+          <path d="M 85 150 L 85 195" fill="none" stroke="rgba(220,210,190,0.7)" strokeWidth="1.5"/>
+          {/* Позвонки — горизонтальные чёрточки */}
+          {Array.from({length: 6}).map((_, i) => (
+            <line key={i} x1={82} y1={155 + i * 6} x2={88} y2={155 + i * 6} stroke="rgba(220,210,190,0.6)" strokeWidth="0.8"/>
+          ))}
+          {/* Рёбра — изогнутые */}
+          <path d="M 85 160 Q 76 163 76 170" fill="none" stroke="rgba(220,210,190,0.7)" strokeWidth="0.8"/>
+          <path d="M 85 160 Q 94 163 94 170" fill="none" stroke="rgba(220,210,190,0.7)" strokeWidth="0.8"/>
+          <path d="M 85 168 Q 77 171 77 178" fill="none" stroke="rgba(220,210,190,0.7)" strokeWidth="0.8"/>
+          <path d="M 85 168 Q 93 171 93 178" fill="none" stroke="rgba(220,210,190,0.7)" strokeWidth="0.8"/>
+          <path d="M 85 176 Q 78 179 78 184" fill="none" stroke="rgba(220,210,190,0.7)" strokeWidth="0.8"/>
+          <path d="M 85 176 Q 92 179 92 184" fill="none" stroke="rgba(220,210,190,0.7)" strokeWidth="0.8"/>
 
-          {/* Золотой растительный узор на плаще */}
-          <path d="M 72 170 Q 85 165 98 170 Q 90 176 85 172 Q 80 176 72 170 Z" fill="none" stroke="#ffd700" strokeWidth="0.4" opacity="0.5"/>
-          <path d="M 75 185 Q 85 182 95 185 Q 90 189 85 186 Q 80 189 75 185 Z" fill="none" stroke="#ffd700" strokeWidth="0.3" opacity="0.4"/>
+          {/* Капюшон — небольшой, нависающий над черепом */}
+          <path d="M 76 150 Q 72 132 80 124 Q 85 120 90 124 Q 98 132 94 150 Q 90 145 85 145 Q 80 145 76 150 Z"
+            fill="rgba(40,25,15,0.9)" stroke="#3a2010" strokeWidth="0.5"/>
 
-          {/* Капюшон — большой, нависающий, скрывает лицо */}
-          <path d="M 65 150 Q 60 130 75 122 Q 85 118 95 122 Q 108 130 105 150 Q 100 145 85 145 Q 70 145 65 150 Z"
-            fill="rgba(20,10,5,0.95)" stroke="#3a2010" strokeWidth="0.6"/>
-
-          {/* ЧЕРЕП — виден в тени капюшона */}
-          <path d="M 76 138 Q 74 130 80 126 Q 85 124 90 126 Q 96 130 94 138 Q 93 144 85 145 Q 77 144 76 138 Z"
-            fill="rgba(220,210,190,0.75)" stroke="#3a2010" strokeWidth="0.5"/>
-          {/* Глазницы — чёрные провалы */}
-          <ellipse cx="80" cy="134" rx="1.8" ry="1.3" fill="rgba(20,10,5,0.95)" stroke="#3a2010" strokeWidth="0.2"/>
-          <ellipse cx="90" cy="134" rx="1.8" ry="1.3" fill="rgba(20,10,5,0.95)" stroke="#3a2010" strokeWidth="0.2"/>
+          {/* ЧЕРЕП — крупный, явный */}
+          <path d="M 78 142 Q 76 132 80 128 Q 85 125 90 125 Q 95 128 92 142 Q 91 146 85 147 Q 79 146 78 142 Z"
+            fill="rgba(240,230,210,0.9)" stroke="#3a2010" strokeWidth="0.5"/>
+          {/* Глазницы — крупные чёрные провалы */}
+          <ellipse cx="81" cy="135" rx="2" ry="1.5" fill="rgba(20,10,5,1)" stroke="#3a2010" strokeWidth="0.3"/>
+          <ellipse cx="89" cy="135" rx="2" ry="1.5" fill="rgba(20,10,5,1)" stroke="#3a2010" strokeWidth="0.3"/>
           {/* Горящие точки в глазницах */}
-          <circle cx="80" cy="134" r="0.5" fill="rgba(255,60,20,0.9)"/>
-          <circle cx="90" cy="134" r="0.5" fill="rgba(255,60,20,0.9)"/>
-          {/* Нос черепа — треугольная впадина */}
-          <path d="M 85 138 L 83 142 L 87 142 Z" fill="rgba(20,10,5,0.9)"/>
-          {/* Зубы черепа — вертикальные линии */}
-          <path d="M 80 143 L 80 145 M 82 143 L 82 145 M 84 143 L 84 145 M 86 143 L 86 145 M 88 143 L 88 145 M 90 143 L 90 145" stroke="rgba(60,40,30,0.7)" strokeWidth="0.3"/>
+          <circle cx="81" cy="135" r="0.6" fill="rgba(255,80,30,1)"/>
+          <circle cx="89" cy="135" r="0.6" fill="rgba(255,80,30,1)"/>
+          {/* Нос черепа — перевёрнутый треугольник */}
+          <path d="M 85 139 L 82 143 L 88 143 Z" fill="rgba(40,25,15,0.95)"/>
+          {/* Зубы черепа — явные */}
+          <path d="M 80 145 L 80 147 M 82 145 L 82 147 M 84 145 L 84 147 M 86 145 L 86 147 M 88 145 L 88 147 M 90 145 L 90 147" stroke="rgba(60,40,30,0.8)" strokeWidth="0.4"/>
+          {/* Верхняя челюсть — линия */}
+          <path d="M 79 144 L 91 144" fill="none" stroke="rgba(60,40,30,0.6)" strokeWidth="0.3"/>
 
-          {/* Рука — в чёрной перчатке, держит поводья */}
-          <path d="M 70 170 Q 62 178 56 185" fill="none" stroke="rgba(20,10,5,0.9)" strokeWidth="3.5" strokeLinecap="round"/>
-          {/* Кисть в перчатке */}
-          <ellipse cx="55" cy="185" rx="2.5" ry="2" fill="rgba(20,10,5,0.9)" stroke="#3a2010" strokeWidth="0.3"/>
-          {/* Поводья — от руки ко рту коня */}
-          <path d="M 55 185 Q 50 190 45 195" fill="none" stroke="rgba(120,90,50,0.85)" strokeWidth="0.8"/>
+          {/* Руки — костлявые, явные */}
+          {/* Левая рука — держит поводья */}
+          <path d="M 80 165 Q 70 175 60 185" fill="none" stroke="rgba(240,230,210,0.85)" strokeWidth="2.5" strokeLinecap="round"/>
+          {/* Костяные суставы на левой руке */}
+          <circle cx="73" cy="172" r="0.8" fill="rgba(220,210,190,0.8)"/>
+          <circle cx="65" cy="180" r="0.8" fill="rgba(220,210,190,0.8)"/>
+          {/* Кисть — костлявая */}
+          <path d="M 58 184 L 56 187 L 58 188 L 60 185 Z" fill="rgba(240,230,210,0.85)" stroke="#3a2010" strokeWidth="0.3"/>
+          {/* Поводья */}
+          <path d="M 58 187 Q 50 192 45 195" fill="none" stroke="rgba(120,90,50,0.9)" strokeWidth="0.8"/>
 
-          {/* Другая рука — поднята, держит стяг */}
-          <path d="M 100 170 Q 108 158 112 145" fill="none" stroke="rgba(20,10,5,0.9)" strokeWidth="3.5" strokeLinecap="round"/>
-          <ellipse cx="112" cy="145" rx="2.5" ry="2" fill="rgba(20,10,5,0.9)" stroke="#3a2010" strokeWidth="0.3"/>
+          {/* Правая рука — поднята, держит стяг */}
+          <path d="M 90 165 Q 100 158 110 148" fill="none" stroke="rgba(240,230,210,0.85)" strokeWidth="2.5" strokeLinecap="round"/>
+          {/* Костяные суставы на правой руке */}
+          <circle cx="96" cy="162" r="0.8" fill="rgba(220,210,190,0.8)"/>
+          <circle cx="104" cy="155" r="0.8" fill="rgba(220,210,190,0.8)"/>
+          {/* Кисть — костлявая, держит древко */}
+          <path d="M 110 148 L 112 145 L 114 148 L 112 150 Z" fill="rgba(240,230,210,0.85)" stroke="#3a2010" strokeWidth="0.3"/>
         </g>
 
-        {/* ===== ЧЁРНЫЙ СТЯГ с БЕЛОЙ РОЗОЙ — крупный, заметный ===== */}
+        {/* ===== СТЯГ с МИСТИЧЕСКОЙ РОЗОЙ — меньший, роза как настоящий цветок ===== */}
         <g>
-          {/* Древко стяга — длинное, диагональное */}
-          <path d="M 112 145 L 128 70 L 132 70 L 116 145 Z" fill="rgba(80,55,30,0.9)" stroke="#3a2010" strokeWidth="0.5"/>
-          {/* Наконечник древка — золотой, острый */}
-          <path d="M 128 70 L 130 60 L 132 70 Z" fill="rgba(255,215,0,0.6)" stroke="#b8860b" strokeWidth="0.4"/>
-          <circle cx="130" cy="68" r="1" fill="#ffd700"/>
+          {/* Древко стяга — диагональное */}
+          <path d="M 112 148 L 124 80 L 127 80 L 115 148 Z" fill="rgba(80,55,30,0.9)" stroke="#3a2010" strokeWidth="0.5"/>
+          {/* Наконечник древка */}
+          <path d="M 124 80 L 125.5 72 L 127 80 Z" fill="rgba(255,215,0,0.65)" stroke="#b8860b" strokeWidth="0.4"/>
+          <circle cx="125.5" cy="78" r="1" fill="#ffd700"/>
 
-          {/* Полотно стяга — большое, чёрное, развевающееся */}
-          <path d="M 128 75 Q 145 70 162 78 Q 165 100 160 125 Q 145 120 128 128 Q 130 100 128 75 Z"
-            fill="rgba(20,10,5,0.92)" stroke="#3a2010" strokeWidth="0.6"/>
+          {/* Полотно стяга — меньше, чтобы роза была заметнее */}
+          <path d="M 124 84 Q 138 80 150 86 Q 152 102 148 120 Q 136 116 124 122 Q 126 102 124 84 Z"
+            fill="rgba(40,25,15,0.88)" stroke="#3a2010" strokeWidth="0.5"/>
           {/* Складки полотна */}
-          <path d="M 134 80 Q 138 100 134 120" fill="none" stroke="rgba(60,40,30,0.5)" strokeWidth="0.4"/>
-          <path d="M 144 78 Q 148 100 144 122" fill="none" stroke="rgba(60,40,30,0.5)" strokeWidth="0.4"/>
-          <path d="M 154 80 Q 156 100 152 122" fill="none" stroke="rgba(60,40,30,0.5)" strokeWidth="0.4"/>
+          <path d="M 128 88 Q 132 102 130 118" fill="none" stroke="rgba(80,55,30,0.5)" strokeWidth="0.3"/>
+          <path d="M 138 86 Q 142 102 140 120" fill="none" stroke="rgba(80,55,30,0.5)" strokeWidth="0.3"/>
 
-          {/* БЕЛАЯ РОЗА на стяге — крупная, детальная, центральный символ */}
+          {/* === МИСТИЧЕСКАЯ РОЗА — настоящий цветок с явными лепестками === */}
           <g>
-            {/* Внешние лепестки */}
-            <path d="M 142 100 Q 134 96 134 88 Q 138 84 144 86 Q 150 84 152 90 Q 154 96 148 100 Q 144 105 142 100 Z"
-              fill="rgba(245,235,210,0.9)" stroke="#8b5a2b" strokeWidth="0.5"/>
-            {/* Средние лепестки */}
-            <path d="M 140 96 Q 138 92 142 90 Q 146 90 148 94 Q 146 98 142 98 Q 140 97 140 96 Z"
-              fill="rgba(255,245,220,0.95)" stroke="#8b5a2b" strokeWidth="0.3"/>
-            {/* Внутренние лепестки — свёрнутые */}
-            <path d="M 142 94 Q 141 92 143 91 Q 145 92 145 94 Q 144 96 142 96 Q 141 95 142 94 Z"
-              fill="rgba(255,255,235,1)" stroke="#8b5a2b" strokeWidth="0.2"/>
-            {/* Сердцевина розы */}
-            <circle cx="143" cy="94" r="0.8" fill="rgba(255,215,0,0.7)"/>
-            {/* Тень на лепестках */}
-            <path d="M 138 92 Q 140 90 142 90" fill="none" stroke="rgba(180,140,70,0.4)" strokeWidth="0.3"/>
-            {/* Листья розы — зелёные */}
-            <path d="M 134 96 Q 130 94 130 98 Q 134 100 134 96 Z" fill="rgba(34,100,40,0.8)" stroke="#2d6e2d" strokeWidth="0.3"/>
-            <path d="M 152 98 Q 156 96 156 100 Q 152 102 152 98 Z" fill="rgba(34,100,40,0.8)" stroke="#2d6e2d" strokeWidth="0.3"/>
-            {/* Стебель розы */}
-            <path d="M 143 100 L 143 105" fill="none" stroke="#2d6e2d" strokeWidth="0.5"/>
+            {/* Стебель розы — зелёный, с шипами */}
+            <path d="M 135 122 L 135 110" fill="none" stroke="#2d6e2d" strokeWidth="1.2"/>
+            {/* Шипы на стебле */}
+            <path d="M 135 118 L 133 116" fill="none" stroke="#2d6e2d" strokeWidth="0.5"/>
+            <path d="M 135 114 L 137 112" fill="none" stroke="#2d6e2d" strokeWidth="0.5"/>
+
+            {/* Листья розы — большие, явные, зелёные */}
+            <path d="M 128 112 Q 124 110 124 114 Q 128 116 128 112 Z" fill="rgba(34,100,40,0.85)" stroke="#2d6e2d" strokeWidth="0.4"/>
+            <path d="M 126 112 L 124 113" fill="none" stroke="#1e5020" strokeWidth="0.3"/>
+            <path d="M 142 112 Q 146 110 146 114 Q 142 116 142 112 Z" fill="rgba(34,100,40,0.85)" stroke="#2d6e2d" strokeWidth="0.4"/>
+            <path d="M 144 112 L 146 113" fill="none" stroke="#1e5020" strokeWidth="0.3"/>
+
+            {/* Внешние лепестки розы — 5 явных лепестков вокруг */}
+            <path d="M 130 105 Q 125 102 127 97 Q 132 96 133 101 Q 132 105 130 105 Z" fill="rgba(245,235,210,0.92)" stroke="#8b5a2b" strokeWidth="0.5"/>
+            <path d="M 140 105 Q 145 102 143 97 Q 138 96 137 101 Q 138 105 140 105 Z" fill="rgba(245,235,210,0.92)" stroke="#8b5a2b" strokeWidth="0.5"/>
+            <path d="M 131 95 Q 130 89 135 88 Q 140 89 139 95 Q 137 97 135 96 Q 133 97 131 95 Z" fill="rgba(250,245,225,0.95)" stroke="#8b5a2b" strokeWidth="0.5"/>
+            <path d="M 128 100 Q 124 99 124 95 Q 128 92 130 96 Q 129 99 128 100 Z" fill="rgba(245,235,210,0.9)" stroke="#8b5a2b" strokeWidth="0.4"/>
+            <path d="M 142 100 Q 146 99 146 95 Q 142 92 140 96 Q 141 99 142 100 Z" fill="rgba(245,235,210,0.9)" stroke="#8b5a2b" strokeWidth="0.4"/>
+
+            {/* Средние лепестки — свёрнутые внутрь */}
+            <path d="M 132 98 Q 134 94 137 95 Q 138 98 136 100 Q 134 99 132 98 Z" fill="rgba(255,250,230,0.95)" stroke="#8b5a2b" strokeWidth="0.3"/>
+            <path d="M 138 98 Q 136 94 133 95 Q 132 98 134 100 Q 136 99 138 98 Z" fill="rgba(255,250,230,0.95)" stroke="#8b5a2b" strokeWidth="0.3"/>
+
+            {/* Сердцевина розы — золотая точка */}
+            <circle cx="135" cy="97" r="1.2" fill="rgba(255,215,0,0.85)" stroke="#b8860b" strokeWidth="0.3"/>
+            <circle cx="135" cy="97" r="0.5" fill="rgba(255,180,40,0.9)"/>
+
+            {/* Тень/блик на лепестках */}
+            <path d="M 131 93 Q 133 91 135 91" fill="none" stroke="rgba(255,255,255,0.7)" strokeWidth="0.4"/>
           </g>
         </g>
 
-        {/* ===== ПАВШИЙ КОРОЛЬ у ног коня — классический символ ===== */}
+        {/* ===== ПАВШИЙ КОРОЛЬ у ног коня ===== */}
         <g>
-          {/* Тело павшего — лежащее */}
+          {/* Тело павшего */}
           <path d="M 130 240 Q 125 245 135 248 Q 145 248 152 245 Q 150 240 145 238 Q 138 236 130 240 Z"
-            fill="rgba(120,20,20,0.55)" stroke="#5a1010" strokeWidth="0.4"/>
-          {/* Корона павшего короля — золотая, на голове */}
+            fill="rgba(140,30,30,0.65)" stroke="#5a1010" strokeWidth="0.4"/>
+          {/* Корона павшего короля */}
           <path d="M 128 242 L 130 235 L 133 240 L 136 233 L 139 240 L 142 235 L 144 242 Z"
-            fill="rgba(255,215,0,0.6)" stroke="#b8860b" strokeWidth="0.4"/>
-          <circle cx="133" cy="238" r="0.6" fill="rgba(180,30,30,0.7)"/>
-          <circle cx="139" cy="238" r="0.6" fill="rgba(180,30,30,0.7)"/>
-          {/* Камни на короне */}
-          <circle cx="136" cy="236" r="0.7" fill="rgba(34,100,40,0.7)"/>
-          {/* Рука павшего — поднята в последнем жесте */}
-          <path d="M 145 240 Q 152 235 158 232" fill="none" stroke="rgba(232,200,160,0.7)" strokeWidth="2" strokeLinecap="round"/>
-          {/* Кисть руки */}
-          <ellipse cx="158" cy="232" rx="1.5" ry="1.2" fill="rgba(232,200,160,0.7)" stroke="#8b5a2b" strokeWidth="0.3"/>
-          {/* Пальцы */}
-          <path d="M 158 230 Q 160 228 161 226" fill="none" stroke="rgba(232,200,160,0.7)" strokeWidth="0.8" strokeLinecap="round"/>
-          <path d="M 159 231 Q 161 229 162 228" fill="none" stroke="rgba(232,200,160,0.7)" strokeWidth="0.8" strokeLinecap="round"/>
+            fill="rgba(255,215,0,0.7)" stroke="#b8860b" strokeWidth="0.4"/>
+          <circle cx="133" cy="238" r="0.6" fill="rgba(180,30,30,0.8)"/>
+          <circle cx="139" cy="238" r="0.6" fill="rgba(180,30,30,0.8)"/>
+          <circle cx="136" cy="236" r="0.7" fill="rgba(34,100,40,0.8)"/>
+          {/* Рука павшего */}
+          <path d="M 145 240 Q 152 235 158 232" fill="none" stroke="rgba(232,200,160,0.8)" strokeWidth="2" strokeLinecap="round"/>
+          <ellipse cx="158" cy="232" rx="1.5" ry="1.2" fill="rgba(232,200,160,0.8)" stroke="#8b5a2b" strokeWidth="0.3"/>
+          <path d="M 158 230 Q 160 228 161 226" fill="none" stroke="rgba(232,200,160,0.8)" strokeWidth="0.8" strokeLinecap="round"/>
+          <path d="M 159 231 Q 161 229 162 228" fill="none" stroke="rgba(232,200,160,0.8)" strokeWidth="0.8" strokeLinecap="round"/>
         </g>
 
-        {/* Ребёнок/дитя у ног коня — символ новой жизни, коленопреклонённый */}
+        {/* Дитя у ног коня — символ новой жизни */}
         <g>
-          {/* Тело ребёнка — маленькое, на коленях */}
           <path d="M 35 240 Q 32 245 38 248 Q 44 248 48 245 Q 46 240 42 238 Q 38 238 35 240 Z"
-            fill="rgba(34,100,40,0.55)" stroke="#2d6e2d" strokeWidth="0.4"/>
-          {/* Голова ребёнка */}
+            fill="rgba(34,100,40,0.65)" stroke="#2d6e2d" strokeWidth="0.4"/>
           <path d="M 36 238 Q 35 234 38 232 Q 41 232 42 235 Q 42 238 40 239 Q 37 240 36 238 Z"
-            fill="rgba(232,200,160,0.8)" stroke="#8b5a2b" strokeWidth="0.3"/>
-          {/* Волосы ребёнка */}
-          <path d="M 36 236 Q 38 233 41 234 Q 41 235 40 235 Q 38 234 36 236 Z" fill="rgba(180,140,70,0.7)"/>
-          {/* Глаза */}
+            fill="rgba(232,200,160,0.85)" stroke="#8b5a2b" strokeWidth="0.3"/>
+          <path d="M 36 236 Q 38 233 41 234 Q 41 235 40 235 Q 38 234 36 236 Z" fill="rgba(180,140,70,0.75)"/>
           <circle cx="38" cy="236" r="0.3" fill="#3a2010"/>
           <circle cx="40" cy="236" r="0.3" fill="#3a2010"/>
-          {/* Руки — протянуты к королю */}
-          <path d="M 42 240 Q 48 238 54 240" fill="none" stroke="rgba(232,200,160,0.8)" strokeWidth="1.5" strokeLinecap="round"/>
-          {/* Цветок в руке ребёнка — символ подношения */}
-          <circle cx="54" cy="240" r="1.2" fill="rgba(255,215,0,0.8)" stroke="#b8860b" strokeWidth="0.3"/>
+          <path d="M 42 240 Q 48 238 54 240" fill="none" stroke="rgba(232,200,160,0.85)" strokeWidth="1.5" strokeLinecap="round"/>
+          <circle cx="54" cy="240" r="1.2" fill="rgba(255,215,0,0.85)" stroke="#b8860b" strokeWidth="0.3"/>
           <path d="M 53 240 L 51 240" fill="none" stroke="#2d6e2d" strokeWidth="0.4"/>
         </g>
 
-        {/* Декоративные васнецовские завитки по углам */}
-        <path d="M 20 220 Q 25 215 30 220 Q 25 225 20 220 Z" fill="none" stroke="rgba(255,215,0,0.25)" strokeWidth="0.4"/>
-        <path d="M 170 220 Q 175 215 180 220 Q 175 225 170 220 Z" fill="none" stroke="rgba(255,215,0,0.25)" strokeWidth="0.4"/>
+        {/* Декоративные васнецовские завитки */}
+        <path d="M 20 220 Q 25 215 30 220 Q 25 225 20 220 Z" fill="none" stroke="rgba(255,215,0,0.3)" strokeWidth="0.4"/>
+        <path d="M 170 220 Q 175 215 180 220 Q 175 225 170 220 Z" fill="none" stroke="rgba(255,215,0,0.3)" strokeWidth="0.4"/>
       </g>
     ),
 
@@ -4244,7 +4261,89 @@ function MinorArcanaArt({ card }: { card: TarotCard }) {
         <path d="M 116 95 Q 112 91 108 95" fill="none" stroke="#ffd700" strokeWidth="0.3" opacity="0.5"/>
 
         {/* Большой объект масти — детальный */}
-        {drawSuitObject(card.suit, 100, 175, 2.2, 0, accent)}
+        {card.suit === "wands" ? (
+          // === ТУЗ ЖЕЗЛОВ — большой вертикальный посох-ветвь с побегами и листьями ===
+          <g>
+            {/* Основной стержень жезла — толстая живая ветвь, вертикальная */}
+            <path d="M 97 130 Q 98 165 97 200 Q 98 215 97 220" fill="none" stroke="rgba(80,55,30,0.9)" strokeWidth="6" strokeLinecap="round"/>
+            <path d="M 97 130 Q 98 165 97 200 Q 98 215 97 220" fill="none" stroke="rgba(120,80,40,0.7)" strokeWidth="4" strokeLinecap="round"/>
+            {/* Текстура коры — вертикальные линии */}
+            <path d="M 96 140 Q 97 175 96 205" fill="none" stroke="#3a2010" strokeWidth="0.5"/>
+            <path d="M 98 145 Q 99 180 98 210" fill="none" stroke="#3a2010" strokeWidth="0.4"/>
+            {/* Узлы на ветви */}
+            <ellipse cx="97" cy="155" rx="4" ry="2" fill="rgba(60,40,25,0.7)" stroke="#3a2010" strokeWidth="0.4"/>
+            <ellipse cx="97" cy="185" rx="4" ry="2" fill="rgba(60,40,25,0.7)" stroke="#3a2010" strokeWidth="0.4"/>
+
+            {/* Малые веточки-побеги */}
+            <path d="M 97 160 Q 90 155 84 148" fill="none" stroke="rgba(80,55,30,0.85)" strokeWidth="2" strokeLinecap="round"/>
+            <path d="M 97 175 Q 105 170 112 165" fill="none" stroke="rgba(80,55,30,0.85)" strokeWidth="2" strokeLinecap="round"/>
+            <path d="M 97 195 Q 88 200 82 208" fill="none" stroke="rgba(80,55,30,0.85)" strokeWidth="2" strokeLinecap="round"/>
+            <path d="M 97 205 Q 106 210 113 215" fill="none" stroke="rgba(80,55,30,0.85)" strokeWidth="2" strokeLinecap="round"/>
+
+            {/* Большие листья — золотые и зелёные, ярусами */}
+            {/* Верхний ярус листьев (около вершины) */}
+            <path d="M 84 148 Q 78 145 75 150 Q 78 154 84 152 Z" fill="rgba(255,215,0,0.7)" stroke="#b8860b" strokeWidth="0.4"/>
+            <path d="M 80 150 L 78 152" fill="none" stroke="#5a3a20" strokeWidth="0.3"/>
+            <path d="M 84 148 Q 88 144 92 148 Q 88 152 84 150 Z" fill="rgba(34,100,40,0.7)" stroke="#2d6e2d" strokeWidth="0.4"/>
+            <path d="M 88 149 L 90 151" fill="none" stroke="#1e5020" strokeWidth="0.3"/>
+
+            {/* Средний ярус листьев */}
+            <path d="M 112 165 Q 118 161 122 166 Q 118 170 112 168 Z" fill="rgba(255,215,0,0.7)" stroke="#b8860b" strokeWidth="0.4"/>
+            <path d="M 117 166 L 119 168" fill="none" stroke="#5a3a20" strokeWidth="0.3"/>
+            <path d="M 112 165 Q 108 161 104 165 Q 108 169 112 167 Z" fill="rgba(34,100,40,0.7)" stroke="#2d6e2d" strokeWidth="0.4"/>
+            <path d="M 108 166 L 106 168" fill="none" stroke="#1e5020" strokeWidth="0.3"/>
+
+            {/* Нижний ярус листьев */}
+            <path d="M 82 208 Q 76 210 73 215 Q 76 219 82 216 Z" fill="rgba(34,100,40,0.7)" stroke="#2d6e2d" strokeWidth="0.4"/>
+            <path d="M 77 213 L 75 215" fill="none" stroke="#1e5020" strokeWidth="0.3"/>
+            <path d="M 82 208 Q 86 212 90 216 Q 86 220 82 216 Z" fill="rgba(255,215,0,0.7)" stroke="#b8860b" strokeWidth="0.4"/>
+            <path d="M 86 213 L 88 215" fill="none" stroke="#5a3a20" strokeWidth="0.3"/>
+
+            <path d="M 113 215 Q 119 218 122 222 Q 119 226 113 223 Z" fill="rgba(34,100,40,0.7)" stroke="#2d6e2d" strokeWidth="0.4"/>
+            <path d="M 118 220 L 120 222" fill="none" stroke="#1e5020" strokeWidth="0.3"/>
+
+            {/* === ВЕРШИНА ЖЕЗЛА — большой распустившийся цветок === */}
+            {/* Цветок — крупный, с 6 лепестками */}
+            <g>
+              {/* Лепестки — 6 штук вокруг центра */}
+              {Array.from({length: 6}).map((_, i) => {
+                const a = (i / 6) * Math.PI * 2
+                const x1 = 97 + Math.cos(a) * 3
+                const y1 = 128 + Math.sin(a) * 3
+                const x2 = 97 + Math.cos(a) * 9
+                const y2 = 128 + Math.sin(a) * 9
+                return <ellipse key={i} cx={97 + Math.cos(a) * 6} cy={128 + Math.sin(a) * 6} rx="4" ry="2" fill="rgba(220,60,60,0.85)" stroke="#991b1b" strokeWidth="0.4" transform={`rotate(${i * 60} ${97 + Math.cos(a) * 6} ${128 + Math.sin(a) * 6})`}/>
+              })}
+              {/* Сердцевина цветка — золотая */}
+              <circle cx="97" cy="128" r="3" fill="rgba(255,215,0,0.9)" stroke="#b8860b" strokeWidth="0.5"/>
+              <circle cx="97" cy="128" r="1.5" fill="rgba(255,180,40,0.95)"/>
+              <circle cx="97" cy="128" r="0.6" fill="rgba(120,80,40,0.9)"/>
+              {/* Тычинки — точки вокруг */}
+              {Array.from({length: 6}).map((_, i) => {
+                const a = (i / 6) * Math.PI * 2
+                return <circle key={i} cx={97 + Math.cos(a) * 2.5} cy={128 + Math.sin(a) * 2.5} r="0.3" fill="rgba(255,255,200,0.9)"/>
+              })}
+            </g>
+
+            {/* === ОСНОВА ЖЕЗЛА — корни/утолщение === */}
+            <ellipse cx="97" cy="220" rx="6" ry="3" fill="rgba(80,55,30,0.9)" stroke="#3a2010" strokeWidth="0.5"/>
+            <ellipse cx="97" cy="219" rx="4" ry="2" fill="rgba(120,80,40,0.8)"/>
+            {/* Малые корни */}
+            <path d="M 95 222 Q 91 225 88 227" fill="none" stroke="rgba(80,55,30,0.85)" strokeWidth="1.2" strokeLinecap="round"/>
+            <path d="M 99 222 Q 103 225 106 227" fill="none" stroke="rgba(80,55,30,0.85)" strokeWidth="1.2" strokeLinecap="round"/>
+            <path d="M 97 222 L 97 226" fill="none" stroke="rgba(80,55,30,0.85)" strokeWidth="1.2" strokeLinecap="round"/>
+
+            {/* Светящиеся искры вокруг жезла — символ энергии */}
+            <circle cx="80" cy="170" r="0.8" fill="rgba(255,215,0,0.7)"/>
+            <circle cx="115" cy="190" r="0.8" fill="rgba(255,215,0,0.7)"/>
+            <circle cx="78" cy="195" r="0.6" fill="rgba(255,215,0,0.6)"/>
+            <circle cx="118" cy="150" r="0.6" fill="rgba(255,215,0,0.6)"/>
+            <circle cx="85" cy="180" r="0.5" fill="rgba(255,215,0,0.5)"/>
+            <circle cx="110" cy="175" r="0.5" fill="rgba(255,215,0,0.5)"/>
+          </g>
+        ) : (
+          drawSuitObject(card.suit, 100, 175, 2.2, 0, accent)
+        )}
 
         {/* Лучи — растительные, васнецовские */}
         {Array.from({ length: 16 }).map((_, i) => {
