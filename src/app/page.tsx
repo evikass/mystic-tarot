@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef, useMemo } from "react"
 import { StarryBackground } from "@/components/starry-bg"
+import { MistBackground } from "@/components/mist-bg"
 import { TarotCardView, CardBackWithEye } from "@/components/tarot-card"
 import { CardSVG } from "@/lib/tarot-svg"
 import { ColorQuiz } from "@/components/color-quiz"
@@ -264,6 +265,7 @@ export default function Home() {
   return (
     <div className="min-h-screen flex flex-col relative">
       <StarryBackground/>
+      <MistBackground/>
       <div className="relative z-10 flex flex-col min-h-screen">
         <Header navItems={navItems} section={section} setSection={setSection}/>
         <main className="flex-1 px-4 sm:px-6 pb-20 max-w-7xl mx-auto w-full">
