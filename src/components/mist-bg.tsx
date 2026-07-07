@@ -24,9 +24,6 @@ export function MistBackground() {
     let width = (canvas.width = window.innerWidth)
     let height = (canvas.height = window.innerHeight)
 
-    // === Детект мобильного устройства ===
-    const isMobile = width < 768 || /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)
-
     // === Туманные облака — 3 слоя с разной скоростью (параллакс) ===
     type MistCloud = {
       x: number
@@ -49,15 +46,12 @@ export function MistBackground() {
 
     const initClouds = () => {
       clouds.length = 0
-      // На мобильных — значительно меньше облаков
-      const divisor = isMobile ? 50000 : 18000
-      const count = Math.floor((width * height) / divisor)
+      // Количество облаков зависит от площади экрана
+      const count = Math.floor((width * height) / 18000)
       for (let i = 0; i < count; i++) {
         // Случайный слой (0..1) — большинство вдалеке
         const depth = Math.pow(Math.random(), 1.5) // bias toward far
-        // На мобильных — меньше радиус
-        const baseRadius = isMobile ? (40 + Math.random() * 80) : (60 + Math.random() * 120)
-        const radius = baseRadius * (0.5 + depth * 0.8)
+        const radius = (60 + Math.random() * 120) * (0.5 + depth * 0.8)
         // Выбор оттенка: 60% золото/охра, 25% фиолет, 15% синий
         const r = Math.random()
         const hue = r < 0.6 ? 42 + Math.random() * 15 : r < 0.85 ? 265 + Math.random() * 20 : 200 + Math.random() * 30
@@ -79,28 +73,15 @@ export function MistBackground() {
     initClouds()
 
     let frame = 0
-    // На мобильных — пропускаем каждый 2-й кадр для производительности
-    const frameSkip = isMobile ? 2 : 1
-    let skipCounter = 0
-
     const animate = () => {
-      animationId = requestAnimationFrame(animate)
-
-      // Throttle: на мобильных рисуем каждый 2-й кадр
-      skipCounter++
-      if (skipCounter < frameSkip) return
-      skipCounter = 0
-
       frame++
       ctx.clearRect(0, 0, width, height)
 
-      // Плавный lerp для мыши (параллакс) — на мобильных отключаем для производительности
-      if (!isMobile) {
-        mouseRef.current.x += (mouseRef.current.targetX - mouseRef.current.x) * 0.03
-        mouseRef.current.y += (mouseRef.current.targetY - mouseRef.current.y) * 0.03
-      }
-      const mouseOffsetX = isMobile ? 0 : (mouseRef.current.x / width - 0.5) * 2
-      const mouseOffsetY = isMobile ? 0 : (mouseRef.current.y / height - 0.5) * 2
+      // Плавный lerp для мыши (параллакс)
+      mouseRef.current.x += (mouseRef.current.targetX - mouseRef.current.x) * 0.03
+      mouseRef.current.y += (mouseRef.current.targetY - mouseRef.current.y) * 0.03
+      const mouseOffsetX = (mouseRef.current.x / width - 0.5) * 2 // -1..1
+      const mouseOffsetY = (mouseRef.current.y / height - 0.5) * 2
 
       // Рисуем облака — отсортированы по глубине (дальние первыми)
       clouds
@@ -165,11 +146,8 @@ export function MistBackground() {
     }
 
     window.addEventListener("resize", handleResize)
-    // На мобильных не слушаем mousemove (параллакс отключён)
-    if (!isMobile) {
-      window.addEventListener("mousemove", handleMouseMove)
-      window.addEventListener("deviceorientation", handleDeviceOrientation)
-    }
+    window.addEventListener("mousemove", handleMouseMove)
+    window.addEventListener("deviceorientation", handleDeviceOrientation)
 
     return () => {
       cancelAnimationFrame(animationId)

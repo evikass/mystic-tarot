@@ -19,9 +19,6 @@ export function StarryBackground() {
     let width = (canvas.width = window.innerWidth)
     let height = (canvas.height = window.innerHeight)
 
-    // === Детект мобильного устройства ===
-    const isMobile = width < 768 || /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)
-
     type Star = {
       x: number
       y: number
@@ -47,9 +44,7 @@ export function StarryBackground() {
 
     const initStars = () => {
       stars.length = 0
-      // На мобильных — меньше звёзд
-      const divisor = isMobile ? 8000 : 4500
-      const count = Math.floor((width * height) / divisor)
+      const count = Math.floor((width * height) / 4500)
       for (let i = 0; i < count; i++) {
         stars.push({
           x: Math.random() * width,
@@ -65,9 +60,7 @@ export function StarryBackground() {
 
     const initParticles = () => {
       particles.length = 0
-      // На мобильных — значительно меньше частиц
-      const divisor = isMobile ? 80000 : 30000
-      const count = Math.floor((width * height) / divisor)
+      const count = Math.floor((width * height) / 30000)
       for (let i = 0; i < count; i++) {
         particles.push({
           x: Math.random() * width,
@@ -85,17 +78,7 @@ export function StarryBackground() {
     initParticles()
 
     let frame = 0
-    // На мобильных — пропускаем каждый 2-й кадр
-    const frameSkip = isMobile ? 2 : 1
-    let skipCounter = 0
-
     const animate = () => {
-      animationId = requestAnimationFrame(animate)
-
-      skipCounter++
-      if (skipCounter < frameSkip) return
-      skipCounter = 0
-
       frame++
       ctx.clearRect(0, 0, width, height)
 
@@ -108,8 +91,8 @@ export function StarryBackground() {
         ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2)
         ctx.fillStyle = `rgba(255, 240, 200, ${Math.max(0.05, alpha)})`
         ctx.fill()
-        if (s.size > 1 && !isMobile) {
-          // Лёгкое свечение для крупных звёзд (только на десктопе)
+        if (s.size > 1) {
+          // Лёгкое свечение для крупных звёзд
           ctx.beginPath()
           ctx.arc(s.x, s.y, s.size * 2, 0, Math.PI * 2)
           ctx.fillStyle = `rgba(251, 191, 36, ${Math.max(0.02, alpha * 0.15)})`
