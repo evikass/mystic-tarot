@@ -130,6 +130,8 @@ import { initVKBridge, isVKEnvironment, vkShare } from "@/lib/vk-bridge"
 import { useTheme } from "@/lib/use-theme"
 import { setMuted, isMuted, initMuteState, playCardDrawSound, startAmbient, toggleAmbient, isAmbientPlaying } from "@/lib/sound-engine"
 import { TypewriterText } from "@/lib/use-typewriter"
+import { startSession, trackAction, endSession } from "@/lib/visitor-tracker"
+import { AdminPanel } from "@/components/admin-panel"
 import { successSteps, stepCategories, type SuccessStep } from "@/lib/success-steps-data"
 import {
   getAllProgress,
@@ -232,10 +234,29 @@ export default function Home() {
   const [section, setSection] = useState<Section>("home")
   const { toast } = useToast()
   const [ambientOn, setAmbientOn] = useState(false)
+  const [showAdmin, setShowAdmin] = useState(false)
 
+  // === Трекинг посещений ===
   useEffect(() => {
     initVKBridge()
+    startSession()
+    trackAction("page_load", "home", window.location.href)
+
+    // Завершаем сессию при уходе
+    const handleBeforeUnload = () => endSession()
+    window.addEventListener("beforeunload", handleBeforeUnload)
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload)
+      endSession()
+    }
   }, [])
+
+  // Трекинг смены секций
+  const handleSetSection = (s: Section) => {
+    setSection(s)
+    trackAction("section_change", s)
+  }
 
   const handleToggleAmbient = () => {
     const playing = toggleAmbient()
@@ -268,9 +289,9 @@ export default function Home() {
       <StarryBackground/>
       <MistBackground/>
       <div className="relative z-10 flex flex-col min-h-screen">
-        <Header navItems={navItems} section={section} setSection={setSection}/>
+        <Header navItems={navItems} section={section} setSection={handleSetSection}/>
         <main className="flex-1 px-4 sm:px-6 pb-20 max-w-7xl mx-auto w-full">
-          {section === "home" && <HomeSection onNavigate={setSection}/>}
+          {section === "home" && <HomeSection onNavigate={handleSetSection} onSecretClick={() => setShowAdmin(true)}/>}
           {section === "daily" && <DailyCardSection/>}
           {section === "tarot-forecast" && <TarotForecastSection/>}
           {section === "readings" && <ReadingsSection/>}
@@ -296,6 +317,9 @@ export default function Home() {
       >
         {ambientOn ? <Music2 className="w-5 h-5 animate-pulse"/> : <Music className="w-5 h-5"/>}
       </button>
+
+      {/* Admin Panel — скрытый, открывается 5 кликами по заголовку */}
+      {showAdmin && <AdminPanel onClose={() => setShowAdmin(false)} />}
     </div>
   )
 }
@@ -453,9 +477,23 @@ function Header({
 }
 
 // ===================== HOME =====================
-function HomeSection({ onNavigate }: { onNavigate: (s: Section) => void }) {
+function HomeSection({ onNavigate, onSecretClick }: { onNavigate: (s: Section) => void; onSecretClick?: () => void }) {
   const [hoveredCard, setHoveredCard] = useState<number | null>(null)
   const featuredCards = [0, 1, 8, 17, 18, 19].map(i => allTarotCards[i])
+
+  // === Счётчик кликов по заголовку (5 кликов → админка) ===
+  const clickCountRef = useRef(0)
+  const clickTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const handleTitleClick = () => {
+    if (!onSecretClick) return
+    clickCountRef.current++
+    if (clickTimerRef.current) clearTimeout(clickTimerRef.current)
+    clickTimerRef.current = setTimeout(() => { clickCountRef.current = 0 }, 2000)
+    if (clickCountRef.current >= 5) {
+      clickCountRef.current = 0
+      onSecretClick()
+    }
+  }
 
   return (
     <div className="py-8 sm:py-12">
@@ -465,7 +503,8 @@ function HomeSection({ onNavigate }: { onNavigate: (s: Section) => void }) {
           <span>Добро пожаловать</span>
         </div>
         <h1
-          className="text-4xl sm:text-6xl md:text-7xl font-bold mb-6 text-mystic-gradient inline-block"
+          onClick={handleTitleClick}
+          className="text-4xl sm:text-6xl md:text-7xl font-bold mb-6 text-mystic-gradient inline-block cursor-default select-none"
           style={{
             fontFamily: "var(--font-cinzel)",
             lineHeight: 1.3,
