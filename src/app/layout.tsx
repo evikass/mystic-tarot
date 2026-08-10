@@ -22,15 +22,15 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://evikass.github.io/mystic-tarot/"),
+  metadataBase: new URL("https://mystic-tarot-henna.vercel.app/"),
   title: "Мистическое Таро · Карта дня, расклады, совместимость",
   description: "Бесплатное онлайн-приложение Таро с красивыми SVG-картами. Карта дня, расклады на 3 карты, Кельтский крест, Да/Нет, совместимость и психологический анализ.",
   keywords: ["таро", "tarot", "расклад", "карта дня", "совместимость", "мистика", "аркан"],
   authors: [{ name: "Таро Мудрость" }],
   icons: {
-    icon: "/mystic-tarot/favicon.svg",
-    shortcut: "/mystic-tarot/favicon.svg",
-    apple: "/mystic-tarot/favicon.svg",
+    icon: "/favicon.svg",
+    shortcut: "/favicon.svg",
+    apple: "/favicon.svg",
   },
   openGraph: {
     title: "Мистическое Таро",
