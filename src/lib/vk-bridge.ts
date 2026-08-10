@@ -1,61 +1,106 @@
 "use client"
 
 /**
- * VK Bridge SDK - обёртка для будущей публикации в VK Mini Apps.
- * Безопасно работает в обычном браузере (no-op), а внутри VK подключается динамически.
+ * VK Bridge SDK - обёртка для VK Mini Apps.
+ * Всегда пытается загрузиться — no-op вне VK.
  */
+import { useEffect } from "react"
 
 let vkBridge: any = null
-let isInitialized = false
+let initPromise: Promise<void> | null = null
 
-export async function initVKBridge(): Promise<void> {
-  if (typeof window === "undefined") return
-  if (isInitialized) return
-  isInitialized = true
+export function initVKBridge(): Promise<void> {
+  if (typeof window === "undefined") return Promise.resolve()
+  if (initPromise) return initPromise
 
-  // Проверяем, что мы внутри VK Mini App
-  const isVK = typeof window !== "undefined" && (
-    window.location.search.includes("vk_access_token") ||
-    window.location.search.includes("vk_platform") ||
-    window.location.hostname.includes("vk-app")
-  )
+  initPromise = new Promise<void>((resolve) => {
+    // Ждём загрузки VK Bridge из CDN (script tag в layout.tsx)
+    const tryInit = () => {
+      // Проверяем глобальный объект vkBridge из CDN
+      const globalBridge = (window as any).vkBridge
+      if (globalBridge) {
+        vkBridge = globalBridge
+        vkBridge.subscribe((e: any) => {
+          console.log("[VK Bridge] Event:", e.detail?.type)
+        })
+        // Вызываем VKWebAppInit — это сигнал VK, что приложение готово
+        vkBridge.send("VKWebAppInit")
+          .then(() => console.log("[VK Bridge] VKWebAppInit OK"))
+          .catch(() => console.log("[VK Bridge] VKWebAppInit failed (вне VK?)"))
+          .finally(() => resolve())
+        return
+      }
 
-  if (!isVK) return
-
-  try {
-    // Динамическая загрузка VK Bridge
-    const mod = await import("@vkontakte/vk-bridge" as any).catch(() => null)
-    if (mod?.default) {
-      vkBridge = mod.default
-      vkBridge.send("VKWebAppInit")
-      console.log("[VK Bridge] Инициализирован")
+      // Если глобального объекта нет — пробуем import (fallback)
+      import("@vkontakte/vk-bridge" as any)
+        .then((mod: any) => {
+          if (mod?.default) {
+            vkBridge = mod.default
+            vkBridge.subscribe((e: any) => {
+              console.log("[VK Bridge] Event:", e.detail?.type)
+            })
+            vkBridge.send("VKWebAppInit")
+              .then(() => console.log("[VK Bridge] VKWebAppInit OK (npm)"))
+              .catch(() => console.log("[VK Bridge] VKWebAppInit failed (npm)"))
+              .finally(() => resolve())
+          } else {
+            resolve()
+          }
+        })
+        .catch(() => resolve())
     }
-  } catch (e) {
-    console.warn("[VK Bridge] Не удалось загрузить:", e)
-  }
+
+    // Если скрипт уже загружен — инициализируем сразу
+    if ((window as any).vkBridge) {
+      tryInit()
+    } else {
+      // Ждём загрузки скрипта (проверяем каждые 100мс, максимум 5 сек)
+      let attempts = 0
+      const interval = setInterval(() => {
+        attempts++
+        if ((window as any).vkBridge || attempts > 50) {
+          clearInterval(interval)
+          tryInit()
+        }
+      }, 100)
+    }
+  })
+
+  return initPromise
 }
 
 export function isVKEnvironment(): boolean {
   if (typeof window === "undefined") return false
-  return window.location.search.includes("vk_access_token") ||
+  return (
+    window.location.search.includes("vk_access_token") ||
     window.location.search.includes("vk_platform") ||
-    window.location.hostname.includes("vk-app")
+    window.location.search.includes("vk_app_id") ||
+    window.location.search.includes("vk_user_id") ||
+    window.location.hash.includes("vk_access_token") ||
+    window.location.hostname.includes("vk-app") ||
+    (window.parent !== window && window.location.search.length > 0)
+  )
 }
 
 export async function vkShare(text: string): Promise<void> {
   if (!vkBridge) {
-    // Фолбэк - обычный share API браузера
     if (typeof navigator !== "undefined" && navigator.share) {
       try { await navigator.share({ title: "Таро Мудрость", text }) } catch {}
+    } else if (typeof navigator !== "undefined" && navigator.clipboard) {
+      try {
+        await navigator.clipboard.writeText(text)
+        alert("Текст скопирован в буфер обмена")
+      } catch {}
     }
     return
   }
   try {
-    await vkBridge.send("VKWebAppShowWallPost", {
-      message: text,
-    })
+    await vkBridge.send("VKWebAppShowWallPost", { message: text })
   } catch (e) {
     console.warn("[VK Bridge] share failed:", e)
+    if (typeof navigator !== "undefined" && navigator.clipboard) {
+      try { await navigator.clipboard.writeText(text); alert("Скопировано") } catch {}
+    }
   }
 }
 
@@ -67,5 +112,11 @@ export async function vkShowBanner(): Promise<void> {
 }
 
 export function getVKUserInfo(): any | null {
-  return null // Заглушка для будущего API
+  return null
+}
+
+export function useVKBridge() {
+  useEffect(() => {
+    initVKBridge()
+  }, [])
 }

@@ -58,6 +58,8 @@ export default function RootLayout({
     <html lang="ru" suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+        {/* VK Bridge SDK — загружается сразу, до React */}
+        <script src="https://unpkg.com/@vkontakte/vk-bridge/dist/browser.min.js" async />
       </head>
       <body
         className={`${cormorant.variable} ${cinzel.variable} ${inter.variable} antialiased`}
