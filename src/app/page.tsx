@@ -1,5 +1,6 @@
 "use client"
 
+import Image from "next/image"
 import { useState, useEffect, useCallback, useRef, useMemo } from "react"
 import { StarryBackground } from "@/components/starry-bg"
 import { MistBackground } from "@/components/mist-bg"
@@ -355,27 +356,14 @@ function Header({
           onClick={() => setSection("home")}
           className="flex items-center gap-3 group"
         >
-          <div className="relative w-10 h-10 flex items-center justify-center">
-            <svg viewBox="0 0 40 40" className="w-full h-full">
-              <circle cx="20" cy="20" r="18" fill="none" stroke="#fbbf24" strokeWidth="1.5" opacity="0.7"/>
-              <text x="20" y="26" fontSize="20" textAnchor="middle" fill="#fbbf24">✦</text>
-              {Array.from({ length: 8 }).map((_, i) => {
-                const a = (i / 8) * Math.PI * 2
-                return (
-                  <line
-                    key={i}
-                    x1={20 + Math.cos(a) * 18}
-                    y1={20 + Math.sin(a) * 18}
-                    x2={20 + Math.cos(a) * 22}
-                    y2={20 + Math.sin(a) * 22}
-                    stroke="#fbbf24"
-                    strokeWidth="1"
-                    opacity="0.5"
-                  />
-                )
-              })}
-            </svg>
-          </div>
+          <Image
+            src="/logo.png"
+            alt="Мистическое Таро"
+            width={48}
+            height={48}
+            className="w-10 h-10 sm:w-12 sm:h-12 object-contain"
+            priority
+          />
           <div className="text-left">
             <div className="text-lg sm:text-xl font-bold text-gold-gradient tracking-wider" style={{ fontFamily: "var(--font-cinzel)" }}>
               MYSTIC TAROT
