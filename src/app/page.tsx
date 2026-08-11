@@ -359,9 +359,9 @@ function Header({
           <Image
             src="/logo.png"
             alt="Мистическое Таро"
-            width={48}
-            height={48}
-            className="w-10 h-10 sm:w-12 sm:h-12 object-contain"
+            width={36}
+            height={36}
+            className="w-7 h-7 sm:w-8 sm:h-8 object-contain"
             priority
           />
           <div className="text-left">
