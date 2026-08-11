@@ -1464,7 +1464,7 @@ function YesNoReading() {
           {revealed && answer && (
             <div className="max-w-md w-full text-center animate-fade-in">
               <div
-                className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-3"
+                className="text-2xl sm:text-3xl font-bold mb-3"
                 style={{
                   fontFamily: "var(--font-cinzel)",
                   background: answer === "yes"
