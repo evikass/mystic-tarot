@@ -387,7 +387,7 @@ function Header({
         </button>
 
         {/* Desktop nav */}
-        <nav className="hidden md:flex items-center gap-1">
+        <nav className="hidden lg:flex items-center gap-1">
           {navItems.map((item) => (
             <button
               key={item.id}
@@ -423,7 +423,7 @@ function Header({
         </nav>
 
         {/* Mobile: theme + sound toggle + menu button */}
-        <div className="md:hidden flex items-center gap-1">
+        <div className="lg:hidden flex items-center gap-1">
           <button
             onClick={toggleTheme}
             aria-label={theme === "dark" ? "Включить светлую тему" : "Включить тёмную тему"}
@@ -452,7 +452,7 @@ function Header({
 
       {/* Mobile nav */}
       {mobileOpen && (
-        <nav className="md:hidden border-t border-amber-400/20 px-4 py-3 flex flex-col gap-1">
+        <nav className="lg:hidden border-t border-amber-400/20 px-4 py-3 flex flex-col gap-1">
           {navItems.map((item) => (
             <button
               key={item.id}
