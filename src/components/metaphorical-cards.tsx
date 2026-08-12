@@ -3,6 +3,7 @@
 import { useState, useCallback } from "react"
 import { Sparkles, RotateCcw, Eye, EyeOff } from "lucide-react"
 import { drawMetaphoricalCards, type MetaphoricalCard } from "@/lib/metaphorical-cards-data"
+import { MetaphoricalCardSVG } from "@/lib/metaphorical-cards-svg"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -164,31 +165,7 @@ export function MetaphoricalCardsSection() {
                           boxShadow: `0 4px 20px ${card.color}30`,
                         }}
                       >
-                        {/* Эмодзи-образ */}
-                        <div className="text-4xl sm:text-5xl mt-2">{card.emoji}</div>
-
-                        {/* Название */}
-                        <div className="text-center">
-                          <div className="text-sm font-bold text-amber-100" style={{ fontFamily: "var(--font-cinzel)" }}>
-                            {card.name}
-                          </div>
-                        </div>
-
-                        {/* Ключевые слова */}
-                        <div className="flex flex-wrap justify-center gap-1 mb-1">
-                          {card.keywords.map(kw => (
-                            <span
-                              key={kw}
-                              className="text-[8px] px-1.5 py-0.5 rounded"
-                              style={{
-                                backgroundColor: `${card.color}20`,
-                                color: card.color,
-                              }}
-                            >
-                              {kw}
-                            </span>
-                          ))}
-                        </div>
+                      <MetaphoricalCardSVG card={card} />
                       </div>
                     )}
                   </div>
