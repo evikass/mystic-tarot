@@ -133,6 +133,7 @@ import { setMuted, isMuted, initMuteState, playCardDrawSound, startAmbient, togg
 import { TypewriterText } from "@/lib/use-typewriter"
 import { startSession, trackAction, endSession } from "@/lib/visitor-tracker"
 import { AdminPanel } from "@/components/admin-panel"
+import { MetaphoricalCardsSection } from "@/components/metaphorical-cards"
 import { successSteps, stepCategories, type SuccessStep } from "@/lib/success-steps-data"
 import {
   getAllProgress,
@@ -223,7 +224,7 @@ import {
   Music2,
 } from "lucide-react"
 
-type Section = "home" | "daily" | "readings" | "tarot-forecast" | "compatibility" | "psychology" | "history" | "success" | "catalog" | "theme"
+type Section = "home" | "daily" | "readings" | "tarot-forecast" | "compatibility" | "psychology" | "history" | "success" | "catalog" | "theme" | "metaphorical"
 
 interface DrawnCard {
   card: TarotCard
@@ -281,6 +282,7 @@ export default function Home() {
     { id: "catalog", label: "Каталог", icon: <BookOpen className="w-4 h-4"/> },
     { id: "compatibility", label: "Совместимость", icon: <Heart className="w-4 h-4"/> },
     { id: "psychology", label: "Психология", icon: <Brain className="w-4 h-4"/> },
+    { id: "metaphorical", label: "Мета-карты", icon: <Sparkles className="w-4 h-4"/> },
     { id: "success", label: "14 Шагов", icon: <Target className="w-4 h-4"/> },
     { id: "history", label: "История", icon: <History className="w-4 h-4"/> },
   ]
@@ -298,6 +300,7 @@ export default function Home() {
           {section === "readings" && <ReadingsSection/>}
           {section === "compatibility" && <CompatibilitySection/>}
           {section === "psychology" && <PsychologySection/>}
+          {section === "metaphorical" && <MetaphoricalCardsSection/>}
           {section === "catalog" && <CatalogSection/>}
           {section === "success" && <SuccessStepsSection/>}
           {section === "history" && <HistorySection/>}
