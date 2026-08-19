@@ -89,7 +89,7 @@ export async function vkShare(text: string): Promise<void> {
     } else if (typeof navigator !== "undefined" && navigator.clipboard) {
       try {
         await navigator.clipboard.writeText(text)
-        alert("Текст скопирован в буфер обмена")
+        // No alert — caller handles UI feedback
       } catch {}
     }
     return
@@ -99,7 +99,7 @@ export async function vkShare(text: string): Promise<void> {
   } catch (e) {
     console.warn("[VK Bridge] share failed:", e)
     if (typeof navigator !== "undefined" && navigator.clipboard) {
-      try { await navigator.clipboard.writeText(text); alert("Скопировано") } catch {}
+      try { await navigator.clipboard.writeText(text) } catch {}
     }
   }
 }
