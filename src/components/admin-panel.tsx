@@ -47,11 +47,16 @@ export function AdminPanel({ onClose }: AdminPanelProps) {
     }
   }
 
+  const [showClearConfirm, setShowClearConfirm] = useState(false)
+
   const handleClear = () => {
-    if (confirm("Удалить всю статистику посещений? Это действие необратимо.")) {
-      clearSessions()
-      loadStats()
-    }
+    setShowClearConfirm(true)
+  }
+
+  const confirmClear = () => {
+    clearSessions()
+    setShowClearConfirm(false)
+    loadStats()
   }
 
   // === Форма входа ===
@@ -323,6 +328,38 @@ export function AdminPanel({ onClose }: AdminPanelProps) {
             </>
           )}
         </div>
+
+        {/* === Диалог подтверждения очистки === */}
+        {showClearConfirm && (
+          <div
+            className="absolute inset-0 bg-black/90 flex items-center justify-center p-4 z-10"
+            onClick={() => setShowClearConfirm(false)}
+          >
+            <div
+              className="w-full max-w-sm rounded-xl border border-rose-400/30 p-6 text-center"
+              style={{ background: "linear-gradient(135deg, #1a1025 0%, #0a0510 100%)" }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <Trash2 className="w-8 h-8 mx-auto mb-3 text-rose-400/70"/>
+              <h3 className="text-base font-bold text-amber-100 mb-2">Удалить всю статистику?</h3>
+              <p className="text-xs text-amber-200/50 mb-4">Это действие необратимо. Все данные о посещениях будут удалены.</p>
+              <div className="flex gap-2 justify-center">
+                <button
+                  onClick={() => setShowClearConfirm(false)}
+                  className="px-4 py-2 rounded-lg text-xs text-amber-200/70 border border-amber-400/20 hover:bg-amber-400/10 transition-all"
+                >
+                  Отмена
+                </button>
+                <button
+                  onClick={confirmClear}
+                  className="px-4 py-2 rounded-lg text-xs text-white bg-rose-500/80 hover:bg-rose-500 transition-all"
+                >
+                  Удалить
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* === Детали сессии (модал) === */}
         {selectedSession && (
