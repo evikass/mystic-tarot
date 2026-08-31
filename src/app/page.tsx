@@ -127,7 +127,7 @@ import {
   formatDate,
   type ReadingRecord,
 } from "@/lib/tarot-storage"
-import { initVKBridge, isVKEnvironment, vkShare } from "@/lib/vk-bridge"
+import { initVKBridge, isVKEnvironment, vkShare, vkShowBanner } from "@/lib/vk-bridge"
 import { useTheme } from "@/lib/use-theme"
 import { setMuted, isMuted, initMuteState, playCardDrawSound, startAmbient, toggleAmbient, isAmbientPlaying } from "@/lib/sound-engine"
 import { TypewriterText } from "@/lib/use-typewriter"
@@ -1096,7 +1096,12 @@ function ThreeCardReading() {
 
   const revealCard = (i: number) => {
     if (!revealedIndexes.includes(i)) {
-      setRevealedIndexes([...revealedIndexes, i])
+      const newRevealed = [...revealedIndexes, i]
+      setRevealedIndexes(newRevealed)
+      // Показываем рекламу когда все карты раскрыты
+      if (newRevealed.length === drawnCards.length) {
+        setTimeout(() => vkShowBanner(), 1500)
+      }
     }
   }
 
@@ -1260,7 +1265,11 @@ function CelticCrossReading() {
 
   const revealCard = (i: number) => {
     if (!revealedIndexes.includes(i)) {
-      setRevealedIndexes([...revealedIndexes, i])
+      const newRevealed = [...revealedIndexes, i]
+      setRevealedIndexes(newRevealed)
+      if (newRevealed.length === drawnCards.length) {
+        setTimeout(() => vkShowBanner(), 1500)
+      }
     }
   }
 
@@ -1570,7 +1579,13 @@ function TwoPathsReading() {
   }, [optionA, optionB, toast])
 
   const revealCard = (i: number) => {
-    if (!revealedIndexes.includes(i)) setRevealedIndexes([...revealedIndexes, i])
+    if (!revealedIndexes.includes(i)) {
+      const newRevealed = [...revealedIndexes, i]
+      setRevealedIndexes(newRevealed)
+      if (newRevealed.length === drawnCards.length) {
+        setTimeout(() => vkShowBanner(), 1500)
+      }
+    }
   }
 
   const allRevealed = drawnCards.length === 5 && revealedIndexes.length === 5
@@ -4928,7 +4943,13 @@ function TarotForecastSection() {
   }
 
   const revealCard = (i: number) => {
-    if (!revealedIndexes.includes(i)) setRevealedIndexes([...revealedIndexes, i])
+    if (!revealedIndexes.includes(i)) {
+      const newRevealed = [...revealedIndexes, i]
+      setRevealedIndexes(newRevealed)
+      if (newRevealed.length === 3) {
+        setTimeout(() => vkShowBanner(), 1500)
+      }
+    }
   }
 
   const allRevealed = revealedIndexes.length === 3
