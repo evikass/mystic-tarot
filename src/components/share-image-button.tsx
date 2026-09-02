@@ -76,14 +76,6 @@ const shareTargets: ShareTarget[] = [
     showOn: ["ok", "web"],
   },
   {
-    id: "telegram",
-    label: "Telegram",
-    icon: <Send className="w-5 h-5"/>,
-    color: "#26A5E4",
-    buildUrl: (text, url) => `https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`,
-    showOn: ["vk", "ok", "web"],
-  },
-  {
     id: "max",
     label: "Max",
     icon: (
@@ -101,18 +93,6 @@ const shareTargets: ShareTarget[] = [
     icon: <Mail className="w-5 h-5"/>,
     color: "#6B7280",
     buildUrl: (text, _url) => `mailto:?subject=${encodeURIComponent("Мой расклад Таро")}&body=${encodeURIComponent(text + "\n\n" + _url)}`,
-    showOn: ["vk", "ok", "web"],
-  },
-  {
-    id: "twitter",
-    label: "Twitter / X",
-    icon: (
-      <svg viewBox="0 0 24 24" className="w-5 h-5" fill="currentColor">
-        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
-      </svg>
-    ),
-    color: "#000000",
-    buildUrl: (text, url) => `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`,
     showOn: ["vk", "ok", "web"],
   },
 ]
@@ -165,24 +145,10 @@ export function ShareImageButton({
       const blob = await capturePng()
       if (!blob) throw new Error("capture failed")
 
-      // Always download the PNG first, then open our custom dialog with all 6 social networks.
-      // The native Web Share API is offered as an additional button inside the dialog
-      // (it previously bypassed the dialog on mobile, showing only installed apps).
       const file = new File([blob], `${filename}.png`, { type: "image/png" })
-
-      // Store the file in state so the native-share button in the dialog can use it
       setShareFile(file)
 
-      const url = URL.createObjectURL(blob)
-      const a = document.createElement("a")
-      a.href = url
-      a.download = `${filename}.png`
-      document.body.appendChild(a)
-      a.click()
-      document.body.removeChild(a)
-      URL.revokeObjectURL(url)
-
-      toast({ title: "✦ Картинка скачана", description: "Выберите соцсеть ниже и приложите картинку." })
+      // No auto-download — just open the dialog
       setShowDialog(true)
     } catch (err) {
       console.error(err)
@@ -274,8 +240,9 @@ export function ShareImageButton({
               Поделиться раскладом
             </DialogTitle>
             <DialogDescription className="text-amber-200/70">
-              Картинка уже скачана. Выберите соцсеть — откроется её окно с готовым текстом.
-              Приложите картинку вручную в редакторе поста.
+              Выберите, как поделиться раскладом.
+              «Системный диалог» откроет меню телефона (передаёт картинку автоматически).
+              «Скачать PNG» сохранит картинку на устройство.
             </DialogDescription>
           </DialogHeader>
 
