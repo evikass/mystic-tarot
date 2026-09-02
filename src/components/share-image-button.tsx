@@ -34,8 +34,19 @@ interface ShareTarget {
   icon: React.ReactNode
   color: string
   buildUrl: (text: string, url: string) => string
-  /** If true — try Web Share API first (better for mobile) */
   preferNative?: boolean
+  /** Which platforms to show this button on */
+  showOn?: ("vk" | "ok" | "web")[]
+}
+
+/** Detect platform: VK or OK */
+function detectPlatform(): "vk" | "ok" | "web" {
+  if (typeof window === "undefined") return "web"
+  const host = window.location.hostname
+  const params = window.location.search
+  if (host.includes("vk") || params.includes("vk_platform") || params.includes("vk_access_token")) return "vk"
+  if (host.includes("ok") || params.includes("ok_session_key") || params.includes("application_key")) return "ok"
+  return "web"
 }
 
 const shareTargets: ShareTarget[] = [
@@ -49,6 +60,8 @@ const shareTargets: ShareTarget[] = [
     ),
     color: "#0077FF",
     buildUrl: (text, url) => `https://vk.com/share.php?url=${encodeURIComponent(url)}&title=${encodeURIComponent("Мистическое Таро")}&description=${encodeURIComponent(text)}`,
+    /** Only show in VK environment or web */
+    showOn: ["vk", "web"],
   },
   {
     id: "ok",
@@ -60,6 +73,7 @@ const shareTargets: ShareTarget[] = [
     ),
     color: "#EE8208",
     buildUrl: (text, url) => `https://connect.ok.ru/offer?url=${encodeURIComponent(url)}&title=${encodeURIComponent("Мистическое Таро")}&description=${encodeURIComponent(text)}`,
+    showOn: ["ok", "web"],
   },
   {
     id: "telegram",
@@ -67,6 +81,7 @@ const shareTargets: ShareTarget[] = [
     icon: <Send className="w-5 h-5"/>,
     color: "#26A5E4",
     buildUrl: (text, url) => `https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`,
+    showOn: ["vk", "ok", "web"],
   },
   {
     id: "max",
@@ -78,6 +93,7 @@ const shareTargets: ShareTarget[] = [
     ),
     color: "#FF6B35",
     buildUrl: (text, url) => `https://max.ru/share?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`,
+    showOn: ["vk", "ok", "web"],
   },
   {
     id: "email",
@@ -85,6 +101,7 @@ const shareTargets: ShareTarget[] = [
     icon: <Mail className="w-5 h-5"/>,
     color: "#6B7280",
     buildUrl: (text, _url) => `mailto:?subject=${encodeURIComponent("Мой расклад Таро")}&body=${encodeURIComponent(text + "\n\n" + _url)}`,
+    showOn: ["vk", "ok", "web"],
   },
   {
     id: "twitter",
@@ -96,6 +113,7 @@ const shareTargets: ShareTarget[] = [
     ),
     color: "#000000",
     buildUrl: (text, url) => `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`,
+    showOn: ["vk", "ok", "web"],
   },
 ]
 
