@@ -127,13 +127,14 @@ import {
   formatDate,
   type ReadingRecord,
 } from "@/lib/tarot-storage"
-import { initVKBridge, isVKEnvironment, vkShare, vkShowBanner } from "@/lib/vk-bridge"
+import { initVKBridge, isVKEnvironment, vkShare, vkShowBanner, syncWithVKStorage } from "@/lib/vk-bridge"
 import { useTheme } from "@/lib/use-theme"
 import { setMuted, isMuted, initMuteState, playCardDrawSound, startAmbient, toggleAmbient, isAmbientPlaying } from "@/lib/sound-engine"
 import { TypewriterText } from "@/lib/use-typewriter"
 import { startSession, trackAction, endSession } from "@/lib/visitor-tracker"
 import { AdminPanel } from "@/components/admin-panel"
 import { MetaphoricalCardsSection } from "@/components/metaphorical-cards"
+import { validateDay, validateMonth, validateYear, isValidDate } from "@/lib/date-validation"
 import { successSteps, stepCategories, type SuccessStep } from "@/lib/success-steps-data"
 import {
   getAllProgress,
@@ -240,7 +241,7 @@ export default function Home() {
 
   // === Трекинг посещений ===
   useEffect(() => {
-    initVKBridge()
+    initVKBridge().then(() => syncWithVKStorage())
     startSession()
     trackAction("page_load", "home", window.location.href)
 
@@ -2117,14 +2118,14 @@ function CompatibilityZodiacTab() {
               <Input
                 type="number" min="1" max="31"
                 value={day1}
-                onChange={(e) => setDay1(e.target.value)}
+                onChange={(e) => setDay1(validateDay(e.target.value))}
                 placeholder="День"
                 className="bg-purple-950/40 border-amber-400/30 text-amber-100 placeholder:text-amber-200/40 text-center"
               />
               <Input
                 type="number" min="1" max="12"
                 value={month1}
-                onChange={(e) => setMonth1(e.target.value)}
+                onChange={(e) => setMonth1(validateMonth(e.target.value))}
                 placeholder="Месяц"
                 className="bg-purple-950/40 border-amber-400/30 text-amber-100 placeholder:text-amber-200/40 text-center"
               />
@@ -2155,14 +2156,14 @@ function CompatibilityZodiacTab() {
               <Input
                 type="number" min="1" max="31"
                 value={day2}
-                onChange={(e) => setDay2(e.target.value)}
+                onChange={(e) => setDay2(validateDay(e.target.value))}
                 placeholder="День"
                 className="bg-purple-950/40 border-amber-400/30 text-amber-100 placeholder:text-amber-200/40 text-center"
               />
               <Input
                 type="number" min="1" max="12"
                 value={month2}
-                onChange={(e) => setMonth2(e.target.value)}
+                onChange={(e) => setMonth2(validateMonth(e.target.value))}
                 placeholder="Месяц"
                 className="bg-purple-950/40 border-amber-400/30 text-amber-100 placeholder:text-amber-200/40 text-center"
               />
@@ -2379,21 +2380,21 @@ function CompatibilityBirthDateTab() {
               <Input
                 type="number" min="1" max="31"
                 value={day1}
-                onChange={(e) => setDay1(e.target.value)}
+                onChange={(e) => setDay1(validateDay(e.target.value))}
                 placeholder="День"
                 className="bg-purple-950/40 border-amber-400/30 text-amber-100 placeholder:text-amber-200/40 text-center"
               />
               <Input
                 type="number" min="1" max="12"
                 value={month1}
-                onChange={(e) => setMonth1(e.target.value)}
+                onChange={(e) => setMonth1(validateMonth(e.target.value))}
                 placeholder="Месяц"
                 className="bg-purple-950/40 border-amber-400/30 text-amber-100 placeholder:text-amber-200/40 text-center"
               />
               <Input
                 type="number" min="1900" max="2100"
                 value={year1}
-                onChange={(e) => setYear1(e.target.value)}
+                onChange={(e) => setYear1(validateYear(e.target.value))}
                 placeholder="Год"
                 className="bg-purple-950/40 border-amber-400/30 text-amber-100 placeholder:text-amber-200/40 text-center"
               />
@@ -2415,21 +2416,21 @@ function CompatibilityBirthDateTab() {
               <Input
                 type="number" min="1" max="31"
                 value={day2}
-                onChange={(e) => setDay2(e.target.value)}
+                onChange={(e) => setDay2(validateDay(e.target.value))}
                 placeholder="День"
                 className="bg-purple-950/40 border-amber-400/30 text-amber-100 placeholder:text-amber-200/40 text-center"
               />
               <Input
                 type="number" min="1" max="12"
                 value={month2}
-                onChange={(e) => setMonth2(e.target.value)}
+                onChange={(e) => setMonth2(validateMonth(e.target.value))}
                 placeholder="Месяц"
                 className="bg-purple-950/40 border-amber-400/30 text-amber-100 placeholder:text-amber-200/40 text-center"
               />
               <Input
                 type="number" min="1900" max="2100"
                 value={year2}
-                onChange={(e) => setYear2(e.target.value)}
+                onChange={(e) => setYear2(validateYear(e.target.value))}
                 placeholder="Год"
                 className="bg-purple-950/40 border-amber-400/30 text-amber-100 placeholder:text-amber-200/40 text-center"
               />
@@ -3051,7 +3052,7 @@ function BirthDateTab() {
             type="number"
             min="1" max="31"
             value={day}
-            onChange={(e) => setDay(e.target.value)}
+            onChange={(e) => setDay(validateDay(e.target.value))}
             placeholder="15"
             className="bg-purple-950/40 border-amber-400/30 text-amber-100 placeholder:text-amber-200/40 text-center"
           />
@@ -3062,7 +3063,7 @@ function BirthDateTab() {
             type="number"
             min="1" max="12"
             value={month}
-            onChange={(e) => setMonth(e.target.value)}
+            onChange={(e) => setMonth(validateMonth(e.target.value))}
             placeholder="08"
             className="bg-purple-950/40 border-amber-400/30 text-amber-100 placeholder:text-amber-200/40 text-center"
           />
@@ -3073,7 +3074,7 @@ function BirthDateTab() {
             type="number"
             min="1900" max="2100"
             value={year}
-            onChange={(e) => setYear(e.target.value)}
+            onChange={(e) => setYear(validateYear(e.target.value))}
             placeholder="1990"
             className="bg-purple-950/40 border-amber-400/30 text-amber-100 placeholder:text-amber-200/40 text-center"
           />
@@ -3148,19 +3149,19 @@ function ZodiacTab() {
         <div>
           <label className="text-xs text-amber-200/70 mb-1 block">День</label>
           <Input type="number" min="1" max="31" value={day}
-            onChange={(e) => setDay(e.target.value)} placeholder="15"
+            onChange={(e) => setDay(validateDay(e.target.value))} placeholder="15"
             className="bg-purple-950/40 border-amber-400/30 text-amber-100 placeholder:text-amber-200/40 text-center"/>
         </div>
         <div>
           <label className="text-xs text-amber-200/70 mb-1 block">Месяц</label>
           <Input type="number" min="1" max="12" value={month}
-            onChange={(e) => setMonth(e.target.value)} placeholder="08"
+            onChange={(e) => setMonth(validateMonth(e.target.value))} placeholder="08"
             className="bg-purple-950/40 border-amber-400/30 text-amber-100 placeholder:text-amber-200/40 text-center"/>
         </div>
         <div>
           <label className="text-xs text-amber-200/70 mb-1 block">Год</label>
           <Input type="number" min="1900" max="2100" value={year}
-            onChange={(e) => setYear(e.target.value)} placeholder="1990"
+            onChange={(e) => setYear(validateYear(e.target.value))} placeholder="1990"
             className="bg-purple-950/40 border-amber-400/30 text-amber-100 placeholder:text-amber-200/40 text-center"/>
         </div>
       </div>
@@ -3669,19 +3670,19 @@ function NatalChartTab() {
               <div>
                 <label className="text-xs text-amber-200/70 mb-1 block">День</label>
                 <Input type="number" min="1" max="31" value={day}
-                  onChange={(e) => setDay(e.target.value)} placeholder="15"
+                  onChange={(e) => setDay(validateDay(e.target.value))} placeholder="15"
                   className="bg-purple-950/40 border-amber-400/30 text-amber-100 placeholder:text-amber-200/40 text-center"/>
               </div>
               <div>
                 <label className="text-xs text-amber-200/70 mb-1 block">Месяц</label>
                 <Input type="number" min="1" max="12" value={month}
-                  onChange={(e) => setMonth(e.target.value)} placeholder="08"
+                  onChange={(e) => setMonth(validateMonth(e.target.value))} placeholder="08"
                   className="bg-purple-950/40 border-amber-400/30 text-amber-100 placeholder:text-amber-200/40 text-center"/>
               </div>
               <div>
                 <label className="text-xs text-amber-200/70 mb-1 block">Год</label>
                 <Input type="number" min="1900" max="2100" value={year}
-                  onChange={(e) => setYear(e.target.value)} placeholder="1990"
+                  onChange={(e) => setYear(validateYear(e.target.value))} placeholder="1990"
                   className="bg-purple-950/40 border-amber-400/30 text-amber-100 placeholder:text-amber-200/40 text-center"/>
               </div>
               <div>
@@ -4291,9 +4292,9 @@ function FavorableDaysSection() {
           <CardContent className="pt-5">
             <div className="text-xs uppercase tracking-wider text-amber-300 mb-3">Ваш знак зодиака</div>
             <div className="max-w-sm mx-auto grid grid-cols-3 gap-3 mb-4">
-              <div><label className="text-xs text-amber-200/70 mb-1 block">День</label><Input type="number" min="1" max="31" value={day} onChange={(e) => setDay(e.target.value)} placeholder="15" className="bg-purple-950/40 border-amber-400/30 text-amber-100 placeholder:text-amber-200/40 text-center"/></div>
-              <div><label className="text-xs text-amber-200/70 mb-1 block">Месяц</label><Input type="number" min="1" max="12" value={month} onChange={(e) => setMonth(e.target.value)} placeholder="08" className="bg-purple-950/40 border-amber-400/30 text-amber-100 placeholder:text-amber-200/40 text-center"/></div>
-              <div><label className="text-xs text-amber-200/70 mb-1 block">Год</label><Input type="number" min="1900" max="2100" value={year} onChange={(e) => setYear(e.target.value)} placeholder="1990" className="bg-purple-950/40 border-amber-400/30 text-amber-100 placeholder:text-amber-200/40 text-center"/></div>
+              <div><label className="text-xs text-amber-200/70 mb-1 block">День</label><Input type="number" min="1" max="31" value={day} onChange={(e) => setDay(validateDay(e.target.value))} placeholder="15" className="bg-purple-950/40 border-amber-400/30 text-amber-100 placeholder:text-amber-200/40 text-center"/></div>
+              <div><label className="text-xs text-amber-200/70 mb-1 block">Месяц</label><Input type="number" min="1" max="12" value={month} onChange={(e) => setMonth(validateMonth(e.target.value))} placeholder="08" className="bg-purple-950/40 border-amber-400/30 text-amber-100 placeholder:text-amber-200/40 text-center"/></div>
+              <div><label className="text-xs text-amber-200/70 mb-1 block">Год</label><Input type="number" min="1900" max="2100" value={year} onChange={(e) => setYear(validateYear(e.target.value))} placeholder="1990" className="bg-purple-950/40 border-amber-400/30 text-amber-100 placeholder:text-amber-200/40 text-center"/></div>
             </div>
             <div className="text-center"><Button onClick={handleCalculate} className="btn-gold px-6 py-2"><Calendar className="w-4 h-4 mr-2"/>Определить знак</Button></div>
             {error && <p className="text-rose-300 text-sm text-center mt-3">{error}</p>}
@@ -4504,9 +4505,9 @@ function HoroscopeSection() {
           <CardContent className="pt-5">
             <div className="text-xs uppercase tracking-wider text-amber-300 mb-3">Определить мой знак по дате рождения</div>
             <div className="max-w-sm mx-auto grid grid-cols-3 gap-3 mb-3">
-              <div><label className="text-xs text-amber-200/70 mb-1 block">День</label><Input type="number" min="1" max="31" value={day} onChange={(e) => setDay(e.target.value)} placeholder="15" className="bg-purple-950/40 border-amber-400/30 text-amber-100 placeholder:text-amber-200/40 text-center"/></div>
-              <div><label className="text-xs text-amber-200/70 mb-1 block">Месяц</label><Input type="number" min="1" max="12" value={month} onChange={(e) => setMonth(e.target.value)} placeholder="08" className="bg-purple-950/40 border-amber-400/30 text-amber-100 placeholder:text-amber-200/40 text-center"/></div>
-              <div><label className="text-xs text-amber-200/70 mb-1 block">Год</label><Input type="number" min="1900" max="2100" value={year} onChange={(e) => setYear(e.target.value)} placeholder="1990" className="bg-purple-950/40 border-amber-400/30 text-amber-100 placeholder:text-amber-200/40 text-center"/></div>
+              <div><label className="text-xs text-amber-200/70 mb-1 block">День</label><Input type="number" min="1" max="31" value={day} onChange={(e) => setDay(validateDay(e.target.value))} placeholder="15" className="bg-purple-950/40 border-amber-400/30 text-amber-100 placeholder:text-amber-200/40 text-center"/></div>
+              <div><label className="text-xs text-amber-200/70 mb-1 block">Месяц</label><Input type="number" min="1" max="12" value={month} onChange={(e) => setMonth(validateMonth(e.target.value))} placeholder="08" className="bg-purple-950/40 border-amber-400/30 text-amber-100 placeholder:text-amber-200/40 text-center"/></div>
+              <div><label className="text-xs text-amber-200/70 mb-1 block">Год</label><Input type="number" min="1900" max="2100" value={year} onChange={(e) => setYear(validateYear(e.target.value))} placeholder="1990" className="bg-purple-950/40 border-amber-400/30 text-amber-100 placeholder:text-amber-200/40 text-center"/></div>
             </div>
             <div className="text-center">
               <Button onClick={handleDetect} className="btn-gold px-6 py-2">
@@ -4806,9 +4807,9 @@ function ArcanaSection() {
           <CardContent className="pt-5">
             <div className="text-xs uppercase tracking-wider text-amber-300 mb-3">Ваша дата рождения</div>
             <div className="max-w-sm mx-auto grid grid-cols-3 gap-3 mb-4">
-              <div><label className="text-xs text-amber-200/70 mb-1 block">День</label><Input type="number" min="1" max="31" value={day} onChange={(e) => setDay(e.target.value)} placeholder="15" className="bg-purple-950/40 border-amber-400/30 text-amber-100 placeholder:text-amber-200/40 text-center"/></div>
-              <div><label className="text-xs text-amber-200/70 mb-1 block">Месяц</label><Input type="number" min="1" max="12" value={month} onChange={(e) => setMonth(e.target.value)} placeholder="08" className="bg-purple-950/40 border-amber-400/30 text-amber-100 placeholder:text-amber-200/40 text-center"/></div>
-              <div><label className="text-xs text-amber-200/70 mb-1 block">Год</label><Input type="number" min="1900" max="2100" value={year} onChange={(e) => setYear(e.target.value)} placeholder="1990" className="bg-purple-950/40 border-amber-400/30 text-amber-100 placeholder:text-amber-200/40 text-center"/></div>
+              <div><label className="text-xs text-amber-200/70 mb-1 block">День</label><Input type="number" min="1" max="31" value={day} onChange={(e) => setDay(validateDay(e.target.value))} placeholder="15" className="bg-purple-950/40 border-amber-400/30 text-amber-100 placeholder:text-amber-200/40 text-center"/></div>
+              <div><label className="text-xs text-amber-200/70 mb-1 block">Месяц</label><Input type="number" min="1" max="12" value={month} onChange={(e) => setMonth(validateMonth(e.target.value))} placeholder="08" className="bg-purple-950/40 border-amber-400/30 text-amber-100 placeholder:text-amber-200/40 text-center"/></div>
+              <div><label className="text-xs text-amber-200/70 mb-1 block">Год</label><Input type="number" min="1900" max="2100" value={year} onChange={(e) => setYear(validateYear(e.target.value))} placeholder="1990" className="bg-purple-950/40 border-amber-400/30 text-amber-100 placeholder:text-amber-200/40 text-center"/></div>
             </div>
             {error && <p className="text-rose-300 text-sm text-center mt-2">{error}</p>}
           </CardContent>
@@ -5280,9 +5281,9 @@ function BiorhythmsSection() {
       </p>
 
       <div className="max-w-sm mx-auto mb-6 grid grid-cols-3 gap-3">
-        <div><label className="text-xs text-amber-200/70 mb-1 block">День</label><Input type="number" min="1" max="31" value={day} onChange={(e) => setDay(e.target.value)} placeholder="15" className="bg-purple-950/40 border-amber-400/30 text-amber-100 placeholder:text-amber-200/40 text-center"/></div>
-        <div><label className="text-xs text-amber-200/70 mb-1 block">Месяц</label><Input type="number" min="1" max="12" value={month} onChange={(e) => setMonth(e.target.value)} placeholder="08" className="bg-purple-950/40 border-amber-400/30 text-amber-100 placeholder:text-amber-200/40 text-center"/></div>
-        <div><label className="text-xs text-amber-200/70 mb-1 block">Год</label><Input type="number" min="1900" max="2100" value={year} onChange={(e) => setYear(e.target.value)} placeholder="1990" className="bg-purple-950/40 border-amber-400/30 text-amber-100 placeholder:text-amber-200/40 text-center"/></div>
+        <div><label className="text-xs text-amber-200/70 mb-1 block">День</label><Input type="number" min="1" max="31" value={day} onChange={(e) => setDay(validateDay(e.target.value))} placeholder="15" className="bg-purple-950/40 border-amber-400/30 text-amber-100 placeholder:text-amber-200/40 text-center"/></div>
+        <div><label className="text-xs text-amber-200/70 mb-1 block">Месяц</label><Input type="number" min="1" max="12" value={month} onChange={(e) => setMonth(validateMonth(e.target.value))} placeholder="08" className="bg-purple-950/40 border-amber-400/30 text-amber-100 placeholder:text-amber-200/40 text-center"/></div>
+        <div><label className="text-xs text-amber-200/70 mb-1 block">Год</label><Input type="number" min="1900" max="2100" value={year} onChange={(e) => setYear(validateYear(e.target.value))} placeholder="1990" className="bg-purple-950/40 border-amber-400/30 text-amber-100 placeholder:text-amber-200/40 text-center"/></div>
       </div>
       <div className="text-center mb-8"><Button onClick={handleCalculate} className="btn-gold px-8 py-3"><Activity className="w-5 h-5 mr-2"/>Рассчитать биоритмы</Button>{error && <p className="text-rose-300 text-sm mt-3">{error}</p>}</div>
 
@@ -5381,9 +5382,9 @@ function PsychomatrixSection() {
       </p>
 
       <div className="max-w-sm mx-auto mb-6 grid grid-cols-3 gap-3">
-        <div><label className="text-xs text-amber-200/70 mb-1 block">День</label><Input type="number" min="1" max="31" value={day} onChange={(e) => setDay(e.target.value)} placeholder="15" className="bg-purple-950/40 border-amber-400/30 text-amber-100 placeholder:text-amber-200/40 text-center"/></div>
-        <div><label className="text-xs text-amber-200/70 mb-1 block">Месяц</label><Input type="number" min="1" max="12" value={month} onChange={(e) => setMonth(e.target.value)} placeholder="08" className="bg-purple-950/40 border-amber-400/30 text-amber-100 placeholder:text-amber-200/40 text-center"/></div>
-        <div><label className="text-xs text-amber-200/70 mb-1 block">Год</label><Input type="number" min="1900" max="2100" value={year} onChange={(e) => setYear(e.target.value)} placeholder="1990" className="bg-purple-950/40 border-amber-400/30 text-amber-100 placeholder:text-amber-200/40 text-center"/></div>
+        <div><label className="text-xs text-amber-200/70 mb-1 block">День</label><Input type="number" min="1" max="31" value={day} onChange={(e) => setDay(validateDay(e.target.value))} placeholder="15" className="bg-purple-950/40 border-amber-400/30 text-amber-100 placeholder:text-amber-200/40 text-center"/></div>
+        <div><label className="text-xs text-amber-200/70 mb-1 block">Месяц</label><Input type="number" min="1" max="12" value={month} onChange={(e) => setMonth(validateMonth(e.target.value))} placeholder="08" className="bg-purple-950/40 border-amber-400/30 text-amber-100 placeholder:text-amber-200/40 text-center"/></div>
+        <div><label className="text-xs text-amber-200/70 mb-1 block">Год</label><Input type="number" min="1900" max="2100" value={year} onChange={(e) => setYear(validateYear(e.target.value))} placeholder="1990" className="bg-purple-950/40 border-amber-400/30 text-amber-100 placeholder:text-amber-200/40 text-center"/></div>
       </div>
       <div className="text-center mb-8"><Button onClick={handleCalculate} className="btn-gold px-8 py-3"><Grid3x3 className="w-5 h-5 mr-2"/>Рассчитать матрицу</Button>{error && <p className="text-rose-300 text-sm mt-3">{error}</p>}</div>
 
