@@ -639,16 +639,13 @@ function HomeSection({ onNavigate, onSecretClick }: { onNavigate: (s: Section) =
         </p>
       </section>
 
-      {/* VK badge */}
+      {/* Welcome card for platform users */}
       {isVKEnvironment() && (
         <section className="mt-16 max-w-md mx-auto">
           <Card className="glass-card border-amber-400/30">
             <CardContent className="pt-6 text-center">
-              <Badge className="bg-blue-500/20 text-blue-200 border border-blue-400/40 mb-2">
-                VK Mini App
-              </Badge>
               <p className="text-amber-100/70 text-sm">
-                Приложение работает в среде ВКонтакте. Поделитесь раскладом со друзьями!
+                Добро пожаловать! Поделитесь раскладом со друзьями!
               </p>
             </CardContent>
           </Card>
@@ -7464,11 +7461,6 @@ function Footer() {
         <p className="text-xs text-amber-200/50">
           © {new Date().getFullYear()} Mystic Tarot · Сделано с любовью к мудрости арканов
         </p>
-        {isVKEnvironment() && (
-          <p className="text-xs text-blue-300/60 mt-2">
-            Запущено как VK Mini App · Поддерживается VK Bridge SDK
-          </p>
-        )}
       </div>
     </footer>
   )

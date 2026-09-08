@@ -1,6 +1,17 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+/* === Отступ для платформенных служебных кнопок (OK/VK) === */
+/* Когда приложение открыто в ОК или ВК, добавляем safe-area отступ сверху */
+body {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+
+/* Дополнительно для header — чтобы не перекрывался */
+header.sticky {
+  top: env(safe-area-inset-top, 0px);
+}
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {

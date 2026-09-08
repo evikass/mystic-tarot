@@ -104,8 +104,18 @@ export async function vkShare(text: string): Promise<void> {
   }
 }
 
+let lastAdTime = 0
+const AD_COOLDOWN = 30000 // 30 секунд между показами рекламы
+
 export async function vkShowBanner(): Promise<void> {
   if (!vkBridge) return
+  // Проверяем кулдаун — не чаще 1 раза в 30 секунд
+  const now = Date.now()
+  if (now - lastAdTime < AD_COOLDOWN) {
+    console.log("[VK Bridge] Реклама на кулдауне, пропускаем")
+    return
+  }
+  lastAdTime = now
   try {
     await vkBridge.send("VKWebAppShowNativeAds", { ad_format: "interstitial" })
   } catch {}
