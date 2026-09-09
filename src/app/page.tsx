@@ -693,13 +693,38 @@ function DailyCardSection() {
   const [drawnCard, setDrawnCard] = useState<DrawnCard | null>(null)
   const [isDrawing, setIsDrawing] = useState(false)
   const [revealed, setRevealed] = useState(false)
+  const [alreadyDrawnToday, setAlreadyDrawnToday] = useState(false)
   const { toast } = useToast()
   const resultRef = useRef<HTMLDivElement>(null)
   const today = new Date().toLocaleDateString("ru-RU", {
     weekday: "long", day: "numeric", month: "long", year: "numeric",
   })
 
+  // Проверяем, вытягивал ли пользователь карту сегодня
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem("mystic-tarot-daily-card")
+      if (saved) {
+        const data = JSON.parse(saved)
+        const todayStr = new Date().toDateString()
+        if (data.date === todayStr && data.card) {
+          setDrawnCard({ card: data.card, isReversed: data.isReversed })
+          setRevealed(true)
+          setAlreadyDrawnToday(true)
+        }
+      }
+    } catch {}
+  }, [])
+
   const drawDailyCard = useCallback(() => {
+    // Проверяем лимит — 1 карта в день
+    if (alreadyDrawnToday) {
+      toast({
+        title: "Карта дня уже вытянута",
+        description: "Возвращайтесь завтра за новой картой дня!",
+      })
+      return
+    }
     startAmbient()
     setIsDrawing(true)
     setRevealed(false)
@@ -709,7 +734,16 @@ function DailyCardSection() {
       const drawn = drawCards(1)[0]
       setDrawnCard({ card: drawn.card, isReversed: drawn.isReversed })
       setIsDrawing(false)
-      // Авто-reveal через 1 секунду
+      setAlreadyDrawnToday(true)
+      // Сохраняем карту дня в localStorage
+      try {
+        localStorage.setItem("mystic-tarot-daily-card", JSON.stringify({
+          date: new Date().toDateString(),
+          card: drawn.card,
+          isReversed: drawn.isReversed,
+        }))
+      } catch {}
+      // Авто-reveal через 1.5 секунды
       setTimeout(() => setRevealed(true), 1500)
       // Сохранение в историю
       saveReading({
@@ -726,7 +760,7 @@ function DailyCardSection() {
         description: `${drawn.card.name}${drawn.isReversed ? " (перевёрнута)" : ""}`,
       })
     }, 1800)
-  }, [toast])
+  }, [toast, alreadyDrawnToday])
 
   return (
     <div className="py-8">
@@ -763,10 +797,15 @@ function DailyCardSection() {
               </div>
             ))}
           </div>
-          <Button onClick={drawDailyCard} className="btn-gold px-10 py-4 text-lg">
+          <Button onClick={drawDailyCard} className="btn-gold px-10 py-4 text-lg" disabled={alreadyDrawnToday}>
             <Sparkles className="w-5 h-5 mr-2"/>
-            Вытянуть карту дня
+            {alreadyDrawnToday ? "Карта дня уже вытянута" : "Вытянуть карту дня"}
           </Button>
+          {alreadyDrawnToday && (
+            <p className="text-amber-200/60 text-sm text-center max-w-sm">
+              Вы уже вытянули карту дня. Возвращайтесь завтра за новой!
+            </p>
+          )}
         </div>
       )}
 
