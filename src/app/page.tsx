@@ -644,9 +644,16 @@ function HomeSection({ onNavigate, onSecretClick }: { onNavigate: (s: Section) =
         <section className="mt-16 max-w-md mx-auto">
           <Card className="glass-card border-amber-400/30">
             <CardContent className="pt-6 text-center">
-              <p className="text-amber-100/70 text-sm">
-                Добро пожаловать! Поделитесь раскладом со друзьями!
+              <p className="text-amber-100/70 text-sm mb-4">
+                Добро пожаловать! Поделитесь приложением со друзьями!
               </p>
+              <Button
+                onClick={() => vkShare("Мистическое Таро — гадание онлайн! Семьдесят восемь арканов древней мудрости. Карта дня, расклады, совместимость — https://mystic-tarot-henna.vercel.app")}
+                className="btn-gold px-6 py-2.5 text-sm"
+              >
+                <Share2 className="w-4 h-4 mr-2" />
+                Поделиться с друзьями
+              </Button>
             </CardContent>
           </Card>
         </section>

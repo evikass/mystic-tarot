@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Cormorant_Garamond, Cinzel, Inter } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
@@ -21,18 +21,20 @@ const inter = Inter({
   subsets: ["latin", "cyrillic"],
 });
 
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  viewportFit: "cover",
+  themeColor: "#0a0510",
+};
+
 export const metadata: Metadata = {
   metadataBase: new URL("https://mystic-tarot-henna.vercel.app/"),
   title: "Мистическое Таро · Карта дня, расклады, совместимость",
   description: "Бесплатное онлайн-приложение Таро с красивыми SVG-картами. Карта дня, расклады на 3 карты, Кельтский крест, Да/Нет, совместимость и психологический анализ.",
   keywords: ["таро", "tarot", "расклад", "карта дня", "совместимость", "мистика", "аркан"],
   authors: [{ name: "Таро Мудрость" }],
-  viewport: {
-    width: "device-width",
-    initialScale: 1,
-    maximumScale: 1,
-    viewportFit: "cover",
-  },
   icons: {
     icon: "/favicon.png",
     shortcut: "/favicon.png",
