@@ -82,26 +82,36 @@ export function isVKEnvironment(): boolean {
   )
 }
 
-export async function vkShare(text: string): Promise<void> {
-  if (!vkBridge) {
-    if (typeof navigator !== "undefined" && navigator.share) {
-      try { await navigator.share({ title: "Таро Мудрость", text }) } catch {}
-    } else if (typeof navigator !== "undefined" && navigator.clipboard) {
-      try {
-        await navigator.clipboard.writeText(text)
-        // No alert — caller handles UI feedback
-      } catch {}
-    }
-    return
-  }
-  try {
-    await vkBridge.send("VKWebAppShowWallPost", { message: text })
-  } catch (e) {
-    console.warn("[VK Bridge] share failed:", e)
-    if (typeof navigator !== "undefined" && navigator.clipboard) {
-      try { await navigator.clipboard.writeText(text) } catch {}
+export async function vkShare(text: string): Promise<boolean> {
+  // Сначала пробуем VK Bridge (если внутри ВК/ОК)
+  if (vkBridge) {
+    try {
+      await vkBridge.send("VKWebAppShowWallPost", { message: text })
+      return true
+    } catch (e) {
+      console.warn("[VK Bridge] VKWebAppShowWallPost failed, trying native share:", e)
     }
   }
+
+  // Fallback: нативный Web Share API (работает на Android/iOS)
+  if (typeof navigator !== "undefined" && navigator.share) {
+    try {
+      await navigator.share({ title: "Мистическое Таро", text })
+      return true
+    } catch (e) {
+      if (e instanceof Error && e.name === "AbortError") return false
+    }
+  }
+
+  // Fallback: копирование в буфер
+  if (typeof navigator !== "undefined" && navigator.clipboard) {
+    try {
+      await navigator.clipboard.writeText(text)
+      return true
+    } catch {}
+  }
+
+  return false
 }
 
 let lastAdTime = 0

@@ -644,16 +644,9 @@ function HomeSection({ onNavigate, onSecretClick }: { onNavigate: (s: Section) =
         <section className="mt-16 max-w-md mx-auto">
           <Card className="glass-card border-amber-400/30">
             <CardContent className="pt-6 text-center">
-              <p className="text-amber-100/70 text-sm mb-4">
-                Добро пожаловать! Поделитесь приложением со друзьями!
+              <p className="text-amber-100/70 text-sm">
+                Добро пожаловать! Сделайте расклад и поделитесь им с друзьями!
               </p>
-              <Button
-                onClick={() => vkShare("Мистическое Таро — гадание онлайн! Семьдесят восемь арканов древней мудрости. Карта дня, расклады, совместимость — https://mystic-tarot-henna.vercel.app")}
-                className="btn-gold px-6 py-2.5 text-sm"
-              >
-                <Share2 className="w-4 h-4 mr-2" />
-                Поделиться с друзьями
-              </Button>
             </CardContent>
           </Card>
         </section>
@@ -1240,18 +1233,38 @@ function ThreeCardReading() {
                   </CardContent>
                 </Card>
               ))}
-              <Button
-                onClick={draw}
-                variant="outline"
-                className="border-amber-400/40 text-amber-200 hover:bg-amber-400/10"
-                style={{
-                  opacity: 0,
-                  animation: `cardInterpretReveal 0.5s ease-out ${drawnCards.length * 0.35 + 0.2}s forwards`,
-                }}
-              >
-                <Sparkles className="w-4 h-4 mr-2"/>
-                Новый расклад
-              </Button>
+              <div className="flex gap-2 justify-center flex-wrap">
+                <Button
+                  onClick={draw}
+                  variant="outline"
+                  className="border-amber-400/40 text-amber-200 hover:bg-amber-400/10"
+                  style={{
+                    opacity: 0,
+                    animation: `cardInterpretReveal 0.5s ease-out ${drawnCards.length * 0.35 + 0.2}s forwards`,
+                  }}
+                >
+                  <Sparkles className="w-4 h-4 mr-2"/>
+                  Новый расклад
+                </Button>
+                <Button
+                  onClick={async () => {
+                    const shareText = drawnCards.map((d, i) =>
+                      `${d.position}: ${d.card.name}${d.isReversed ? " (перевёрнута)" : ""}`
+                    ).join("\n")
+                    const ok = await vkShare(`Мой расклад Таро:\n\n${shareText}\n\nhttps://mystic-tarot-henna.vercel.app`)
+                    toast({ title: ok ? "✦ Поделились!" : "Не удалось поделиться", description: ok ? "Расклад опубликован" : "Попробуйте ещё раз" })
+                  }}
+                  variant="outline"
+                  className="border-amber-400/40 text-amber-200 hover:bg-amber-400/10"
+                  style={{
+                    opacity: 0,
+                    animation: `cardInterpretReveal 0.5s ease-out ${drawnCards.length * 0.35 + 0.4}s forwards`,
+                  }}
+                >
+                  <Share2 className="w-4 h-4 mr-2"/>
+                  Поделиться
+                </Button>
+              </div>
             </div>
           )}
         </div>
