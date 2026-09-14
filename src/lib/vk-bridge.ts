@@ -13,58 +13,25 @@ export function initVKBridge(): Promise<void> {
   if (typeof window === "undefined") return Promise.resolve()
   if (initPromise) return initPromise
 
-  initPromise = new Promise<void>((resolve) => {
-    // Ждём загрузки VK Bridge из CDN (script tag в layout.tsx)
-    const tryInit = () => {
-      // Проверяем глобальный объект vkBridge из CDN
-      const globalBridge = (window as any).vkBridge
-      if (globalBridge) {
-        vkBridge = globalBridge
+  initPromise = (async () => {
+    try {
+      const mod = await import("@vkontakte/vk-bridge" as any).catch(() => null)
+      if (mod?.default) {
+        vkBridge = mod.default
         vkBridge.subscribe((e: any) => {
           console.log("[VK Bridge] Event:", e.detail?.type)
         })
-        // Вызываем VKWebAppInit — это сигнал VK, что приложение готово
-        vkBridge.send("VKWebAppInit")
-          .then(() => console.log("[VK Bridge] VKWebAppInit OK"))
-          .catch(() => console.log("[VK Bridge] VKWebAppInit failed (вне VK?)"))
-          .finally(() => resolve())
-        return
-      }
-
-      // Если глобального объекта нет — пробуем import (fallback)
-      import("@vkontakte/vk-bridge" as any)
-        .then((mod: any) => {
-          if (mod?.default) {
-            vkBridge = mod.default
-            vkBridge.subscribe((e: any) => {
-              console.log("[VK Bridge] Event:", e.detail?.type)
-            })
-            vkBridge.send("VKWebAppInit")
-              .then(() => console.log("[VK Bridge] VKWebAppInit OK (npm)"))
-              .catch(() => console.log("[VK Bridge] VKWebAppInit failed (npm)"))
-              .finally(() => resolve())
-          } else {
-            resolve()
-          }
-        })
-        .catch(() => resolve())
-    }
-
-    // Если скрипт уже загружен — инициализируем сразу
-    if ((window as any).vkBridge) {
-      tryInit()
-    } else {
-      // Ждём загрузки скрипта (проверяем каждые 100мс, максимум 5 сек)
-      let attempts = 0
-      const interval = setInterval(() => {
-        attempts++
-        if ((window as any).vkBridge || attempts > 50) {
-          clearInterval(interval)
-          tryInit()
+        try {
+          await vkBridge.send("VKWebAppInit")
+          console.log("[VK Bridge] VKWebAppInit OK")
+        } catch (err) {
+          console.log("[VK Bridge] VKWebAppInit failed (outside VK?)")
         }
-      }, 100)
+      }
+    } catch (e) {
+      console.warn("[VK Bridge] Failed to load:", e)
     }
-  })
+  })()
 
   return initPromise
 }
