@@ -2,14 +2,21 @@
 @import "tw-animate-css";
 
 /* === Отступ для платформенных служебных кнопок (OK/VK) === */
-/* Когда приложение открыто в ОК или ВК, добавляем safe-area отступ сверху */
+/* Платформы показывают свои кнопки поверх приложения — нужен отступ */
 body {
-  padding-top: env(safe-area-inset-top, 0px);
+  padding-top: max(env(safe-area-inset-top), 0px);
 }
 
-/* Дополнительно для header — чтобы не перекрывался */
+/* Sticky header — отступ с учётом платформенных кнопок */
 header.sticky {
-  top: env(safe-area-inset-top, 0px);
+  top: max(env(safe-area-inset-top), 0px);
+}
+
+/* Дополнительный отступ для платформенных iframe (OK/VK кнопки ~50px) */
+@media (max-width: 768px) {
+  body {
+    padding-top: max(env(safe-area-inset-top), 52px);
+  }
 }
 
 @custom-variant dark (&:is(.dark *));

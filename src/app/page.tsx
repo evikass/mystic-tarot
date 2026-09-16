@@ -127,7 +127,7 @@ import {
   formatDate,
   type ReadingRecord,
 } from "@/lib/tarot-storage"
-import { initVKBridge, isVKEnvironment, vkShare, vkShowBanner, syncWithVKStorage } from "@/lib/vk-bridge"
+import { initVKBridge, isVKEnvironment, vkShare, vkShowBanner, syncWithVKStorage, saveToVKStorage } from "@/lib/vk-bridge"
 import { useTheme } from "@/lib/use-theme"
 import { setMuted, isMuted, initMuteState, playCardDrawSound, startAmbient, toggleAmbient, isAmbientPlaying } from "@/lib/sound-engine"
 import { TypewriterText } from "@/lib/use-typewriter"
@@ -925,13 +925,15 @@ function DailyCardSection() {
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => {
-                        vkShare(`Моя карта дня — ${drawnCard.card.name}${drawnCard.isReversed ? " (перевёрнута)" : ""}: ${drawnCard.isReversed ? drawnCard.card.reversed.summary : drawnCard.card.upright.summary}`)
+                      onClick={async () => {
+                        const text = `Моя карта дня — ${drawnCard.card.name}${drawnCard.isReversed ? " (перевёрнута)" : ""}: ${drawnCard.isReversed ? drawnCard.card.reversed.summary : drawnCard.card.upright.summary}\n\nhttps://mystic-tarot-henna.vercel.app`
+                        const ok = await vkShare(text)
+                        toast({ title: ok ? "✦ Поделились!" : "Не удалось поделиться" })
                       }}
                       className="border-amber-400/40 text-amber-200 hover:bg-amber-400/10"
                     >
-                      <Send className="w-3.5 h-3.5 mr-1"/>
-                      Текстом
+                      <Share2 className="w-3.5 h-3.5 mr-1"/>
+                      Поделиться
                     </Button>
                     <Button
                       variant="outline"
@@ -1138,6 +1140,7 @@ function ThreeCardReading() {
       // Показываем рекламу когда все карты раскрыты
       if (newRevealed.length === drawnCards.length) {
         setTimeout(() => vkShowBanner(), 1500)
+        saveToVKStorage()
       }
     }
   }
@@ -1423,14 +1426,30 @@ function CelticCrossReading() {
                   </CardContent>
                 </Card>
               ))}
-              <Button
-                onClick={draw}
-                variant="outline"
-                className="border-amber-400/40 text-amber-200 hover:bg-amber-400/10"
-              >
-                <Sparkles className="w-4 h-4 mr-2"/>
-                Новый расклад
-              </Button>
+              <div className="flex gap-2 justify-center flex-wrap">
+                <Button
+                  onClick={draw}
+                  variant="outline"
+                  className="border-amber-400/40 text-amber-200 hover:bg-amber-400/10"
+                >
+                  <Sparkles className="w-4 h-4 mr-2"/>
+                  Новый расклад
+                </Button>
+                <Button
+                  onClick={async () => {
+                    const shareText = drawnCards.map((d, i) =>
+                      `${d.position}: ${d.card.name}${d.isReversed ? " (перевёрнута)" : ""}`
+                    ).join("\n")
+                    const ok = await vkShare(`Кельтский крест:\n\n${shareText}\n\nhttps://mystic-tarot-henna.vercel.app`)
+                    toast({ title: ok ? "✦ Поделились!" : "Не удалось" })
+                  }}
+                  variant="outline"
+                  className="border-amber-400/40 text-amber-200 hover:bg-amber-400/10"
+                >
+                  <Share2 className="w-4 h-4 mr-2"/>
+                  Поделиться
+                </Button>
+              </div>
             </div>
           )}
         </div>

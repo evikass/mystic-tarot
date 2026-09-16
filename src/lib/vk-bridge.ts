@@ -43,24 +43,18 @@ export function isVKEnvironment(): boolean {
     window.location.search.includes("vk_platform") ||
     window.location.search.includes("vk_app_id") ||
     window.location.search.includes("vk_user_id") ||
+    window.location.search.includes("ok_session_key") ||
+    window.location.search.includes("application_key") ||
     window.location.hash.includes("vk_access_token") ||
     window.location.hostname.includes("vk-app") ||
+    window.location.hostname.includes("ok.ru") ||
+    // Внутри iframe платформы
     (window.parent !== window && window.location.search.length > 0)
   )
 }
 
 export async function vkShare(text: string): Promise<boolean> {
-  // Сначала пробуем VK Bridge (если внутри ВК/ОК)
-  if (vkBridge) {
-    try {
-      await vkBridge.send("VKWebAppShowWallPost", { message: text })
-      return true
-    } catch (e) {
-      console.warn("[VK Bridge] VKWebAppShowWallPost failed, trying native share:", e)
-    }
-  }
-
-  // Fallback: нативный Web Share API (работает на Android/iOS)
+  // Используем нативный Web Share API — работает в VK, OK и обычном браузере
   if (typeof navigator !== "undefined" && navigator.share) {
     try {
       await navigator.share({ title: "Мистическое Таро", text })
@@ -68,6 +62,14 @@ export async function vkShare(text: string): Promise<boolean> {
     } catch (e) {
       if (e instanceof Error && e.name === "AbortError") return false
     }
+  }
+
+  // Fallback: VKWebAppShowInvite (приглашение друзей — поддерживается)
+  if (vkBridge) {
+    try {
+      await vkBridge.send("VKWebAppShowInviteBox", { text })
+      return true
+    } catch {}
   }
 
   // Fallback: копирование в буфер
@@ -150,11 +152,10 @@ export async function vkStorageGetKeys(keys: string[]): Promise<Record<string, s
 
 /**
  * Синхронизировать localStorage с VK Storage.
- * При запуске в VK — загружает данные из облака.
- * При изменении локальных данных — сохраняет в облако.
+ * При запуске в VK/OK — загружает данные из облака.
  */
 export async function syncWithVKStorage(): Promise<void> {
-  if (!vkBridge || !isVKEnvironment()) return
+  if (!vkBridge) return
 
   // Ключи для синхронизации
   const syncKeys = [
@@ -163,6 +164,7 @@ export async function syncWithVKStorage(): Promise<void> {
     "mystic-tarot-theme",
     "mystic-tarot-progress",
     "mystic-tarot-visits",
+    "mystic-tarot-daily-card",
   ]
 
   // Загружаем из VK Storage
@@ -178,6 +180,33 @@ export async function syncWithVKStorage(): Promise<void> {
   })
 
   console.log("[VK Bridge] Синхронизация прогресса выполнена")
+}
+
+/**
+ * Сохранить все данные из localStorage в VK Storage.
+ * Вызывается после каждого расклада.
+ */
+export async function saveToVKStorage(): Promise<void> {
+  if (!vkBridge) return
+
+  const syncKeys = [
+    "mystic-tarot-history",
+    "mystic-tarot-muted",
+    "mystic-tarot-theme",
+    "mystic-tarot-progress",
+    "mystic-tarot-daily-card",
+  ]
+
+  for (const key of syncKeys) {
+    try {
+      const value = localStorage.getItem(key)
+      if (value) {
+        await vkStorageSet(key, value)
+      }
+    } catch {}
+  }
+
+  console.log("[VK Bridge] Данные сохранены в облако")
 }
 
 export function useVKBridge() {
