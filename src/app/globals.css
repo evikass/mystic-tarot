@@ -13,9 +13,13 @@ header.sticky {
 }
 
 /* Дополнительный отступ для платформенных iframe (OK/VK кнопки ~50px) */
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
   body {
     padding-top: max(env(safe-area-inset-top), 52px);
+  }
+  /* Header тоже должен отступать, чтобы кнопки не перекрывались */
+  header.sticky {
+    top: max(env(safe-area-inset-top), 52px);
   }
 }
 
