@@ -65,12 +65,10 @@ export function getPlatform(): "vk" | "ok" | "web" {
 export function getPlatformAppUrl(): string {
   const platform = getPlatform()
   if (platform === "vk") {
-    // VK Mini App URL — замените ID на ваш
-    return "https://vk.com/app#51894129"
+    return "https://vk.com/app15863253"
   }
   if (platform === "ok") {
-    // OK App URL — замените на ваш
-    return "https://ok.ru/game/mystic-tarot"
+    return "https://ok.ru/game/411099059723"
   }
   // Веб-версия
   return typeof window !== "undefined" ? window.location.origin : "https://mystic-tarot-henna.vercel.app"
