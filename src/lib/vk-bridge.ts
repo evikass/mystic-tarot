@@ -75,22 +75,29 @@ export function getPlatformAppUrl(): string {
 }
 
 export async function vkShare(text: string): Promise<boolean> {
-  // 1. VKWebAppShowStoryBox — шаринг в истории (рекомендуется VK)
-  if (vkBridge) {
+  const platform = getPlatform()
+  const appUrl = getPlatformAppUrl()
+
+  // ВКонтакте — открываем окно шаринга напрямую
+  if (platform === "vk") {
     try {
-      await vkBridge.send("VKWebAppShowStoryBox", {
-        background_type: "image",
-        blob: false,
-        text: text.substring(0, 500),
-      })
+      const shareUrl = `https://vk.com/share.php?url=${encodeURIComponent(appUrl)}&title=${encodeURIComponent("Мистическое Таро")}&description=${encodeURIComponent(text)}`
+      window.open(shareUrl, "_blank", "noopener,noreferrer,width=720,height=600")
       return true
-    } catch (e) {
-      console.warn("[VK Bridge] VKWebAppShowStoryBox failed:", e)
-    }
+    } catch {}
   }
 
-  // 2. Нативный Web Share API (мобильные браузеры)
-  if (typeof navigator !== "undefined" && navigator.share) {
+  // Одноклассники — открываем окно шаринга
+  if (platform === "ok") {
+    try {
+      const shareUrl = `https://connect.ok.ru/offer?url=${encodeURIComponent(appUrl)}&title=${encodeURIComponent("Мистическое Таро")}&description=${encodeURIComponent(text)}`
+      window.open(shareUrl, "_blank", "noopener,noreferrer,width=720,height=600")
+      return true
+    } catch {}
+  }
+
+  // Веб — пробуем нативный Web Share API
+  if (typeof navigator !== "undefined" && typeof navigator.share === "function") {
     try {
       await navigator.share({ title: "Мистическое Таро", text })
       return true
@@ -99,8 +106,8 @@ export async function vkShare(text: string): Promise<boolean> {
     }
   }
 
-  // 3. Fallback: копирование в буфер
-  return await vkCopyText(text)
+  // Fallback: копирование в буфер
+  return await vkCopyText(text + "\n\n" + appUrl)
 }
 
 /** Копирование текста через VK Bridge (VKWebAppCopyText) или clipboard API */
