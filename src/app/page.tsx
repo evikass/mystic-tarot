@@ -127,7 +127,7 @@ import {
   formatDate,
   type ReadingRecord,
 } from "@/lib/tarot-storage"
-import { initVKBridge, isVKEnvironment, vkShare, vkShowBanner, syncWithVKStorage, saveToVKStorage } from "@/lib/vk-bridge"
+import { initVKBridge, isVKEnvironment, vkShare, vkShowBanner, syncWithVKStorage, saveToVKStorage, vkCopyText } from "@/lib/vk-bridge"
 import { useTheme } from "@/lib/use-theme"
 import { setMuted, isMuted, initMuteState, playCardDrawSound, startAmbient, toggleAmbient, isAmbientPlaying } from "@/lib/sound-engine"
 import { TypewriterText } from "@/lib/use-typewriter"

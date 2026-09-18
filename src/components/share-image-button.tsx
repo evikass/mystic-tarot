@@ -6,6 +6,7 @@ import { Share2, Download, Loader2, Mail, Send, MessageCircle } from "lucide-rea
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { useToast } from "@/hooks/use-toast"
+import { vkCopyText } from "@/lib/vk-bridge"
 
 interface ShareImageButtonProps {
   /** Ref to the DOM element that should be captured as PNG */
@@ -208,10 +209,11 @@ export function ShareImageButton({
 
   const handleCopyText = async () => {
     const text = textFallback || "Мой расклад на Мистическом Таро"
-    try {
-      await navigator.clipboard.writeText(`${text}\n\n${getShareUrl()}`)
+    const fullText = `${text}\n\n${getShareUrl()}`
+    const ok = await vkCopyText(fullText)
+    if (ok) {
       toast({ title: "✦ Текст скопирован", description: "Вставьте в любую соцсеть." })
-    } catch {
+    } else {
       toast({ title: "Не удалось скопировать", variant: "destructive" })
     }
   }

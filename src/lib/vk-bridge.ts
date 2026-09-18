@@ -54,7 +54,21 @@ export function isVKEnvironment(): boolean {
 }
 
 export async function vkShare(text: string): Promise<boolean> {
-  // Используем нативный Web Share API — работает в VK, OK и обычном браузере
+  // 1. VKWebAppShowStoryBox — шаринг в истории (рекомендуется VK)
+  if (vkBridge) {
+    try {
+      await vkBridge.send("VKWebAppShowStoryBox", {
+        background_type: "image",
+        blob: false,
+        text: text.substring(0, 500),
+      })
+      return true
+    } catch (e) {
+      console.warn("[VK Bridge] VKWebAppShowStoryBox failed:", e)
+    }
+  }
+
+  // 2. Нативный Web Share API (мобильные браузеры)
   if (typeof navigator !== "undefined" && navigator.share) {
     try {
       await navigator.share({ title: "Мистическое Таро", text })
@@ -64,15 +78,21 @@ export async function vkShare(text: string): Promise<boolean> {
     }
   }
 
-  // Fallback: VKWebAppShowInvite (приглашение друзей — поддерживается)
+  // 3. Fallback: копирование в буфер
+  return await vkCopyText(text)
+}
+
+/** Копирование текста через VK Bridge (VKWebAppCopyText) или clipboard API */
+export async function vkCopyText(text: string): Promise<boolean> {
+  // VK Bridge — VKWebAppCopyText
   if (vkBridge) {
     try {
-      await vkBridge.send("VKWebAppShowInviteBox", { text })
+      await vkBridge.send("VKWebAppCopyText", { text })
       return true
     } catch {}
   }
 
-  // Fallback: копирование в буфер
+  // Fallback: Clipboard API
   if (typeof navigator !== "undefined" && navigator.clipboard) {
     try {
       await navigator.clipboard.writeText(text)

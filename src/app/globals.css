@@ -1,23 +1,21 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
-/* === Отступ для платформенных служебных кнопок (OK/VK) === */
-/* Платформы показывают свои кнопки поверх приложения — нужен отступ */
+/* === Отступ для платформенных служебных кнопок === */
+/* Только в мобильных платформах (VK/OK app), не в веб-версии */
 body {
   padding-top: max(env(safe-area-inset-top), 0px);
 }
 
-/* Sticky header — отступ с учётом платформенных кнопок */
 header.sticky {
   top: max(env(safe-area-inset-top), 0px);
 }
 
-/* Дополнительный отступ для платформенных iframe (OK/VK кнопки ~50px) */
-@media (max-width: 1024px) {
+/* Мобильные устройства — отступ 52px для платформенных кнопок */
+@media (max-width: 1024px) and (pointer: coarse) {
   body {
     padding-top: max(env(safe-area-inset-top), 52px);
   }
-  /* Header тоже должен отступать, чтобы кнопки не перекрывались */
   header.sticky {
     top: max(env(safe-area-inset-top), 52px);
   }
