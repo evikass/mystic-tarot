@@ -267,9 +267,12 @@ export function ShareImageButton({
           </div>
 
           <div className="flex gap-2 mt-4 flex-wrap">
-            <Button onClick={handleNativeShare} variant="outline" size="sm" className="border-amber-400/40 text-amber-200 hover:bg-amber-400/10">
-              <Share2 className="w-3.5 h-3.5 mr-1"/>Системный диалог
-            </Button>
+            {/* Системный диалог — только если navigator.share доступен */}
+            {typeof navigator !== "undefined" && typeof navigator.share === "function" && (
+              <Button onClick={handleNativeShare} variant="outline" size="sm" className="border-amber-400/40 text-amber-200 hover:bg-amber-400/10">
+                <Share2 className="w-3.5 h-3.5 mr-1"/>Системный диалог
+              </Button>
+            )}
             <Button onClick={handleDownloadAgain} variant="outline" size="sm" className="border-amber-400/40 text-amber-200 hover:bg-amber-400/10">
               <Download className="w-3.5 h-3.5 mr-1"/>Скачать PNG
             </Button>

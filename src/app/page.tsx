@@ -127,7 +127,7 @@ import {
   formatDate,
   type ReadingRecord,
 } from "@/lib/tarot-storage"
-import { initVKBridge, isVKEnvironment, vkShare, vkShowBanner, syncWithVKStorage, saveToVKStorage, vkCopyText } from "@/lib/vk-bridge"
+import { initVKBridge, isVKEnvironment, vkShare, vkShowBanner, syncWithVKStorage, saveToVKStorage, vkCopyText, getPlatformAppUrl } from "@/lib/vk-bridge"
 import { useTheme } from "@/lib/use-theme"
 import { setMuted, isMuted, initMuteState, playCardDrawSound, startAmbient, toggleAmbient, isAmbientPlaying } from "@/lib/sound-engine"
 import { TypewriterText } from "@/lib/use-typewriter"
@@ -644,9 +644,18 @@ function HomeSection({ onNavigate, onSecretClick }: { onNavigate: (s: Section) =
         <section className="mt-16 max-w-md mx-auto">
           <Card className="glass-card border-amber-400/30">
             <CardContent className="pt-6 text-center">
-              <p className="text-amber-100/70 text-sm">
+              <p className="text-amber-100/70 text-sm mb-4">
                 Добро пожаловать! Сделайте расклад и поделитесь им с друзьями!
               </p>
+              <Button
+                onClick={async () => {
+                  const ok = await vkShare(`Мистическое Таро — гадание онлайн! Семьдесят восемь арканов древней мудрости.\n\n${getPlatformAppUrl()}`)
+                }}
+                className="btn-gold px-6 py-2.5 text-sm"
+              >
+                <Share2 className="w-4 h-4 mr-2" />
+                Поделиться с друзьями
+              </Button>
             </CardContent>
           </Card>
         </section>
@@ -926,7 +935,7 @@ function DailyCardSection() {
                       variant="outline"
                       size="sm"
                       onClick={async () => {
-                        const text = `Моя карта дня — ${drawnCard.card.name}${drawnCard.isReversed ? " (перевёрнута)" : ""}: ${drawnCard.isReversed ? drawnCard.card.reversed.summary : drawnCard.card.upright.summary}\n\nhttps://mystic-tarot-henna.vercel.app`
+                        const text = `Моя карта дня — ${drawnCard.card.name}${drawnCard.isReversed ? " (перевёрнута)" : ""}: ${drawnCard.isReversed ? drawnCard.card.reversed.summary : drawnCard.card.upright.summary}\n\n${getPlatformAppUrl()}`
                         const ok = await vkShare(text)
                         toast({ title: ok ? "✦ Поделились!" : "Не удалось поделиться" })
                       }}
@@ -1254,7 +1263,7 @@ function ThreeCardReading() {
                     const shareText = drawnCards.map((d, i) =>
                       `${d.position}: ${d.card.name}${d.isReversed ? " (перевёрнута)" : ""}`
                     ).join("\n")
-                    const ok = await vkShare(`Мой расклад Таро:\n\n${shareText}\n\nhttps://mystic-tarot-henna.vercel.app`)
+                    const ok = await vkShare(`Мой расклад Таро:\n\n${shareText}\n\n${getPlatformAppUrl()}`)
                     toast({ title: ok ? "✦ Поделились!" : "Не удалось поделиться", description: ok ? "Расклад опубликован" : "Попробуйте ещё раз" })
                   }}
                   variant="outline"
@@ -1440,7 +1449,7 @@ function CelticCrossReading() {
                     const shareText = drawnCards.map((d, i) =>
                       `${d.position}: ${d.card.name}${d.isReversed ? " (перевёрнута)" : ""}`
                     ).join("\n")
-                    const ok = await vkShare(`Кельтский крест:\n\n${shareText}\n\nhttps://mystic-tarot-henna.vercel.app`)
+                    const ok = await vkShare(`Кельтский крест:\n\n${shareText}\n\n${getPlatformAppUrl()}`)
                     toast({ title: ok ? "✦ Поделились!" : "Не удалось" })
                   }}
                   variant="outline"

@@ -48,9 +48,32 @@ export function isVKEnvironment(): boolean {
     window.location.hash.includes("vk_access_token") ||
     window.location.hostname.includes("vk-app") ||
     window.location.hostname.includes("ok.ru") ||
-    // Внутри iframe платформы
     (window.parent !== window && window.location.search.length > 0)
   )
+}
+
+/** Определить, в какой платформе запущено приложение */
+export function getPlatform(): "vk" | "ok" | "web" {
+  if (typeof window === "undefined") return "web"
+  const params = window.location.search
+  if (params.includes("ok_session_key") || params.includes("application_key")) return "ok"
+  if (params.includes("vk_access_token") || params.includes("vk_platform") || params.includes("vk_app_id")) return "vk"
+  return "web"
+}
+
+/** Получить ссылку на приложение внутри нужной платформы */
+export function getPlatformAppUrl(): string {
+  const platform = getPlatform()
+  if (platform === "vk") {
+    // VK Mini App URL — замените ID на ваш
+    return "https://vk.com/app#51894129"
+  }
+  if (platform === "ok") {
+    // OK App URL — замените на ваш
+    return "https://ok.ru/game/mystic-tarot"
+  }
+  // Веб-версия
+  return typeof window !== "undefined" ? window.location.origin : "https://mystic-tarot-henna.vercel.app"
 }
 
 export async function vkShare(text: string): Promise<boolean> {
