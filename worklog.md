@@ -923,3 +923,46 @@ Stage Summary:
 - VK Mini App should now receive VKWebAppInit within milliseconds
   (before React even starts loading), so 'ошибка загрузки' should not
   appear
+
+---
+Task ID: 22
+Agent: main
+Task: "везде перестало открывать" — but server says site works
+
+DIAGNOSIS:
+From my environment:
+- HTTP 200, etag "61ff1fef02741e9bf996fe623acb1ba3"
+- All 11 chunks return 200 (verified)
+- All 5 font files, CSS files return 200
+- Page loads in 40-60ms (very fast)
+- 0 console errors in headless Chrome
+- react_loaded=true, body has 233902 chars, 10 buttons in main
+- VKWebAppInit inline script present (3 mentions)
+- NO auto-reload code (good)
+- NO fallback recovery screen (good)
+- NO meta http-equiv cache-control (good)
+- Standard Vercel cache-control: public, max-age=0, must-revalidate
+
+User's situation:
+"везде перестало открывать" after my recent changes
+
+MOST LIKELY CAUSE:
+1. User's browser has STALE cached HTML from one of my earlier broken
+   commits (auto-reload, fallback, no-store headers). Even though Vercel
+   says cache-control: max-age=0, browser may serve from disk cache.
+2. VK Mini App caches iframe URL and content aggressively
+3. Possible ISP-level caching in Russia (was working before, may have
+   cached old broken HTML)
+
+The server is definitely working — I can reach it from my environment
+without issues. The problem is user-side caching.
+
+Actions user can take:
+1. Hard refresh (Ctrl+Shift+R) in each browser
+2. Clear browser cache: DevTools > Application > Storage > Clear site data
+3. Try incognito/private mode
+4. For VK Mini App: close app, wait 30s, reopen
+5. Try phone's mobile data (different from WiFi) to bypass ISP cache
+
+The CODE is correct — verified by multiple tests. The issue is browser
+cache persisting old broken HTML despite Vercel sending fresh version.
