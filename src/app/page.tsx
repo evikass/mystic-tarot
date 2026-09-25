@@ -349,14 +349,31 @@ function Header({
   const [mobileOpen, setMobileOpen] = useState(false)
   const { theme, toggleTheme, mounted } = useTheme()
   const [muted, setMutedState] = useState(false)
-  // Detect if we're inside an iframe (VK/OK Mini App).
-  // Simple, reliable check: window.parent !== window.
-  // Used with CSS media query to shift mobile controls left only on
-  // mobile iframe (where VK/OK service buttons overlap ours).
+  // Detect if we're in VK/OK Mini App on mobile.
+  // VK Mini App on mobile uses NATIVE WebView (not iframe), so
+  // window.parent === window. Need to detect via URL params + User-Agent.
+  // Used with CSS media query to shift mobile controls left.
   const [inIframe, setInIframe] = useState(false)
   useEffect(() => {
     if (typeof window === "undefined") return
-    if (window.parent !== window) setInIframe(true)
+    const p = window.location.search + window.location.hash
+    const ref = document.referrer || ""
+    const ua = navigator.userAgent || ""
+    // In iframe (desktop VK/OK browser)
+    const inIframeCheck = window.parent !== window
+    // VK Mini App (mobile native WebView): URL has vk_ params OR
+    // User-Agent contains vk_app/vkApp indicators
+    const isVKUrl = p.includes("vk_access_token") || p.includes("vk_platform") || p.includes("vk_app_id") || p.includes("vk_user_id")
+    const isVKUA = /vk_app|vkApp|VKApp/i.test(ua)
+    const isVKRef = ref.includes("vk.com") || ref.includes("vkontakte")
+    // OK Mini App
+    const isOKUrl = p.includes("ok_session_key") || p.includes("application_key") || p.includes("signed_request")
+    const isOKRef = ref.includes("ok.ru") || ref.includes("odnoklassniki")
+    // Activate shift if: in iframe (desktop VK browser) OR
+    // VK/OK mobile native WebView (URL params or UA)
+    if (inIframeCheck || isVKUrl || isVKUA || isVKRef || isOKUrl || isOKRef) {
+      setInIframe(true)
+    }
   }, [])
 
   useEffect(() => {
