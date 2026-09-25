@@ -127,7 +127,7 @@ import {
   formatDate,
   type ReadingRecord,
 } from "@/lib/tarot-storage"
-import { initVKBridge, isVKEnvironment, vkShare, vkShowBanner, syncWithVKStorage } from "@/lib/vk-bridge"
+import { initVKBridge, isVKEnvironment, vkShare, vkShowBanner, syncWithVKStorage, saveToVKStorage, vkCopyText, getPlatformAppUrl, getPlatform } from "@/lib/vk-bridge"
 import { useTheme } from "@/lib/use-theme"
 import { setMuted, isMuted, initMuteState, playCardDrawSound, startAmbient, toggleAmbient, isAmbientPlaying } from "@/lib/sound-engine"
 import { TypewriterText } from "@/lib/use-typewriter"
@@ -241,6 +241,13 @@ export default function Home() {
 
   // === Трекинг посещений ===
   useEffect(() => {
+    // Heartbeat flag — used by inline script in layout.tsx to detect
+    // if React actually hydrated (chunks loaded successfully).
+    // If chunks 404 (stale cache), this never runs, and the fallback
+    // recovery screen stays visible.
+    if (typeof window !== "undefined") {
+      ;(window as any).__mt_react_loaded = true
+    }
     initVKBridge().then(() => syncWithVKStorage())
     startSession()
     trackAction("page_load", "home", window.location.href)
@@ -471,6 +478,11 @@ function Header({
 // ===================== HOME =====================
 function HomeSection({ onNavigate, onSecretClick }: { onNavigate: (s: Section) => void; onSecretClick?: () => void }) {
   const [hoveredCard, setHoveredCard] = useState<number | null>(null)
+  const [isPlatform, setIsPlatform] = useState(false)
+  useEffect(() => {
+    // Detect platform AFTER hydration to avoid SSR mismatch
+    setIsPlatform(isVKEnvironment())
+  }, [])
   const featuredCards = [0, 1, 8, 17, 18, 19].map(i => allTarotCards[i])
 
   // === Счётчик кликов по заголовку (5 кликов → админка) ===
@@ -640,18 +652,75 @@ function HomeSection({ onNavigate, onSecretClick }: { onNavigate: (s: Section) =
       </section>
 
       {/* Welcome card for platform users */}
-      {isVKEnvironment() && (
+      {isPlatform && (
         <section className="mt-16 max-w-md mx-auto">
           <Card className="glass-card border-amber-400/30">
             <CardContent className="pt-6 text-center">
-              <p className="text-amber-100/70 text-sm">
+              <p className="text-amber-100/70 text-sm mb-4">
                 Добро пожаловать! Сделайте расклад и поделитесь им с друзьями!
               </p>
+              <SharePlatformButtons />
             </CardContent>
           </Card>
         </section>
       )}
     </div>
+  )
+}
+
+/** Платформо-зависимые кнопки шаринга для главной страницы.
+ *  В VK — кнопка «Поделиться ВКонтакте».
+ *  В OK — кнопка «Поделиться в Одноклассниках».
+ *  В веб — обычная кнопка с системным диалогом. */
+function SharePlatformButtons() {
+  const [platform, setPlatform] = useState<"vk" | "ok" | "web">("web")
+  useEffect(() => {
+    setPlatform(getPlatform())
+  }, [])
+
+  const handleShare = async () => {
+    const text = `Мистическое Таро — гадание онлайн! Семьдесят восемь арканов древней мудрости.`
+    await vkShare(text + "\n\n" + getPlatformAppUrl())
+  }
+
+  if (platform === "vk") {
+    return (
+      <Button
+        onClick={handleShare}
+        className="px-6 py-2.5 text-sm"
+        style={{ background: "#0077FF", color: "#fff" }}
+      >
+        <svg viewBox="0 0 24 24" className="w-4 h-4 mr-2" fill="currentColor">
+          <path d="M12.785 16.241s.288-.032.435-.193c.135-.148.131-.426.131-.426s-.019-1.302.584-1.495c.595-.19 1.357 1.272 2.166 1.835.611.425 1.075.332 1.075.332l2.162-.031s1.13-.071.595-.964c-.044-.073-.312-.661-1.605-1.868-1.354-1.264-1.173-1.059.458-3.243.994-1.332 1.391-2.146 1.267-2.494-.118-.332-.849-.244-.849-.244l-2.43.015s-.18-.025-.314.056c-.131.079-.215.262-.215.262s-.385 1.029-.899 1.905c-1.083 1.844-1.516 1.941-1.694 1.827-.412-.266-.309-1.07-.309-1.645 0-1.79.271-2.537-.526-2.731-.265-.064-.46-.106-1.137-.113-.869-.009-1.604.003-2.021.207-.277.135-.49.437-.36.455.161.022.526.099.72.36.25.341.241 1.106.241 1.106s.143 2.103-.335 2.364c-.328.179-.778-.187-1.748-1.852-.495-.85-.868-1.79-.868-1.79s-.072-.176-.201-.27c-.156-.114-.375-.151-.375-.151l-2.31.015s-.347.01-.474.161c-.113.135-.009.413-.009.413s1.809 4.231 3.857 6.364c1.879 1.955 4.013 1.825 4.013 1.825h.965z"/>
+        </svg>
+        Поделиться ВКонтакте
+      </Button>
+    )
+  }
+
+  if (platform === "ok") {
+    return (
+      <Button
+        onClick={handleShare}
+        className="px-6 py-2.5 text-sm"
+        style={{ background: "#EE8208", color: "#fff" }}
+      >
+        <svg viewBox="0 0 24 24" className="w-4 h-4 mr-2" fill="currentColor">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 4.5c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 2c-.55 0-1 .45-1 1s.45 1 1 1 1-.45 1-1-.45-1-1-1zm3.4 5.6c-.34.34-.71.62-1.11.85l1.06 1.06c.39.39.39 1.02 0 1.41-.39.39-1.02.39-1.41 0L12 16.08l-1.94 1.94c-.39.39-1.02.39-1.41 0-.39-.39-.39-1.02 0-1.41l1.06-1.06c-.4-.23-.77-.51-1.11-.85-.4-.4-.4-1.04 0-1.44.4-.4 1.04-.4 1.44 0 .51.51 1.18.79 1.96.79s1.45-.28 1.96-.79c.4-.4 1.04-.4 1.44 0 .4.4.4 1.04 0 1.44z"/>
+        </svg>
+        Поделиться в Одноклассниках
+      </Button>
+    )
+  }
+
+  return (
+    <Button
+      onClick={handleShare}
+      className="btn-gold px-6 py-2.5 text-sm"
+    >
+      <Share2 className="w-4 h-4 mr-2" />
+      Поделиться с друзьями
+    </Button>
   )
 }
 
@@ -694,11 +763,16 @@ function DailyCardSection() {
   const [isDrawing, setIsDrawing] = useState(false)
   const [revealed, setRevealed] = useState(false)
   const [alreadyDrawnToday, setAlreadyDrawnToday] = useState(false)
+  const [today, setToday] = useState("")
   const { toast } = useToast()
   const resultRef = useRef<HTMLDivElement>(null)
-  const today = new Date().toLocaleDateString("ru-RU", {
-    weekday: "long", day: "numeric", month: "long", year: "numeric",
-  })
+
+  // Set date after hydration to avoid SSR mismatch
+  useEffect(() => {
+    setToday(new Date().toLocaleDateString("ru-RU", {
+      weekday: "long", day: "numeric", month: "long", year: "numeric",
+    }))
+  }, [])
 
   // Проверяем, вытягивал ли пользователь карту сегодня
   useEffect(() => {
@@ -759,6 +833,8 @@ function DailyCardSection() {
         title: "✦ Карта дня вытянута",
         description: `${drawn.card.name}${drawn.isReversed ? " (перевёрнута)" : ""}`,
       })
+      // Показываем рекламу через 1.5 секунды после вытягивания
+      setTimeout(() => vkShowBanner(), 1500)
     }, 1800)
   }, [toast, alreadyDrawnToday])
 
@@ -925,13 +1001,15 @@ function DailyCardSection() {
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => {
-                        vkShare(`Моя карта дня — ${drawnCard.card.name}${drawnCard.isReversed ? " (перевёрнута)" : ""}: ${drawnCard.isReversed ? drawnCard.card.reversed.summary : drawnCard.card.upright.summary}`)
+                      onClick={async () => {
+                        const text = `Моя карта дня — ${drawnCard.card.name}${drawnCard.isReversed ? " (перевёрнута)" : ""}: ${drawnCard.isReversed ? drawnCard.card.reversed.summary : drawnCard.card.upright.summary}\n\n${getPlatformAppUrl()}`
+                        const ok = await vkShare(text)
+                        toast({ title: ok ? "✦ Поделились!" : "Не удалось поделиться" })
                       }}
                       className="border-amber-400/40 text-amber-200 hover:bg-amber-400/10"
                     >
-                      <Send className="w-3.5 h-3.5 mr-1"/>
-                      Текстом
+                      <Share2 className="w-3.5 h-3.5 mr-1"/>
+                      Поделиться
                     </Button>
                     <Button
                       variant="outline"
@@ -1138,6 +1216,7 @@ function ThreeCardReading() {
       // Показываем рекламу когда все карты раскрыты
       if (newRevealed.length === drawnCards.length) {
         setTimeout(() => vkShowBanner(), 1500)
+        saveToVKStorage()
       }
     }
   }
@@ -1251,7 +1330,7 @@ function ThreeCardReading() {
                     const shareText = drawnCards.map((d, i) =>
                       `${d.position}: ${d.card.name}${d.isReversed ? " (перевёрнута)" : ""}`
                     ).join("\n")
-                    const ok = await vkShare(`Мой расклад Таро:\n\n${shareText}\n\nhttps://mystic-tarot-henna.vercel.app`)
+                    const ok = await vkShare(`Мой расклад Таро:\n\n${shareText}\n\n${getPlatformAppUrl()}`)
                     toast({ title: ok ? "✦ Поделились!" : "Не удалось поделиться", description: ok ? "Расклад опубликован" : "Попробуйте ещё раз" })
                   }}
                   variant="outline"
@@ -1423,14 +1502,30 @@ function CelticCrossReading() {
                   </CardContent>
                 </Card>
               ))}
-              <Button
-                onClick={draw}
-                variant="outline"
-                className="border-amber-400/40 text-amber-200 hover:bg-amber-400/10"
-              >
-                <Sparkles className="w-4 h-4 mr-2"/>
-                Новый расклад
-              </Button>
+              <div className="flex gap-2 justify-center flex-wrap">
+                <Button
+                  onClick={draw}
+                  variant="outline"
+                  className="border-amber-400/40 text-amber-200 hover:bg-amber-400/10"
+                >
+                  <Sparkles className="w-4 h-4 mr-2"/>
+                  Новый расклад
+                </Button>
+                <Button
+                  onClick={async () => {
+                    const shareText = drawnCards.map((d, i) =>
+                      `${d.position}: ${d.card.name}${d.isReversed ? " (перевёрнута)" : ""}`
+                    ).join("\n")
+                    const ok = await vkShare(`Кельтский крест:\n\n${shareText}\n\n${getPlatformAppUrl()}`)
+                    toast({ title: ok ? "✦ Поделились!" : "Не удалось" })
+                  }}
+                  variant="outline"
+                  className="border-amber-400/40 text-amber-200 hover:bg-amber-400/10"
+                >
+                  <Share2 className="w-4 h-4 mr-2"/>
+                  Поделиться
+                </Button>
+              </div>
             </div>
           )}
         </div>
@@ -7152,9 +7247,12 @@ function VaultContent({
   keysCount: number
   allKeys: Record<number, StepKey>
 }) {
-  const today = new Date().toLocaleDateString("ru-RU", {
-    day: "numeric", month: "long", year: "numeric",
-  })
+  const [today, setToday] = useState("")
+  useEffect(() => {
+    setToday(new Date().toLocaleDateString("ru-RU", {
+      day: "numeric", month: "long", year: "numeric",
+    }))
+  }, [])
 
   return (
     <div className="p-6 sm:p-8">
@@ -7508,6 +7606,9 @@ function HistorySection() {
 
 // ===================== FOOTER =====================
 function Footer() {
+  // Use state + useEffect to avoid hydration mismatch on year boundary
+  const [year, setYear] = useState<number | null>(null)
+  useEffect(() => { setYear(new Date().getFullYear()) }, [])
   return (
     <footer className="mt-auto py-8 px-4 border-t border-amber-400/20 glass-mystic">
       <div className="max-w-7xl mx-auto text-center">
@@ -7518,7 +7619,7 @@ function Footer() {
           Таро — это зеркало души, а не предсказание будущего.
         </p>
         <p className="text-xs text-amber-200/50">
-          © {new Date().getFullYear()} Mystic Tarot · Сделано с любовью к мудрости арканов
+          © {year ?? 2025} Mystic Tarot · Сделано с любовью к мудрости арканов
         </p>
       </div>
     </footer>

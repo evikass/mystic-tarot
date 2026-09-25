@@ -6,6 +6,7 @@ import { Share2, Download, Loader2, Mail, Send, MessageCircle } from "lucide-rea
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { useToast } from "@/hooks/use-toast"
+import { vkCopyText, getPlatformAppUrl } from "@/lib/vk-bridge"
 
 interface ShareImageButtonProps {
   /** Ref to the DOM element that should be captured as PNG */
@@ -22,10 +23,9 @@ interface ShareImageButtonProps {
   className?: string
 }
 
-/** Site URL for share links — current page origin. */
+/** Site URL for share links — platform-aware (VK/OK/web). */
 function getShareUrl(): string {
-  if (typeof window === "undefined") return "https://evikass.github.io/mystic-tarot/"
-  return window.location.href
+  return getPlatformAppUrl()
 }
 
 interface ShareTarget {
@@ -208,10 +208,11 @@ export function ShareImageButton({
 
   const handleCopyText = async () => {
     const text = textFallback || "Мой расклад на Мистическом Таро"
-    try {
-      await navigator.clipboard.writeText(`${text}\n\n${getShareUrl()}`)
+    const fullText = `${text}\n\n${getShareUrl()}`
+    const ok = await vkCopyText(fullText)
+    if (ok) {
       toast({ title: "✦ Текст скопирован", description: "Вставьте в любую соцсеть." })
-    } catch {
+    } else {
       toast({ title: "Не удалось скопировать", variant: "destructive" })
     }
   }
@@ -247,7 +248,22 @@ export function ShareImageButton({
           </DialogHeader>
 
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-4">
-            {shareTargets.map(target => (
+            {shareTargets
+              .filter(t => {
+                const platform = detectPlatform()
+                // В VK — только VK-кнопка (+ нейтральные: Telegram, Max, Почта)
+                // В OK — только OK-кнопка (+ нейтральные: Telegram, Max, Почта)
+                // В веб — все кнопки
+                if (!t.showOn) return true
+                if (platform === "vk" && t.id === "vk") return true
+                if (platform === "ok" && t.id === "ok") return true
+                // Нейтральные (не VK/OK) показываем везде
+                if (t.id !== "vk" && t.id !== "ok") return true
+                // В веб — все
+                if (platform === "web") return t.showOn.includes("web")
+                return false
+              })
+              .map(target => (
               <button
                 key={target.id}
                 onClick={() => handleSocialShare(target)}
@@ -265,9 +281,12 @@ export function ShareImageButton({
           </div>
 
           <div className="flex gap-2 mt-4 flex-wrap">
-            <Button onClick={handleNativeShare} variant="outline" size="sm" className="border-amber-400/40 text-amber-200 hover:bg-amber-400/10">
-              <Share2 className="w-3.5 h-3.5 mr-1"/>Системный диалог
-            </Button>
+            {/* Системный диалог — только если navigator.share доступен */}
+            {typeof navigator !== "undefined" && typeof navigator.share === "function" && (
+              <Button onClick={handleNativeShare} variant="outline" size="sm" className="border-amber-400/40 text-amber-200 hover:bg-amber-400/10">
+                <Share2 className="w-3.5 h-3.5 mr-1"/>Системный диалог
+              </Button>
+            )}
             <Button onClick={handleDownloadAgain} variant="outline" size="sm" className="border-amber-400/40 text-amber-200 hover:bg-amber-400/10">
               <Download className="w-3.5 h-3.5 mr-1"/>Скачать PNG
             </Button>
