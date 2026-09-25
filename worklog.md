@@ -1014,3 +1014,54 @@ Stage Summary:
 - Commit: 4769e6c, pushed, Vercel rebuilt
 - Desktop VK/OK browser: buttons stay in default position (right)
 - Mobile VK Mini App: buttons shift left, 80px spacer for VK buttons
+
+---
+Task ID: 24
+Agent: main
+Task: "кнопки навигации на мобильной версии не смещены" — кнопки не сдвигаются в реальном VK
+
+ROOT CAUSE (final):
+All JS-based detection approaches failed in real VK Mini App on mobile:
+- window.parent !== window: VK uses native WebView, NOT iframe → false
+- vk_platform URL params: might not be passed
+- document.referrer: might be empty (referrer policy)
+- User-Agent: might not contain vk_app
+
+JS detection is fundamentally unreliable for VK Mini App mobile.
+
+FINAL FIX (commit 08cf53b) — pure CSS approach:
+- HTML ALWAYS renders class='mt-iframe-controls' and class='mt-iframe-spacer'
+- CSS handles when to apply:
+  * Default (desktop): .mt-iframe-spacer is display:none (hidden),
+    .mt-iframe-controls has no margin (default)
+  * Mobile (@media max-width: 768px):
+    .mt-iframe-spacer becomes display:block, width:80px (visible)
+    .mt-iframe-controls gets margin-left:auto (shifts left)
+
+This works on ANY mobile device — VK Mini App, OK Mini App, regular
+mobile browser. No JS detection needed.
+
+Trade-off: regular mobile browser (no VK/OK) will also have 80px empty
+space on right side. Acceptable — better than unreliable JS detection.
+
+VERIFICATION:
+- Mobile (iPhone 14, 390px, no VK params):
+  controls left:177, right:293, parent right:389
+  spacer display:block, width:80px ✓
+- Desktop (1280px):
+  spacer display:none ✓
+  mobile controls hidden via lg:hidden (Tailwind) ✓
+  desktop nav visible with buttons on right ✓
+
+CSS deployed in chunk 54df6c687bb91c82.css:
+- .mt-iframe-spacer { display: none } (default)
+- @media (max-width: 768px) {
+    .mt-iframe-controls { margin-left: auto }
+    .mt-iframe-spacer { display: block; width: 80px }
+  }
+
+Stage Summary:
+- Artifacts: src/app/page.tsx (always render classes), src/app/globals.css
+- Commit: 08cf53b, pushed, Vercel rebuilt
+- Works on ANY mobile device regardless of VK/OK detection
+- Desktop unchanged (no shift, no spacer)
