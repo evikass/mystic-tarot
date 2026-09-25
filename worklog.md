@@ -832,3 +832,48 @@ Stage Summary:
 - Site is now in SIMPLE WORKING STATE (like Sep 14)
 - Plus useful share/ads improvements
 - Should work in VK/OK/web without auto-reload issues
+
+---
+Task ID: 20
+Agent: main
+Task: "сделай кнопки навигации - глазик и звук ниже на одну кнопку а то они перекрывают служебные кнопки выхода" (VK mobile)
+
+ROOT CAUSE:
+In VK Mini App (mobile), VK shows its own service buttons (close, menu)
+in the top-right corner of the iframe. Our theme/sound/menu buttons
+were also in top-right (due to justify-content: space-between), so
+they overlapped VK's buttons.
+
+FIX (commits d5d9b49 + 9aa038a):
+1. Added isVKMobile detection in Header component:
+   - useEffect checks if window.parent !== window (in iframe)
+   - AND has vk_ URL params or vk.com referrer
+   - If yes, setIsVKMobile(true)
+2. When isVKMobile is true:
+   - Add marginLeft: auto to controls div (pushes it right of logo)
+   - Add empty 80px-wide spacer div on the right
+   - VK's close/menu buttons appear in that 80px area
+3. Outside VK: no change, controls stay in default position (top-right)
+
+First attempt with marginRight: auto didn't work — parent had
+justify-content: space-between which overrides margin auto. Fixed
+with explicit spacer div approach.
+
+VERIFICATION:
+- Code deployed: confirmed (chunk a096ead18ec00a78.js has setIsVKMobile
+  and width:80px spacer logic)
+- Site loads normally (no regression)
+- Note: cannot fully test in headless Chrome because isVKMobile detection
+  requires window.parent !== window (real iframe). In real VK Mini App,
+  the spacer will appear and controls will shift left.
+
+User should now see in VK mobile:
+- Logo on the left
+- Theme/sound/menu buttons next to logo (LEFT side)
+- 80px empty space on the RIGHT for VK's close/menu buttons
+- No more overlap
+
+Stage Summary:
+- Artifact: src/app/page.tsx (Header component)
+- Commits: d5d9b49, 9aa038a
+- Vercel deployment: confirmed (chunk a096ead18ec00a78.js)
