@@ -349,32 +349,6 @@ function Header({
   const [mobileOpen, setMobileOpen] = useState(false)
   const { theme, toggleTheme, mounted } = useTheme()
   const [muted, setMutedState] = useState(false)
-  // Detect if we're in VK/OK Mini App on mobile.
-  // VK Mini App on mobile uses NATIVE WebView (not iframe), so
-  // window.parent === window. Need to detect via URL params + User-Agent.
-  // Used with CSS media query to shift mobile controls left.
-  const [inIframe, setInIframe] = useState(false)
-  useEffect(() => {
-    if (typeof window === "undefined") return
-    const p = window.location.search + window.location.hash
-    const ref = document.referrer || ""
-    const ua = navigator.userAgent || ""
-    // In iframe (desktop VK/OK browser)
-    const inIframeCheck = window.parent !== window
-    // VK Mini App (mobile native WebView): URL has vk_ params OR
-    // User-Agent contains vk_app/vkApp indicators
-    const isVKUrl = p.includes("vk_access_token") || p.includes("vk_platform") || p.includes("vk_app_id") || p.includes("vk_user_id")
-    const isVKUA = /vk_app|vkApp|VKApp/i.test(ua)
-    const isVKRef = ref.includes("vk.com") || ref.includes("vkontakte")
-    // OK Mini App
-    const isOKUrl = p.includes("ok_session_key") || p.includes("application_key") || p.includes("signed_request")
-    const isOKRef = ref.includes("ok.ru") || ref.includes("odnoklassniki")
-    // Activate shift if: in iframe (desktop VK browser) OR
-    // VK/OK mobile native WebView (URL params or UA)
-    if (inIframeCheck || isVKUrl || isVKUA || isVKRef || isOKUrl || isOKRef) {
-      setInIframe(true)
-    }
-  }, [])
 
   useEffect(() => {
     initMuteState()
@@ -448,13 +422,10 @@ function Header({
         </nav>
 
         {/* Mobile: theme + sound toggle + menu button
-            In iframe on mobile (VK/OK Mini App), leave space on the RIGHT
-            for VK/OK service buttons (close/menu). Add an empty spacer div
-            on the right that pushes our controls to the left.
-            Detection: inIframe state (window.parent !== window).
-            CSS handles when to apply: only on mobile (max-width: 768px). */}
+            CSS handles when to apply shift: only on mobile (max-width: 768px).
+            Always render the classes — CSS media query decides visibility. */}
         <div
-          className={`lg:hidden flex items-center gap-1 ${inIframe ? "mt-iframe-controls" : ""}`}
+          className="lg:hidden flex items-center gap-1 mt-iframe-controls"
         >
           <button
             onClick={toggleTheme}
@@ -482,14 +453,12 @@ function Header({
         </div>
 
         {/* Empty spacer for VK/OK service buttons (close/menu) in top-right corner.
-            Only shown in iframe on mobile. VK/OK draws its buttons here.
-            CSS handles visibility via @media max-width: 768px. */}
-        {inIframe && (
-          <div
-            className="lg:hidden mt-iframe-spacer"
-            aria-hidden="true"
-          />
-        )}
+            Always rendered. CSS decides whether to show it (only on mobile).
+            On desktop, CSS hides it (display: none by default for .mt-iframe-spacer). */}
+        <div
+          className="lg:hidden mt-iframe-spacer"
+          aria-hidden="true"
+        />
       </div>
 
       {/* Mobile nav */}
