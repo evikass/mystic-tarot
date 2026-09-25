@@ -434,11 +434,12 @@ function Header({
         </nav>
 
         {/* Mobile: theme + sound toggle + menu button
-            In VK Mini App, shift controls LEFT to leave space for VK service
-            buttons (close/menu) in top-right corner. */}
+            In VK Mini App, leave space on the RIGHT for VK service buttons
+            (close/menu). Add an empty spacer div on the right that pushes
+            our controls to the left. */}
         <div
           className="lg:hidden flex items-center gap-1"
-          style={isVKMobile ? { marginRight: "auto", paddingLeft: "8px" } : undefined}
+          style={isVKMobile ? { marginLeft: "auto" } : undefined}
         >
           <button
             onClick={toggleTheme}
@@ -464,6 +465,16 @@ function Header({
             {mobileOpen ? <EyeOff className="w-5 h-5"/> : <Eye className="w-5 h-5"/>}
           </button>
         </div>
+
+        {/* Empty spacer for VK service buttons (close/menu) in top-right corner.
+            Only shown in VK Mini App on mobile. VK draws its buttons here. */}
+        {isVKMobile && (
+          <div
+            className="lg:hidden"
+            aria-hidden="true"
+            style={{ width: "80px" }}
+          />
+        )}
       </div>
 
       {/* Mobile nav */}
