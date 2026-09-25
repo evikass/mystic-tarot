@@ -349,17 +349,30 @@ function Header({
   const [mobileOpen, setMobileOpen] = useState(false)
   const { theme, toggleTheme, mounted } = useTheme()
   const [muted, setMutedState] = useState(false)
-  // Detect VK Mini App (in iframe) to shift mobile controls left,
-  // so they don't overlap VK's service buttons (close/menu) in top-right
+  // Detect VK Mini App on MOBILE (not desktop browser VK)
+  // — to shift mobile controls left, so they don't overlap VK's
+  // service buttons (close/menu) in top-right corner on mobile.
+  // Desktop VK iframe doesn't have these overlapping buttons.
   const [isVKMobile, setIsVKMobile] = useState(false)
   useEffect(() => {
     if (typeof window === "undefined") return
-    // VK Mini App: inside iframe AND has vk_ params or vk.com referrer
+    // VK Mini App: inside iframe
     if (window.parent === window) return // not in iframe
     const p = window.location.search + window.location.hash
     const ref = document.referrer || ""
     const isVK = p.includes("vk_") || ref.includes("vk.com") || ref.includes("vkontakte")
-    if (isVK) setIsVKMobile(true)
+    if (!isVK) return
+    // Check if it's MOBILE: either vk_platform=mobile_* in URL,
+    // OR small screen width (mobile viewport)
+    const isMobilePlatform =
+      p.includes("vk_platform=mobile") ||
+      p.includes("vk_platform=mobile_web") ||
+      p.includes("vk_platform=mobile_iphone") ||
+      p.includes("vk_platform=mobile_android") ||
+      p.includes("vk_platform=mobile_ipad")
+    // Also detect by screen width (mobile device detection)
+    const isMobileScreen = window.innerWidth <= 768
+    if (isMobilePlatform || isMobileScreen) setIsVKMobile(true)
   }, [])
 
   useEffect(() => {
