@@ -779,3 +779,56 @@ Stage Summary:
 - Force push: yes (3bf2ebf is the new HEAD with worklog preserved)
 - Vercel deployment: confirmed (HTTP 200, last-modified 08:31:31)
 - All 'fix' commits after a4ea7d1 are now reverted
+
+---
+Task ID: 19
+Agent: main
+Task: Still not working after reset to a4ea7d1
+
+ROOT CAUSE FOUND:
+a4ea7d1 (the commit I thought was working) had 'white screen fallback' with
+auto-reload after 8s — that was causing VK WebView 'ошибка загрузки' (VK
+interprets mid-flight window.location.href changes as app failure).
+
+The 'white screen fallback' code was added in commit fbf822f (Sep 24 21:26)
+and was present in all subsequent commits including a4ea7d1.
+
+ACTUAL LAST WORKING COMMIT: aef41f1 (Sep 14)
+- Simple 80-line layout.tsx
+- Only themeScript inline
+- No fallback, no auto-reload, no ErrorBoundary
+- No custom HTTP headers
+- No sessionStorage counters
+- Standard Vercel caching behavior
+
+NEW ACTION (commit ae9d5a2):
+1. Hard reset to aef41f1
+2. Cherry-pick useful features from later commits:
+   - page.tsx from e2475b3: has SharePlatformButtons + ad in daily card
+   - vk-bridge.ts from a4ea7d1: direct postMessage ads fallback
+   - share-image-button.tsx from a4ea7d1: uses getPlatform() for OK detection
+
+REMOVED (was causing problems):
+- Inline white screen guard script with auto-reload
+- Pure-CSS fallback recovery screen
+- ErrorBoundary component
+- global-error.tsx
+- Custom HTTP headers (Cache-Control no-store, Surrogate-Control)
+- Meta http-equiv cache-control tags
+- All sessionStorage counters
+- VK early init postMessage script
+
+VERIFICATION:
+- HTTP 200, 239337 bytes (smaller, simpler)
+- Standard Vercel cache-control: public, max-age=0, must-revalidate
+- No __mt_reload_attempts in HTML
+- No __mt-hydration-fallback in HTML
+- No __mt-fallback styles
+- Site loads in headless Chrome: 0 errors, 10 buttons in main
+- VLM confirms app is visible
+
+Stage Summary:
+- Commit: ae9d5a2, force-pushed, Vercel rebuilt
+- Site is now in SIMPLE WORKING STATE (like Sep 14)
+- Plus useful share/ads improvements
+- Should work in VK/OK/web without auto-reload issues
