@@ -349,6 +349,18 @@ function Header({
   const [mobileOpen, setMobileOpen] = useState(false)
   const { theme, toggleTheme, mounted } = useTheme()
   const [muted, setMutedState] = useState(false)
+  // Detect VK Mini App (in iframe) to shift mobile controls left,
+  // so they don't overlap VK's service buttons (close/menu) in top-right
+  const [isVKMobile, setIsVKMobile] = useState(false)
+  useEffect(() => {
+    if (typeof window === "undefined") return
+    // VK Mini App: inside iframe AND has vk_ params or vk.com referrer
+    if (window.parent === window) return // not in iframe
+    const p = window.location.search + window.location.hash
+    const ref = document.referrer || ""
+    const isVK = p.includes("vk_") || ref.includes("vk.com") || ref.includes("vkontakte")
+    if (isVK) setIsVKMobile(true)
+  }, [])
 
   useEffect(() => {
     initMuteState()
@@ -421,8 +433,13 @@ function Header({
           </button>
         </nav>
 
-        {/* Mobile: theme + sound toggle + menu button */}
-        <div className="lg:hidden flex items-center gap-1">
+        {/* Mobile: theme + sound toggle + menu button
+            In VK Mini App, shift controls LEFT to leave space for VK service
+            buttons (close/menu) in top-right corner. */}
+        <div
+          className="lg:hidden flex items-center gap-1"
+          style={isVKMobile ? { marginRight: "auto", paddingLeft: "8px" } : undefined}
+        >
           <button
             onClick={toggleTheme}
             aria-label={theme === "dark" ? "Включить светлую тему" : "Включить тёмную тему"}
