@@ -360,19 +360,25 @@ function Header({
     if (window.parent === window) return // not in iframe
     const p = window.location.search + window.location.hash
     const ref = document.referrer || ""
+    const ua = navigator.userAgent || ""
     const isVK = p.includes("vk_") || ref.includes("vk.com") || ref.includes("vkontakte")
-    if (!isVK) return
-    // Check if it's MOBILE: either vk_platform=mobile_* in URL,
-    // OR small screen width (mobile viewport)
+    const isOK = p.includes("ok_session_key") || p.includes("application_key") || p.includes("signed_request") || ref.includes("ok.ru") || ref.includes("odnoklassniki")
+    if (!isVK && !isOK) return
+    // Check if it's MOBILE device — use multiple signals:
+    // 1. URL has vk_platform=mobile_* or ok_platform=mobile*
+    // 2. User-Agent contains mobile indicators (iPhone, Android, Mobile, etc.)
+    // 3. Touch device (maxTouchPoints > 0)
+    // 4. Small screen width (screen.width <= 768)
     const isMobilePlatform =
       p.includes("vk_platform=mobile") ||
-      p.includes("vk_platform=mobile_web") ||
-      p.includes("vk_platform=mobile_iphone") ||
-      p.includes("vk_platform=mobile_android") ||
-      p.includes("vk_platform=mobile_ipad")
-    // Also detect by screen width (mobile device detection)
-    const isMobileScreen = window.innerWidth <= 768
-    if (isMobilePlatform || isMobileScreen) setIsVKMobile(true)
+      p.includes("ok_platform=mobile")
+    const isMobileUA = /iPhone|iPad|iPod|Android|Mobile|Windows Phone|Opera Mini|IEMobile/i.test(ua)
+    const isTouch = (navigator.maxTouchPoints || 0) > 0
+    const isSmallScreen = Math.min(window.innerWidth, window.screen?.width || 999) <= 768
+    // Consider mobile if ANY 2 of these signals are true,
+    // OR if isMobilePlatform is explicitly true
+    const mobileSignals = [isMobilePlatform, isMobileUA, isTouch && isSmallScreen, isSmallScreen].filter(Boolean).length
+    if (isMobilePlatform || mobileSignals >= 2) setIsVKMobile(true)
   }, [])
 
   useEffect(() => {
