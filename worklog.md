@@ -877,3 +877,49 @@ Stage Summary:
 - Artifact: src/app/page.tsx (Header component)
 - Commits: d5d9b49, 9aa038a
 - Vercel deployment: confirmed (chunk a096ead18ec00a78.js)
+
+---
+Task ID: 21
+Agent: main
+Task: "ошибка загрузки" again in VK Mini App after revert
+
+ROOT CAUSE:
+When I reverted to aef41f1 (Sep 14 simple version) in commit ae9d5a2,
+I accidentally removed the VK early init inline script that was added
+in commit 6a76c6f (Sep 24).
+
+WITHOUT this script, VK Mini App shows 'ошибка загрузки' after ~5-10s
+on mobile because:
+- VKWebAppInit is only sent via vkBridge.send() which requires:
+  1. React bundle (~225KB) loads
+  2. Main bundle (~1MB) loads
+  3. React hydrates
+  4. useEffect fires
+  5. Dynamic import of @vkontakte/vk-bridge (~112KB)
+  6. THEN vkBridge.send('VKWebAppInit') is called
+- Total: 5-10s on mobile networks — VK times out
+
+FIX (commit 948d960):
+- Re-added vkEarlyInitScript inline in layout.tsx
+- Sends VKWebAppInit IMMEDIATELY via window.parent.postMessage
+  (before any other JS loads)
+- VK Bridge protocol: {handler, params, type: "vk-connect",
+  webFrameId, connectVersion}
+- Sends ONLY ONCE (multiple sends confuse VK WebView)
+- Safe no-op outside VK iframe (window.parent === window check)
+
+This is the SAME script that was working before, just re-added without
+any of the broken auto-reload/fallback code that caused issues.
+
+VERIFICATION:
+- HTTP 200, 241221 bytes
+- VKWebAppInit script present in HTML (3 mentions — script + library use)
+- postMessage call present (2 mentions — script + library)
+- Site loads normally: 0 errors, 10 buttons in main
+
+Stage Summary:
+- Artifact: src/app/layout.tsx (re-added vkEarlyInitScript)
+- Commit: 948d960, pushed, Vercel rebuilt
+- VK Mini App should now receive VKWebAppInit within milliseconds
+  (before React even starts loading), so 'ошибка загрузки' should not
+  appear
