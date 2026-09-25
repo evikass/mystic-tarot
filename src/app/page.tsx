@@ -349,36 +349,14 @@ function Header({
   const [mobileOpen, setMobileOpen] = useState(false)
   const { theme, toggleTheme, mounted } = useTheme()
   const [muted, setMutedState] = useState(false)
-  // Detect VK Mini App on MOBILE (not desktop browser VK)
-  // — to shift mobile controls left, so they don't overlap VK's
-  // service buttons (close/menu) in top-right corner on mobile.
-  // Desktop VK iframe doesn't have these overlapping buttons.
-  const [isVKMobile, setIsVKMobile] = useState(false)
+  // Detect if we're inside an iframe (VK/OK Mini App).
+  // Simple, reliable check: window.parent !== window.
+  // Used with CSS media query to shift mobile controls left only on
+  // mobile iframe (where VK/OK service buttons overlap ours).
+  const [inIframe, setInIframe] = useState(false)
   useEffect(() => {
     if (typeof window === "undefined") return
-    // VK Mini App: inside iframe
-    if (window.parent === window) return // not in iframe
-    const p = window.location.search + window.location.hash
-    const ref = document.referrer || ""
-    const ua = navigator.userAgent || ""
-    const isVK = p.includes("vk_") || ref.includes("vk.com") || ref.includes("vkontakte")
-    const isOK = p.includes("ok_session_key") || p.includes("application_key") || p.includes("signed_request") || ref.includes("ok.ru") || ref.includes("odnoklassniki")
-    if (!isVK && !isOK) return
-    // Check if it's MOBILE device — use multiple signals:
-    // 1. URL has vk_platform=mobile_* or ok_platform=mobile*
-    // 2. User-Agent contains mobile indicators (iPhone, Android, Mobile, etc.)
-    // 3. Touch device (maxTouchPoints > 0)
-    // 4. Small screen width (screen.width <= 768)
-    const isMobilePlatform =
-      p.includes("vk_platform=mobile") ||
-      p.includes("ok_platform=mobile")
-    const isMobileUA = /iPhone|iPad|iPod|Android|Mobile|Windows Phone|Opera Mini|IEMobile/i.test(ua)
-    const isTouch = (navigator.maxTouchPoints || 0) > 0
-    const isSmallScreen = Math.min(window.innerWidth, window.screen?.width || 999) <= 768
-    // Consider mobile if ANY 2 of these signals are true,
-    // OR if isMobilePlatform is explicitly true
-    const mobileSignals = [isMobilePlatform, isMobileUA, isTouch && isSmallScreen, isSmallScreen].filter(Boolean).length
-    if (isMobilePlatform || mobileSignals >= 2) setIsVKMobile(true)
+    if (window.parent !== window) setInIframe(true)
   }, [])
 
   useEffect(() => {
@@ -453,12 +431,13 @@ function Header({
         </nav>
 
         {/* Mobile: theme + sound toggle + menu button
-            In VK Mini App, leave space on the RIGHT for VK service buttons
-            (close/menu). Add an empty spacer div on the right that pushes
-            our controls to the left. */}
+            In iframe on mobile (VK/OK Mini App), leave space on the RIGHT
+            for VK/OK service buttons (close/menu). Add an empty spacer div
+            on the right that pushes our controls to the left.
+            Detection: inIframe state (window.parent !== window).
+            CSS handles when to apply: only on mobile (max-width: 768px). */}
         <div
-          className="lg:hidden flex items-center gap-1"
-          style={isVKMobile ? { marginLeft: "auto" } : undefined}
+          className={`lg:hidden flex items-center gap-1 ${inIframe ? "mt-iframe-controls" : ""}`}
         >
           <button
             onClick={toggleTheme}
@@ -485,13 +464,13 @@ function Header({
           </button>
         </div>
 
-        {/* Empty spacer for VK service buttons (close/menu) in top-right corner.
-            Only shown in VK Mini App on mobile. VK draws its buttons here. */}
-        {isVKMobile && (
+        {/* Empty spacer for VK/OK service buttons (close/menu) in top-right corner.
+            Only shown in iframe on mobile. VK/OK draws its buttons here.
+            CSS handles visibility via @media max-width: 768px. */}
+        {inIframe && (
           <div
-            className="lg:hidden"
+            className="lg:hidden mt-iframe-spacer"
             aria-hidden="true"
-            style={{ width: "80px" }}
           />
         )}
       </div>

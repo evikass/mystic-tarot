@@ -12,6 +12,22 @@ header.sticky {
   top: env(safe-area-inset-top, 0px);
 }
 
+/* === VK/OK Mini App: сдвигаем мобильные кнопки влево на мобильных === */
+/* Только в iframe (VK/OK Mini App) и только на мобильных (<= 768px).   */
+/* Десктопный браузерный VK/OK iframe не затрагивается.                 */
+@media (max-width: 768px) {
+  /* Сдвигаем контейнер с кнопками темы/звука/меню влево */
+  .mt-iframe-controls {
+    margin-left: auto;
+  }
+  /* Spacer div на правой стороне — место для служебных кнопок VK/OK */
+  .mt-iframe-spacer {
+    display: block;
+    width: 80px;
+    flex-shrink: 0;
+  }
+}
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
