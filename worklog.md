@@ -1065,3 +1065,50 @@ Stage Summary:
 - Commit: 08cf53b, pushed, Vercel rebuilt
 - Works on ANY mobile device regardless of VK/OK detection
 - Desktop unchanged (no shift, no spacer)
+
+---
+Task ID: 25
+Agent: main
+Task: User confirms — site works only with VPN, fails without VPN
+
+ROOT CAUSE CONFIRMED:
+Vercel deployment for mystic-tarot-henna is anchored to Hong Kong edge
+(hkg1). IP ranges: 216.198.79.x and 64.29.17.x. User's ISP in Russia
+blocks/throttles this IP range → connection reset.
+
+Other Vercel apps work fine for user because they're on European edges
+(fra1, arn1, etc.) with different IP ranges (64.239.x.x).
+
+Vercel assigns edge per-project at creation. Cannot change via:
+- vercel.json 'regions' config (only affects Serverless Functions, not CDN)
+- Empty commits / redeploy (same edge, just new IP in same range)
+
+SOLUTION PROVIDED: Cloudflare Worker as reverse proxy
+- Created /home/z/my-project/cloudflare-worker/worker.js
+- Worker proxies requests to mystic-tarot-henna.vercel.app
+- Cloudflare has European edges (not blocked in Russia)
+- Free plan: 100,000 requests/day (plenty for tarot app)
+
+User setup steps:
+1. Sign up at cloudflare.com (free)
+2. Workers & Pages → Create Worker
+3. Paste worker.js content
+4. Deploy → get URL like mystic-tarot.<subdomain>.workers.dev
+5. Update VK Mini App URL to the Worker URL
+6. Update OK Mini App URL to the Worker URL
+7. Test without VPN — should work
+
+ALTERNATIVE SOLUTIONS:
+1. Custom domain on Vercel (routes through global Anycast, not project-anchored)
+   - Requires buying a domain (~200₽/year for .ru on Reg.ru)
+   - Vercel dashboard → mystic-tarot project → Settings → Domains → add
+   - VK/OK Mini App URL = custom domain
+2. Switch to GitHub Pages (already works, free, GitHub CDN)
+   - URL: https://evikass.github.io/mystic-tarot/
+   - Less elegant URL, but works without VPN
+
+Stage Summary:
+- Created: /home/z/my-project/cloudflare-worker/worker.js
+- Documented: instructions for user to set up Cloudflare Worker
+- No code changes in src/ — current code is correct
+- This is a network/infra issue, not a code issue
