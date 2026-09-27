@@ -4,6 +4,7 @@
   "buildCommand": "next build",
   "devCommand": "next dev",
   "installCommand": "bun install",
+  "regions": ["fra1", "arn1", "dub1", "lhr1"],
   "github": {
     "enabled": true,
     "silent": true
