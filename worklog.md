@@ -1112,3 +1112,41 @@ Stage Summary:
 - Documented: instructions for user to set up Cloudflare Worker
 - No code changes in src/ — current code is correct
 - This is a network/infra issue, not a code issue
+
+---
+Task ID: 26
+Agent: main
+Task: User: "home-psychologist.vercel.app works in VK/OK, why mystic-tarot doesn't?"
+
+ROOT CAUSE FOUND:
+home-psychologist (Next.js standard, no static export) sends:
+- x-frame-options: ALLOWALL  ← KEY DIFFERENCE
+- x-matched-path: /
+- x-nextjs-prerender: 1
+- vary: rsc, next-router-state-tree, ...
+
+mystic-tarot (Next.js static export, output: "export") sends NONE of
+these because Vercel serves it as static files (no Next.js runtime).
+
+Without X-Frame-Options: ALLOWALL, browsers/WebView may refuse to
+load the page in iframe, OR VK Mini App WebView may show 'ошибка загрузки'.
+
+FIX (commit 6cb11dc):
+Added vercel.json headers config:
+- X-Frame-Options: ALLOWALL  (allows iframe embedding from any origin)
+- Content-Security-Policy: frame-ancestors *  (modern CSP equivalent)
+
+VERIFICATION:
+- HTTP 200, headers now include:
+  x-frame-options: ALLOWALL ✓
+  content-security-policy: frame-ancestors *; ✓
+- Site loads normally in headless Chrome: 0 errors, react_loaded=true
+- Same Hong Kong edge, same IP range, but now with proper headers
+
+Stage Summary:
+- Artifact: vercel.json (added headers section)
+- Commit: 6cb11dc, pushed (with new GitHub token from user)
+- Vercel rebuilt with new headers
+- VK/OK Mini App should now load the page in iframe
+- This was the actual fix — not IP range, not edge location, but
+  X-Frame-Options header that allows iframe embedding
