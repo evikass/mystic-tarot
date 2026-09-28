@@ -1,0 +1,22 @@
+# Netlify config — alternative to Vercel
+# Netlify has European CDN edges (Frankfurt, London, etc.) not blocked in Russia.
+
+[build]
+  command = "next build"
+  publish = "out"
+
+[build.environment]
+  NODE_VERSION = "20"
+
+# Static files — long cache
+[[headers]]
+  for = "/_next/static/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# HTML — no cache
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+    X-Frame-Options = "ALLOWALL"
