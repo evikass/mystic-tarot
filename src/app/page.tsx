@@ -1,6 +1,7 @@
 "use client"
 
 import Image from "next/image"
+import logoImage from "../../public/logo.png"
 import { useState, useEffect, useCallback, useRef, useMemo } from "react"
 import { StarryBackground } from "@/components/starry-bg"
 import { MistBackground } from "@/components/mist-bg"
@@ -368,7 +369,7 @@ function Header({
           className="flex items-center gap-3 group"
         >
           <Image
-            src="/logo.png"
+            src={logoImage}
             alt="Мистическое Таро"
             width={36}
             height={36}

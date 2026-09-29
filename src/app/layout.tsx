@@ -36,21 +36,21 @@ export const metadata: Metadata = {
   keywords: ["таро", "tarot", "расклад", "карта дня", "совместимость", "мистика", "аркан"],
   authors: [{ name: "Таро Мудрость" }],
   icons: {
-    icon: "/favicon.png",
-    shortcut: "/favicon.png",
-    apple: "/favicon.png",
+    icon: "favicon.png",
+    shortcut: "favicon.png",
+    apple: "favicon.png",
   },
   openGraph: {
     title: "Мистическое Таро",
     description: "Онлайн-приложение Таро с красивыми SVG-картами и интерпретациями",
     type: "website",
-    images: [{ url: "/favicon.png" }],
+    images: [{ url: "favicon.png" }],
   },
   twitter: {
     card: "summary",
     title: "Мистическое Таро",
     description: "Онлайн-приложение Таро с красивыми SVG-картами",
-    images: [{ url: "/favicon.png" }],
+    images: [{ url: "favicon.png" }],
   },
 };
 
