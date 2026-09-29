@@ -61,11 +61,27 @@ export function getPlatform(): "vk" | "ok" | "web" {
   if (typeof window === "undefined") return "web"
   try {
     const params = window.location.search + window.location.hash
-    if (params.includes("ok_session_key") || params.includes("application_key") || params.includes("signed_request")) return "ok"
-    if (params.includes("vk_access_token") || params.includes("vk_platform") || params.includes("vk_app_id")) return "vk"
     const ref = (typeof document !== "undefined" && document.referrer) || ""
-    if (ref.includes("ok.ru") || ref.includes("odnoklassniki")) return "ok"
-    if (ref.includes("vk.com") || ref.includes("vkontakte")) return "vk"
+    
+    // OK detection — PRIORITIZE OK over VK (some OK iframe requests
+    // may have vk_ params in referrer chain, but OK should win)
+    const isOKByParams = params.includes("ok_session_key") ||
+      params.includes("application_key") ||
+      params.includes("signed_request")
+    const isOKByRef = ref.includes("ok.ru") || ref.includes("odnoklassniki")
+    if (isOKByParams || isOKByRef) return "ok"
+    
+    // VK detection
+    const isVKByParams = params.includes("vk_access_token") ||
+      params.includes("vk_platform") ||
+      params.includes("vk_app_id")
+    const isVKByRef = ref.includes("vk.com") || ref.includes("vkontakte")
+    if (isVKByParams || isVKByRef) return "vk"
+    
+    // Debug logging for troubleshooting
+    if (typeof console !== "undefined") {
+      console.log("[getPlatform] web — params:", params, "referrer:", ref)
+    }
   } catch {}
   return "web"
 }
