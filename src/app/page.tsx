@@ -385,8 +385,10 @@ function Header({
           </div>
         </button>
 
-        {/* Desktop nav */}
-        <nav className="hidden lg:flex items-center gap-1">
+        {/* Desktop nav — only on very wide screens (xl: ≥1280px).
+            On medium-large screens (1024-1279px), the mobile menu (eye icon)
+            is shown instead, because 10 nav buttons don't fit. */}
+        <nav className="hidden xl:flex items-center gap-1">
           {navItems.map((item) => (
             <button
               key={item.id}
@@ -425,7 +427,7 @@ function Header({
             CSS handles when to apply shift: only on mobile (max-width: 768px).
             Always render the classes — CSS media query decides visibility. */}
         <div
-          className="lg:hidden flex items-center gap-1 mt-iframe-controls"
+          className="xl:hidden flex items-center gap-1 mt-iframe-controls"
         >
           <button
             onClick={toggleTheme}
@@ -456,14 +458,14 @@ function Header({
             Always rendered. CSS decides whether to show it (only on mobile).
             On desktop, CSS hides it (display: none by default for .mt-iframe-spacer). */}
         <div
-          className="lg:hidden mt-iframe-spacer"
+          className="xl:hidden mt-iframe-spacer"
           aria-hidden="true"
         />
       </div>
 
       {/* Mobile nav */}
       {mobileOpen && (
-        <nav className="lg:hidden border-t border-amber-400/20 px-4 py-3 flex flex-col gap-1">
+        <nav className="xl:hidden border-t border-amber-400/20 px-4 py-3 flex flex-col gap-1">
           {navItems.map((item) => (
             <button
               key={item.id}
