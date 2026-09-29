@@ -79,8 +79,10 @@ export function getPlatformAppUrl(): string {
   if (platform === "ok") {
     return "https://ok.ru/app/512004619016"
   }
-  // Веб-версия
-  return typeof window !== "undefined" ? window.location.origin : "https://mystic-tarot-henna.vercel.app"
+  // Веб-версия — используем GitHub Pages (европейские IP, не блокируется в РФ).
+  // Vercel URL (mystic-tarot-henna.vercel.app) на Hong Kong edge может
+  // блокироваться провайдерами в России. GitHub Pages работает стабильно.
+  return "https://evikass.github.io/mystic-tarot/"
 }
 
 export async function vkShare(text: string): Promise<boolean> {
