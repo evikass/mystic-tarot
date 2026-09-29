@@ -6,7 +6,7 @@ import { Share2, Download, Loader2, Mail, Send, MessageCircle } from "lucide-rea
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { useToast } from "@/hooks/use-toast"
-import { vkCopyText, getPlatformAppUrl } from "@/lib/vk-bridge"
+import { vkCopyText, getPlatformAppUrl, getPlatform } from "@/lib/vk-bridge"
 
 interface ShareImageButtonProps {
   /** Ref to the DOM element that should be captured as PNG */
@@ -39,14 +39,16 @@ interface ShareTarget {
   showOn?: ("vk" | "ok" | "web")[]
 }
 
-/** Detect platform: VK or OK */
+/** Detect platform: VK, OK, or web.
+ *  Uses getPlatform() from vk-bridge.ts which checks:
+ *  - URL params (vk_, ok_session_key, application_key, signed_request)
+ *  - document.referrer (vk.com, ok.ru, odnoklassniki)
+ *  In OK browser version, OK loads our iframe WITHOUT OK URL params
+ *  (because OK sends signed_request via POST which our static app can't
+ *  read), but referrer is ok.ru — getPlatform() correctly returns 'ok'.
+ */
 function detectPlatform(): "vk" | "ok" | "web" {
-  if (typeof window === "undefined") return "web"
-  const host = window.location.hostname
-  const params = window.location.search
-  if (host.includes("vk") || params.includes("vk_platform") || params.includes("vk_access_token")) return "vk"
-  if (host.includes("ok") || params.includes("ok_session_key") || params.includes("application_key")) return "ok"
-  return "web"
+  return getPlatform()
 }
 
 const shareTargets: ShareTarget[] = [
